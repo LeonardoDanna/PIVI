@@ -9,7 +9,7 @@ Projeto em **Django** para o MVP do TodayFashion.
 ### 1. Clonar o repositório
 
 ```bash
-git clone https://github.com/SEU-USUARIO/TodayFashion.git
+git clone https://github.com/LeonardoDanna/PIVI.git
 cd TodayFashion
 ```
 
