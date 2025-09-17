@@ -38,9 +38,7 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Acesse em: http://127.0.0.1:8000/
-
 ## Endpoints
 
-/admin/ → painel de administração
-/api/hello/ → teste da API
+- `/admin/` → painel de administração
+- `/api/hello/` → teste da API
