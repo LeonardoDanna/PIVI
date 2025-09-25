@@ -1,5 +1,37 @@
 import { useState } from "react";
+import {
+  FaTshirt,
+  FaPalette,
+  FaRulerCombined,
+  FaStar,
+  FaSun,
+  FaSnowflake,
+  FaCloudRain,
+  FaBriefcase,
+  FaUserFriends,
+  FaUserTie
+} from "react-icons/fa";
 
+function Field({ label, children, icon: Icon }) {
+  return (
+    <div className="field">
+      <label>
+        {Icon && <Icon aria-hidden="true" />} <span>{label}</span>
+      </label>
+      {children}
+    </div>
+  );
+}
+
+function PrimaryButton({ children, onClick }) {
+  return (
+    <button className="btn-primary" onClick={onClick} type="button">
+      {children}
+    </button>
+  );
+}
+
+/* --- ABA 1: COMO POSSO ME VESTIR HOJE? --- */
 function TabVestir() {
   const [clima, setClima] = useState("");
   const [evento, setEvento] = useState("");
@@ -20,116 +52,130 @@ function TabVestir() {
 
   return (
     <div>
-      <label>Clima:</label>
-      <select value={clima} onChange={(e) => setClima(e.target.value)}>
-        <option value="">--Selecione--</option>
-        <option value="quente">Quente</option>
-        <option value="frio">Frio</option>
-        <option value="chuvoso">Chuvoso</option>
-      </select>
+      <Field label="Clima" icon={FaSun}>
+        <div className="input-with-icon">
+          <select value={clima} onChange={(e) => setClima(e.target.value)}>
+            <option value="">--Selecione--</option>
+            <option value="quente">Quente ☀️</option>
+            <option value="frio">Frio ❄️</option>
+            <option value="chuvoso">Chuvoso 🌧️</option>
+          </select>
+        </div>
+      </Field>
 
-      <label>Evento:</label>
-      <select value={evento} onChange={(e) => setEvento(e.target.value)}>
-        <option value="">--Selecione--</option>
-        <option value="trabalho">Trabalho</option>
-        <option value="lazer">Lazer</option>
-        <option value="formal">Evento Formal</option>
-      </select>
+      <Field label="Evento" icon={FaUserFriends}>
+        <div className="input-with-icon">
+          <select value={evento} onChange={(e) => setEvento(e.target.value)}>
+            <option value="">--Selecione--</option>
+            <option value="trabalho">Trabalho 💼</option>
+            <option value="lazer">Lazer 🎉</option>
+            <option value="formal">Evento Formal 🤵</option>
+          </select>
+        </div>
+      </Field>
 
-      <button onClick={gerarSugestao}>Gerar Sugestão</button>
-
+      <PrimaryButton onClick={gerarSugestao}>Gerar Sugestão</PrimaryButton>
       {sugestao && <p className="resultado">{sugestao}</p>}
     </div>
   );
 }
 
+/* --- ABA 2: O QUE COMBINA COMIGO? --- */
 function TabCombina() {
   const [cor, setCor] = useState("");
   const [resultado, setResultado] = useState("");
 
   const analisar = () => {
-    if (cor.toLowerCase() === "bege") {
-      setResultado("Evite bege. Aposte em azul petróleo!");
-    } else if (cor.toLowerCase() === "preto") {
-      setResultado("Preto é versátil, mas experimente verde musgo.");
-    } else {
-      setResultado("Essa cor pode ser usada com tons neutros.");
-    }
+    const c = cor.trim().toLowerCase();
+    if (!c) return setResultado("Digite uma cor para analisar.");
+    if (c === "bege") setResultado("Evite bege. Aposte em azul petróleo!");
+    else if (c === "preto") setResultado("Preto é versátil; experimente verde musgo ou vinho.");
+    else setResultado("Essa cor pode funcionar com tons neutros (preto, branco, cinza).");
   };
 
   return (
     <div>
-      <label>Digite uma cor que você gosta:</label>
-      <input
-        type="text"
-        value={cor}
-        onChange={(e) => setCor(e.target.value)}
-      />
-      <button onClick={analisar}>Analisar</button>
+      <Field label="Cor preferida" icon={FaPalette}>
+        <input
+          type="text"
+          placeholder="Ex.: azul, bege, preto…"
+          value={cor}
+          onChange={(e) => setCor(e.target.value)}
+        />
+      </Field>
+      <PrimaryButton onClick={analisar}>Analisar</PrimaryButton>
       {resultado && <p className="resultado">{resultado}</p>}
     </div>
   );
 }
 
+/* --- ABA 3: QUAL SERIA O MELHOR CAIMENTO? --- */
 function TabCaimento() {
   const [altura, setAltura] = useState("");
   const [resultado, setResultado] = useState("");
 
   const analisar = () => {
-    const alt = parseInt(altura);
+    const alt = parseInt(altura, 10);
     if (!alt) {
-      setResultado("Digite sua altura corretamente.");
+      setResultado("Digite sua altura corretamente (em cm).");
       return;
     }
-    if (alt < 165) setResultado("Use calças de cintura alta para alongar.");
-    else if (alt < 180) setResultado("Caimento slim fit vai cair muito bem.");
-    else setResultado("Peças oversized ficam equilibradas no seu corpo.");
+    if (alt < 165) setResultado("Prefira calças de cintura alta e barras ajustadas para alongar.");
+    else if (alt < 180) setResultado("Caimento slim fit tende a valorizar suas proporções.");
+    else setResultado("Peças um pouco mais soltas (regular/oversized) equilibram bem sua estatura.");
   };
 
   return (
     <div>
-      <label>Sua altura (cm):</label>
-      <input
-        type="number"
-        value={altura}
-        onChange={(e) => setAltura(e.target.value)}
-      />
-      <button onClick={analisar}>Analisar</button>
+      <Field label="Altura (cm)" icon={FaRulerCombined}>
+        <input
+          type="number"
+          min="120"
+          max="230"
+          placeholder="Ex.: 175"
+          value={altura}
+          onChange={(e) => setAltura(e.target.value)}
+        />
+      </Field>
+      <PrimaryButton onClick={analisar}>Analisar</PrimaryButton>
       {resultado && <p className="resultado">{resultado}</p>}
     </div>
   );
 }
 
+/* --- ABA 4: COMO POSSO MELHORAR? --- */
 function TabMelhorar() {
   const [estilo, setEstilo] = useState("");
   const [resultado, setResultado] = useState("");
 
   const recomendar = () => {
-    if (estilo === "casual") setResultado("Adicione uma jaqueta jeans.");
-    if (estilo === "formal") setResultado("Inclua gravatas modernas.");
-    if (estilo === "esportivo") setResultado("Combine com acessórios minimalistas.");
+    if (!estilo) return setResultado("Selecione um estilo para receber recomendações.");
+    if (estilo === "casual") setResultado("Inclua jaqueta jeans e tênis brancos para elevar o casual.");
+    if (estilo === "formal") setResultado("Gravatas texturizadas e alfaiataria ajustada dão modernidade.");
+    if (estilo === "esportivo") setResultado("Aposte em acessórios minimalistas e jaquetas bomber.");
   };
 
   return (
     <div>
-      <label>Seu estilo atual:</label>
-      <select value={estilo} onChange={(e) => setEstilo(e.target.value)}>
-        <option value="">--Selecione--</option>
-        <option value="casual">Casual</option>
-        <option value="formal">Formal</option>
-        <option value="esportivo">Esportivo</option>
-      </select>
-      <button onClick={recomendar}>Recomendar</button>
+      <Field label="Estilo atual" icon={FaStar}>
+        <select value={estilo} onChange={(e) => setEstilo(e.target.value)}>
+          <option value="">--Selecione--</option>
+          <option value="casual">Casual</option>
+          <option value="formal">Formal</option>
+          <option value="esportivo">Esportivo</option>
+        </select>
+      </Field>
+      <PrimaryButton onClick={recomendar}>Recomendar</PrimaryButton>
       {resultado && <p className="resultado">{resultado}</p>}
     </div>
   );
 }
 
 const tabs = [
-  { id: "vestir", title: "Como posso me vestir hoje?", component: <TabVestir /> },
-  { id: "combina", title: "O que combina comigo?", component: <TabCombina /> },
-  { id: "caimento", title: "Qual seria o melhor caimento?", component: <TabCaimento /> },
-  { id: "melhorar", title: "Como posso melhorar?", component: <TabMelhorar /> }
+  { id: "vestir", title: "Como posso me vestir hoje?", icon: FaTshirt, component: <TabVestir /> },
+  { id: "combina", title: "O que combina comigo?", icon: FaPalette, component: <TabCombina /> },
+  { id: "caimento", title: "Qual seria o melhor caimento?", icon: FaRulerCombined, component: <TabCaimento /> },
+  { id: "melhorar", title: "Como posso melhorar?", icon: FaStar, component: <TabMelhorar /> }
 ];
 
 export default function App() {
@@ -137,21 +183,22 @@ export default function App() {
 
   return (
     <>
-      <header>Today's Fashion</header> 
+      <header>TodayFashion - RFC</header>
       <div className="container">
         <nav className="tabs">
-          {tabs.map((tab) => (
+          {tabs.map(({ id, title, icon: Icon }) => (
             <button
-              key={tab.id}
-              className={activeTab === tab.id ? "active" : ""}
-              onClick={() => setActiveTab(tab.id)}
+              key={id}
+              className={activeTab === id ? "active" : ""}
+              onClick={() => setActiveTab(id)}
             >
-              {tab.title}
+              <Icon className="tab-icon" />
+              <span className="tab-text">{title}</span>
             </button>
           ))}
         </nav>
         <div className="tab-content">
-          {tabs.find((tab) => tab.id === activeTab)?.component}
+          {tabs.find((t) => t.id === activeTab)?.component}
         </div>
       </div>
     </>
