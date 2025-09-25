@@ -183,7 +183,7 @@ export default function App() {
 
   return (
     <>
-      <header>TodayFashion - RFC</header>
+      <header>Today's Fashion</header>
       <div className="container">
         <nav className="tabs">
           {tabs.map(({ id, title, icon: Icon }) => (
