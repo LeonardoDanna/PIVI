@@ -1,4 +1,47 @@
-cd frontend  
-npm run dev
+### 1. Clonar o repositório
 
-<img width="1127" height="559" alt="image" src="https://github.com/user-attachments/assets/81331867-ad95-4c93-af89-eec60be2565c" />
+```bash
+git clone https://github.com/LeonardoDanna/PIVI.git
+cd TodayFashion
+```
+
+### 2. Criar e ativar ambiente virtual
+
+```
+python -m venv venv
+venv\Scripts\activate
+```
+
+### 3. Instalar dependências
+
+```
+pip install -r requirements.txt
+```
+
+### 4. Migrar banco
+
+```
+python manage.py migrate
+```
+
+### 5. Rodar servidor
+
+```
+python manage.py runserver
+```
+
+### 6. Rodar o frontend em modo desenvolvimento
+
+```
+cd frontend
+npm install
+npm run dev
+```
+
+### 7. Rodar o frontend integrado no Django
+
+```
+cd frontend
+npm run build
+``
+```
