@@ -1,0 +1,201 @@
+/* Reset + viewport cheia */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body, #root { height: 100%; width: 100%; }
+body { font-family: system-ui, sans-serif; background: #fff; color: #000; overflow: hidden; }
+
+/* Página: esquerda | divisor 1px | direita */
+.page{
+  display: grid;
+  grid-template-columns: minmax(0,0.7fr) 1px minmax(0,1.8fr);
+  width: calc(100vw - 2px);
+  height: calc(100vh - 2px);
+  border: 1px solid #000;   /* moldura externa */
+}
+
+/* Linha central 1px perfeita */
+.divider{ background: #000; }
+
+/* Esquerda */
+.stage{ position: relative; }
+.side-thumbs{
+  list-style: none;
+  position: absolute;
+  right: 10px; top: 10px;
+  display: grid; gap: 8px;
+}
+.side-thumbs li{
+  width: 22px; height: 22px;
+  border: 0;
+  background: #ebebeb;
+}
+
+/* Direita */
+.panel{
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: 100px 1fr;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Fade sutil no rodapé */
+.panel::after{
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 140px;                          /* altura do fade */
+  pointer-events: none;
+  z-index: 2;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.12) 0%,                  
+    rgba(0,0,0,0.08) 40%,
+    rgba(0,0,0,0.00) 100%
+  );
+}
+
+/* Header: título em cima, pills como menu distribuído */
+.panel-top{
+  height: 100px;
+  border-bottom: 1px solid #000;
+  padding: 10px 16px 0 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  z-index: 3; /* título acima do fade */
+} 
+.panel-top h1{
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0 auto 8px auto;
+  line-height: 1.2;
+  text-align: center;
+}
+
+/* Fade diagonal mais alto e forte */
+/* Fade vertical mais alto: de sutil no topo até sólido embaixo */
+.panel-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 700px;  /* controla a altura do fade */
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,      /* topo transparente */
+    rgba(0, 0, 0, 0.05) 25%,  /* começa a aparecer */
+    rgba(0, 0, 0, 0.15) 60%,  /* mais forte */
+    rgba(0, 0, 0, 0.35) 100%  /* sólido no final */
+  );
+}
+
+
+
+
+
+/* Barra de “menu” */
+.scroller{
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+/* retângulo de menu */
+.pill{
+  flex: 1 1 0;
+  height: 80%;
+  background: #ebebeb;
+  border: none;
+  min-width: 80px;
+  border-radius: 16px 16px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pill:hover{ background:#dcdcdc; }
+.pill.active { background:#d4d4d4; font-weight:700; }
+
+/* Seta */
+.arrow{
+  margin-bottom: 10px;
+  margin-left: 9px;
+  align-self: flex-end;
+  font-weight: 700;
+  font-size: 35px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Grid ocupa o restante — 4 colunas x 3 linhas */
+.grid{
+  --cols: 4;
+  --rows: 3;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  grid-template-rows: repeat(var(--rows), 1fr);
+  height: 100%; 
+  width: 100%;
+  min-width: 0; 
+  min-height: 0;
+  place-items: center;
+  z-index: 1; /* conteúdo abaixo do fade */
+}
+
+/* Cards agora são dropzones */
+.card.dropzone {
+  position: relative;
+  width: 60%;
+  height: 60%;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 6px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform .08s ease, box-shadow .12s ease;
+}
+.card.dropzone:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.card.dropzone input[type="file"] { display: none; }
+
+.card-hint {
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  color: #555;
+  text-align: center;
+}
+.card-hint span { font-size: 28px; line-height: 1; }
+
+/* preview */
+.card.dropzone.has-image {
+  background-size: cover;
+  background-position: center;
+}
+
+/* remover */
+.remove-btn {
+  position: absolute;
+  right: 8px; top: 8px;
+  padding: 4px 8px;
+  font-size: 12px;
+  background: #000; color: #fff;
+  border: 0; border-radius: 999px;
+  cursor: pointer;
+  opacity: .9;
+}
+.remove-btn:hover { opacity: 1; }
+
+/* >>> Se quiser 3 colunas x 4 linhas:
+.grid{ --cols: 3; --rows: 4; } */
