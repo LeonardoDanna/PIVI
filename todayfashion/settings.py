@@ -15,6 +15,9 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+TRY_ON_API_KEY = "fcca3320dfmsh03d10c1b184eb0fp19e3d8jsn2411cc31418c"
+TRY_ON_API_HOST = "try-on-diffusion.p.rapidapi.com"
+TRY_ON_BASE_URL = "https://try-on-diffusion.p.rapidapi.com"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/

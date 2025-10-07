@@ -12,6 +12,28 @@ import {
   FaUserTie
 } from "react-icons/fa";
 
+async function executarTryOn({ clothingFile, avatarFile, clothingUrl, avatarUrl, clothingPrompt, avatarPrompt }) {
+  const formData = new FormData();
+  if (clothingFile) formData.append("clothing_image", clothingFile);
+  if (avatarFile) formData.append("avatar_image", avatarFile);
+  if (!clothingFile && clothingUrl) formData.append("clothing_image_url", clothingUrl);
+  if (!avatarFile && avatarUrl) formData.append("avatar_image_url", avatarUrl);
+  if (clothingPrompt) formData.append("clothing_prompt", clothingPrompt);
+  if (avatarPrompt) formData.append("avatar_prompt", avatarPrompt);
+
+  const resp = await fetch("/api/try-on-diffusion/", {
+    method: "POST",
+    body: formData,
+  });
+  if (!resp.ok) {
+    const err = await resp.json();
+    throw new Error(err.error || "Erro no Try-On");
+  }
+  const blob = await resp.blob();
+  const url = URL.createObjectURL(blob);
+  return url;
+}
+
 function Field({ label, children, icon: Icon }) {
   return (
     <div className="field">
