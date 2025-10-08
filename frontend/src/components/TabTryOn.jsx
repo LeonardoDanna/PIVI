@@ -9,7 +9,7 @@ export default function TabTryOn() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const backendUrl = "http://127.0.0.1:8000/api/try-on-diffusion/";
+  const backendUrl = "http://localhost:8000/api/try-on-diffusion/";
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -18,19 +18,35 @@ export default function TabTryOn() {
     setResultImage(null);
 
     try {
-      let formData;
       let options = {};
 
-      if (avatarImage || clothingImage) {
-        formData = new FormData();
+      // 🚨 Verifica se o usuário enviou pelo menos uma opção válida
+      const hasFiles = avatarImage || clothingImage;
+      const hasUrls = avatarUrl.trim() !== "" && clothingUrl.trim() !== "";
+
+      if (!hasFiles && !hasUrls) {
+        setError("Envie arquivos ou URLs válidas para o avatar e a roupa.");
+        setLoading(false);
+        return;
+      }
+
+      if (hasFiles) {
+        // 📸 Envio com FormData (upload de imagens)
+        const formData = new FormData();
         if (avatarImage) formData.append("avatar_image", avatarImage);
         if (clothingImage) formData.append("clothing_image", clothingImage);
-        options = { method: "POST", body: formData };
+
+        options = {
+          method: "POST",
+          body: formData,
+        };
       } else {
+        // 🌐 Envio com JSON (URLs)
         const payload = {
           avatar_image_url: avatarUrl,
           clothing_image_url: clothingUrl,
         };
+
         options = {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -38,28 +54,49 @@ export default function TabTryOn() {
         };
       }
 
+      // 🚀 Faz a requisição ao backend Django
       const response = await fetch(backendUrl, options);
+
       if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || "Erro ao processar imagem");
+        let errData;
+        try {
+          errData = await response.json();
+        } catch {
+          errData = { error: "Erro inesperado na API." };
+        }
+        throw new Error(errData.error || "Erro ao processar imagem.");
       }
 
-      const contentType = response.headers.get("Content-Type");
-      if (contentType && contentType.includes("image")) {
+      // 🧠 Verifica se a resposta é imagem binária ou JSON
+      const contentType = response.headers.get("Content-Type") || "";
+      console.log("🔍 Tipo de resposta:", contentType);
+
+      if (contentType.includes("image") || contentType.includes("octet-stream")) {
+        // ✅ Caso 1: imagem binária
         const blob = await response.blob();
-        setResultImage(URL.createObjectURL(blob));
+        const imageUrl = URL.createObjectURL(blob);
+        console.log("✅ Imagem recebida — tamanho:", blob.size, "bytes");
+        setResultImage(imageUrl);
       } else {
-        const data = await response.json();
-        setResultImage(data.output_url || data.result || null);
+        // ✅ Caso 2: API devolveu JSON com link
+        try {
+          const data = await response.json();
+          console.log("🔗 Resposta JSON:", data);
+          setResultImage(data.output_url || data.result || null);
+        } catch (err) {
+          console.error("Erro ao ler JSON:", err);
+          setError("Resposta inesperada do servidor.");
+        }
       }
     } catch (err) {
-      console.error(err);
-      setError(err.message);
+      console.error("Erro no Try-On:", err);
+      setError(err.message || "Falha ao gerar imagem.");
     } finally {
       setLoading(false);
     }
   }
 
+  // 👇 O return do componente deve ficar fora da função handleSubmit
   return (
     <div>
       <h3>👕 Try-On Virtual</h3>
@@ -67,7 +104,11 @@ export default function TabTryOn() {
       <form onSubmit={handleSubmit} className="tryon-form">
         <div className="form-group">
           <label>🧍 Avatar (foto da pessoa)</label>
-          <input type="file" accept="image/*" onChange={(e) => setAvatarImage(e.target.files[0])} />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setAvatarImage(e.target.files[0])}
+          />
           <input
             type="text"
             placeholder="ou URL do avatar"
@@ -78,7 +119,11 @@ export default function TabTryOn() {
 
         <div className="form-group">
           <label>👚 Roupa</label>
-          <input type="file" accept="image/*" onChange={(e) => setClothingImage(e.target.files[0])} />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setClothingImage(e.target.files[0])}
+          />
           <input
             type="text"
             placeholder="ou URL da roupa"
@@ -97,7 +142,17 @@ export default function TabTryOn() {
       {resultImage && (
         <div className="resultado">
           <h4>🖼️ Resultado</h4>
-          <img src={resultImage} alt="Resultado Try-On" className="tryon-result" />
+          <img
+            src={resultImage}
+            alt="Resultado Try-On"
+            className="tryon-result"
+            style={{
+              maxWidth: "100%",
+              borderRadius: "12px",
+              marginTop: "15px",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.15)",
+            }}
+          />
         </div>
       )}
     </div>

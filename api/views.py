@@ -38,9 +38,10 @@ def try_on_diffusion(request):
     seed = request.data.get("seed")
 
     headers = {
-        "x-rapidapi-key": settings.TRY_ON_API_KEY,
-        "x-rapidapi-host": settings.TRY_ON_API_HOST,
-    }
+        "X-RapidAPI-Key": "fcca3320dfmsh03d10c1b184eb0fp19e3d8jsn2411cc31418c",
+        "X-RapidAPI-Host": "try-on-diffusion.p.rapidapi.com",
+        "Content-Type": "application/json",
+}
 
     # Decide se usa arquivos (multipart) ou URLs (JSON)
     use_file = any([clothing_file, avatar_file, background_file])
