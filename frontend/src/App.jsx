@@ -1,4 +1,5 @@
 import { useState } from "react";
+import TabTryOn from "./components/TabTryOn";
 import {
   FaTshirt,
   FaPalette,
@@ -9,8 +10,43 @@ import {
   FaCloudRain,
   FaBriefcase,
   FaUserFriends,
-  FaUserTie
+  FaUserTie,
 } from "react-icons/fa";
+
+// ✅ URL fixa (ambiente local)
+const backendUrl = "http://127.0.0.1:8000/api/try-on-diffusion/";
+
+async function executarTryOn({
+  clothingFile,
+  avatarFile,
+  clothingUrl,
+  avatarUrl,
+  clothingPrompt,
+  avatarPrompt,
+}) {
+  const formData = new FormData();
+  if (clothingFile) formData.append("clothing_image", clothingFile);
+  if (avatarFile) formData.append("avatar_image", avatarFile);
+  if (!clothingFile && clothingUrl)
+    formData.append("clothing_image_url", clothingUrl);
+  if (!avatarFile && avatarUrl) formData.append("avatar_image_url", avatarUrl);
+  if (clothingPrompt) formData.append("clothing_prompt", clothingPrompt);
+  if (avatarPrompt) formData.append("avatar_prompt", avatarPrompt);
+
+  const resp = await fetch(backendUrl, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!resp.ok) {
+    const err = await resp.json();
+    throw new Error(err.error || "Erro no Try-On");
+  }
+
+  const blob = await resp.blob();
+  const url = URL.createObjectURL(blob);
+  return url;
+}
 
 function Field({ label, children, icon: Icon }) {
   return (
@@ -89,8 +125,12 @@ function TabCombina() {
     const c = cor.trim().toLowerCase();
     if (!c) return setResultado("Digite uma cor para analisar.");
     if (c === "bege") setResultado("Evite bege. Aposte em azul petróleo!");
-    else if (c === "preto") setResultado("Preto é versátil; experimente verde musgo ou vinho.");
-    else setResultado("Essa cor pode funcionar com tons neutros (preto, branco, cinza).");
+    else if (c === "preto")
+      setResultado("Preto é versátil; experimente verde musgo ou vinho.");
+    else
+      setResultado(
+        "Essa cor pode funcionar com tons neutros (preto, branco, cinza)."
+      );
   };
 
   return (
@@ -120,9 +160,14 @@ function TabCaimento() {
       setResultado("Digite sua altura corretamente (em cm).");
       return;
     }
-    if (alt < 165) setResultado("Prefira calças de cintura alta e barras ajustadas para alongar.");
-    else if (alt < 180) setResultado("Caimento slim fit tende a valorizar suas proporções.");
-    else setResultado("Peças um pouco mais soltas (regular/oversized) equilibram bem sua estatura.");
+    if (alt < 165)
+      setResultado("Prefira calças de cintura alta e barras ajustadas.");
+    else if (alt < 180)
+      setResultado("Caimento slim fit tende a valorizar suas proporções.");
+    else
+      setResultado(
+        "Peças um pouco mais soltas (regular/oversized) equilibram bem sua estatura."
+      );
   };
 
   return (
@@ -149,10 +194,18 @@ function TabMelhorar() {
   const [resultado, setResultado] = useState("");
 
   const recomendar = () => {
-    if (!estilo) return setResultado("Selecione um estilo para receber recomendações.");
-    if (estilo === "casual") setResultado("Inclua jaqueta jeans e tênis brancos para elevar o casual.");
-    if (estilo === "formal") setResultado("Gravatas texturizadas e alfaiataria ajustada dão modernidade.");
-    if (estilo === "esportivo") setResultado("Aposte em acessórios minimalistas e jaquetas bomber.");
+    if (!estilo)
+      return setResultado("Selecione um estilo para receber recomendações.");
+    if (estilo === "casual")
+      setResultado(
+        "Inclua jaqueta jeans e tênis brancos para elevar o casual."
+      );
+    if (estilo === "formal")
+      setResultado(
+        "Gravatas texturizadas e alfaiataria ajustada dão modernidade."
+      );
+    if (estilo === "esportivo")
+      setResultado("Aposte em acessórios minimalistas e jaquetas bomber.");
   };
 
   return (
@@ -171,11 +224,38 @@ function TabMelhorar() {
   );
 }
 
+// ✅ Agora passamos a prop `backendUrl` para a aba do Try-On
 const tabs = [
-  { id: "vestir", title: "Como posso me vestir hoje?", icon: FaTshirt, component: <TabVestir /> },
-  { id: "combina", title: "O que combina comigo?", icon: FaPalette, component: <TabCombina /> },
-  { id: "caimento", title: "Qual seria o melhor caimento?", icon: FaRulerCombined, component: <TabCaimento /> },
-  { id: "melhorar", title: "Como posso melhorar?", icon: FaStar, component: <TabMelhorar /> }
+  {
+    id: "vestir",
+    title: "Como posso me vestir hoje?",
+    icon: FaTshirt,
+    component: <TabVestir />,
+  },
+  {
+    id: "combina",
+    title: "O que combina comigo?",
+    icon: FaPalette,
+    component: <TabCombina />,
+  },
+  {
+    id: "caimento",
+    title: "Qual seria o melhor caimento?",
+    icon: FaRulerCombined,
+    component: <TabCaimento />,
+  },
+  {
+    id: "melhorar",
+    title: "Como posso melhorar?",
+    icon: FaStar,
+    component: <TabMelhorar />,
+  },
+  {
+    id: "tryon",
+    title: "Try-On Virtual",
+    icon: FaUserTie,
+    component: <TabTryOn backendUrl={backendUrl} />,
+  },
 ];
 
 export default function App() {

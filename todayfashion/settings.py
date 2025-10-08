@@ -15,6 +15,9 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+TRY_ON_API_KEY = "fcca3320dfmsh03d10c1b184eb0fp19e3d8jsn2411cc31418c"
+TRY_ON_API_HOST = "try-on-diffusion.p.rapidapi.com"
+TRY_ON_BASE_URL = "https://try-on-diffusion.p.rapidapi.com"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -38,10 +41,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'corsheaders',
     'api',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -50,6 +55,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'todayfashion.urls'
 
@@ -121,11 +128,10 @@ STATICFILES_DIRS = [
     BASE_DIR / "frontend" / "dist",
 ]
 
-# Templates (para o React index.html)
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "frontend" / "dist"],  # index.html
+        "DIRS": [BASE_DIR / "frontend" / "dist"],  # aponta para o index.html gerado
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -137,6 +143,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
