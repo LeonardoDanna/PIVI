@@ -43,5 +43,4 @@ npm run dev
 ```
 cd frontend
 npm run build
-``
 ```
