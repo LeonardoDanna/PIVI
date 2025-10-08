@@ -1,4 +1,5 @@
 import { useState } from "react";
+import TabTryOn from "./components/TabTryOn";
 import {
   FaTshirt,
   FaPalette,
@@ -197,8 +198,10 @@ const tabs = [
   { id: "vestir", title: "Como posso me vestir hoje?", icon: FaTshirt, component: <TabVestir /> },
   { id: "combina", title: "O que combina comigo?", icon: FaPalette, component: <TabCombina /> },
   { id: "caimento", title: "Qual seria o melhor caimento?", icon: FaRulerCombined, component: <TabCaimento /> },
-  { id: "melhorar", title: "Como posso melhorar?", icon: FaStar, component: <TabMelhorar /> }
+  { id: "melhorar", title: "Como posso melhorar?", icon: FaStar, component: <TabMelhorar /> },
+  { id: "tryon", title: "Try-On Virtual", icon: FaUserTie, component: <TabTryOn /> } // 👈 nova aba
 ];
+
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("vestir");

@@ -23,7 +23,7 @@ from api.views import FrontendAppView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
-    path("", FrontendAppView.as_view(), name="frontend"),
+    path('', FrontendAppView.as_view(), name="frontend"),
 ]
 
 # Adiciona os arquivos estáticos do Vite (JS, CSS, imagens)
