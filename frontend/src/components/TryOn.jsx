@@ -21,21 +21,27 @@ const TryOn = () => {
       let formData;
       let options = {};
 
-      // Se tiver upload de arquivo, usar multipart/form-data
+      // ===== Se houver upload de arquivo =====
       if (avatarImage || clothingImage) {
         formData = new FormData();
         if (avatarImage) formData.append("avatar_image", avatarImage);
         if (clothingImage) formData.append("clothing_image", clothingImage);
+
         options = {
           method: "POST",
           body: formData,
         };
       } else {
-        // Caso contrário, enviar URLs no formato JSON
+        // ===== Caso contrário, usar URLs =====
+        if (!avatarUrl || !clothingUrl) {
+          throw new Error("Informe arquivos ou URLs de avatar e roupa.");
+        }
+
         const payload = {
           avatar_image_url: avatarUrl,
           clothing_image_url: clothingUrl,
         };
+
         options = {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -44,26 +50,49 @@ const TryOn = () => {
       }
 
       const response = await fetch(backendUrl, options);
+      const contentType = response.headers.get("content-type");
 
+      // ===== Trata erros =====
       if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || "Erro ao processar imagem");
+        const text = await response.text();
+        console.error("Erro da API:", text);
+        setError(
+          text.includes("<!DOCTYPE")
+            ? "Erro no servidor (resposta HTML inesperada). Verifique o backend ou a API."
+            : text
+        );
+        return;
       }
 
-      // Se o retorno for uma imagem binária (blob)
-      const contentType = response.headers.get("Content-Type");
+      // ===== Se vier imagem =====
       if (contentType && contentType.includes("image")) {
         const blob = await response.blob();
-        const imageObjectURL = URL.createObjectURL(blob);
-        setResultImage(imageObjectURL);
-      } else {
-        // Caso a API retorne JSON com link
+        const imageUrl = URL.createObjectURL(blob);
+        setResultImage(imageUrl);
+      }
+      // ===== Se vier JSON =====
+      else if (contentType && contentType.includes("application/json")) {
         const data = await response.json();
-        setResultImage(data.output_url || data.result || null);
+        console.log("Resposta JSON:", data);
+
+        // A API às vezes retorna link em output_url ou result
+        const output =
+          data.output_url || data.result || data.image_url || data.url;
+        if (output) {
+          setResultImage(output);
+        } else {
+          setError("Resposta JSON sem imagem detectada.");
+        }
+      }
+      // ===== Qualquer outra coisa =====
+      else {
+        const text = await response.text();
+        console.warn("Resposta inesperada:", text);
+        setError("Resposta inesperada do servidor (sem imagem nem JSON).");
       }
     } catch (err) {
-      console.error(err);
-      setError(err.message);
+      console.error("Erro geral:", err);
+      setError(err.message || "Erro desconhecido ao processar o Try-On.");
     } finally {
       setLoading(false);
     }
@@ -119,6 +148,7 @@ const TryOn = () => {
   );
 };
 
+// ======== Estilos simples ========
 const styles = {
   container: {
     maxWidth: 600,
@@ -149,7 +179,7 @@ const styles = {
     borderRadius: 8,
     cursor: "pointer",
   },
-  error: { color: "red", marginTop: 10 },
+  error: { color: "red", marginTop: 10, whiteSpace: "pre-wrap" },
   result: { marginTop: 20 },
   image: {
     maxWidth: "100%",

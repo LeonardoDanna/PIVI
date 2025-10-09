@@ -1,34 +1,73 @@
-import requests
 import logging
+import requests
+
+from django.conf import settings
+from django.http import HttpResponse
+from django.views.generic import TemplateView
+
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.views.generic import TemplateView
-from django.http import HttpResponse, FileResponse
-from django.conf import settings
-from rest_framework import status
 
 logger = logging.getLogger(__name__)
 
-# Front End - VIEW
+
+# ---------- Frontend SPA ----------
 class FrontendAppView(TemplateView):
     template_name = "index.html"
 
-# Hello API
-@api_view(['GET'])
+
+# ---------- Sanity check ----------
+@api_view(["GET"])
 def hello(request):
     return Response({"message": "API Django funcionando!"})
 
+
+# ---------- Helpers ----------
+def _get_file(req, *names):
+    """Retorna o primeiro arquivo encontrado em request.FILES dado um conjunto de chaves possíveis."""
+    for n in names:
+        f = req.FILES.get(n)
+        if f:
+            return f
+    return None
+
+
+def _get_data(req, *names):
+    """Retorna o primeiro valor 'truthy' encontrado em request.data dado um conjunto de chaves possíveis."""
+    for n in names:
+        v = req.data.get(n)
+        if v:
+            return v
+    return None
+
+
+# ---------- Try-On ----------
 @api_view(["POST"])
 def try_on_diffusion(request):
     """
-    Recebe do frontend: avatar_image (arquivo ou URL), clothing_image (arquivo ou URL),
-    prompts opcionais. Retorna a imagem resultante gerada.
+    Recebe do frontend:
+      - avatar_image / clothing_image (arquivos)
+      - avatar_image_url / clothing_image_url (URLs)
+    Envia para a API TexelModa (Try-On Diffusion)
+    Retorna a imagem gerada (ou JSON em caso de erro).
     """
 
-    clothing_file = request.FILES.get("clothing_image")
+    import requests
+    import logging
+    from django.http import HttpResponse
+    from rest_framework.response import Response
+    from rest_framework import status
+    from django.conf import settings
+
+    logger = logging.getLogger(__name__)
+
+    # === Entrada ===
     avatar_file = request.FILES.get("avatar_image")
-    clothing_url = request.data.get("clothing_image_url")
+    clothing_file = request.FILES.get("clothing_image")
     avatar_url = request.data.get("avatar_image_url")
+    clothing_url = request.data.get("clothing_image_url")
+
     background_file = request.FILES.get("background_image")
     background_url = request.data.get("background_image_url")
 
@@ -38,19 +77,31 @@ def try_on_diffusion(request):
     background_prompt = request.data.get("background_prompt")
     seed = request.data.get("seed")
 
+    # === Headers e endpoint ===
+    if use_file:
+        url = f"{settings.TRY_ON_BASE_URL}/try-on-file"
+    else:
+        url = f"{settings.TRY_ON_BASE_URL}/try-on-url"
+
     headers = {
-        "X-RapidAPI-Key": "fcca3320dfmsh03d10c1b184eb0fp19e3d8jsn2411cc31418c",
-        "X-RapidAPI-Host": "try-on-diffusion.p.rapidapi.com",
-        "Content-Type": "application/json",
+        "X-RapidAPI-Key": settings.TRY_ON_API_KEY,
+        "X-RapidAPI-Host": settings.TRY_ON_API_HOST,
     }
 
-    # Decide se usa arquivos (multipart) ou URLs (JSON)
-    use_file = any([clothing_file, avatar_file, background_file])
+    # Detecta se é upload de arquivo ou uso de URL
+    use_file = any([avatar_file, clothing_file, background_file])
 
     try:
         if use_file:
-            url = f"{settings.TRY_ON_BASE_URL}/try-on-file"
+            # ---------- UPLOAD DE ARQUIVOS ----------
             files, data = {}, {}
+
+            if avatar_file:
+                files["avatar_image"] = (
+                    avatar_file.name,
+                    avatar_file.read(),
+                    avatar_file.content_type,
+                )
 
             if clothing_file:
                 files["clothing_image"] = (
@@ -58,12 +109,7 @@ def try_on_diffusion(request):
                     clothing_file.read(),
                     clothing_file.content_type,
                 )
-            if avatar_file:
-                files["avatar_image"] = (
-                    avatar_file.name,
-                    avatar_file.read(),
-                    avatar_file.content_type,
-                )
+
             if background_file:
                 files["background_image"] = (
                     background_file.name,
@@ -71,25 +117,35 @@ def try_on_diffusion(request):
                     background_file.content_type,
                 )
 
-            for key, val in {
+            for k, v in {
                 "clothing_prompt": clothing_prompt,
                 "avatar_prompt": avatar_prompt,
                 "avatar_sex": avatar_sex,
                 "background_prompt": background_prompt,
                 "seed": seed,
             }.items():
-                if val:
-                    data[key] = val
+                if v:
+                    data[k] = v
 
-            resp = requests.post(url, headers=headers, files=files, data=data, timeout=120)
+            resp = requests.post(
+                url, headers=headers, files=files, data=data, timeout=120
+            )
 
         else:
-            url = f"{settings.TRY_ON_BASE_URL}/try-on-url"
+            # ---------- ENVIO VIA URL ----------
+            if not (avatar_url and clothing_url):
+                return Response(
+                    {
+                        "error": "É necessário enviar avatar_image_url e clothing_image_url ou arquivos válidos."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             payload = {
                 k: v
                 for k, v in {
-                    "clothing_image_url": clothing_url,
                     "avatar_image_url": avatar_url,
+                    "clothing_image_url": clothing_url,
                     "background_image_url": background_url,
                     "clothing_prompt": clothing_prompt,
                     "avatar_prompt": avatar_prompt,
@@ -100,53 +156,56 @@ def try_on_diffusion(request):
                 if v is not None
             }
 
-            resp = requests.post(url, headers=headers, json=payload, timeout=120)
+            headers["Content-Type"] = "application/json"
 
-        # 🔍 Trata o retorno corretamente
+            resp = requests.post(
+                url, headers=headers, json=payload, timeout=120
+            )
+
+        # ---------- TRATA RESPOSTA ----------
         content_type = resp.headers.get("Content-Type", "").lower()
 
         if resp.status_code == 200:
-            # Caso venha imagem binária (jpeg/png)
+            # Caso seja imagem
             if "image" in content_type or "octet-stream" in content_type:
-                # ✅ Usa FileResponse para streaming mais eficiente
                 return HttpResponse(resp.content, content_type=content_type)
 
-            # Caso venha JSON (alguns endpoints retornam JSON com link)
-            elif "application/json" in content_type:
+            # Caso seja JSON (às vezes API retorna link/base64)
+            if "application/json" in content_type:
                 return Response(resp.json(), status=200)
 
-            # Caso inesperado
-            else:
-                logger.warning(f"Tipo de resposta inesperado: {content_type}")
-                return Response(
-                    {
-                        "warning": "Resposta inesperada da API",
-                        "content_type": content_type,
-                    },
-                    status=200,
-                )
+            # Tipo inesperado
+            logger.warning(f"Tipo de resposta inesperado: {content_type}")
+            return Response(
+                {"warning": "Tipo de resposta inesperado", "content_type": content_type},
+                status=200,
+            )
 
-        # Se não for 200, tenta decodificar o erro
+        # Se a API respondeu com erro
         try:
-            error_json = resp.json()
+            err = resp.json()
         except Exception:
-            error_json = {"error": resp.text}
+            err = {"raw": resp.text}
 
-        return Response(error_json, status=resp.status_code)
+        logger.error(f"Erro da API externa ({resp.status_code}): {err}")
+        return Response(
+            {"error": "Falha na API externa", "details": err},
+            status=resp.status_code,
+        )
 
     except requests.exceptions.Timeout:
-        logger.error("⏱ Timeout na requisição ao serviço externo.")
+        logger.error("⏱ Timeout na requisição à API Try-On Diffusion.")
         return Response(
-            {"error": "Tempo limite excedido na comunicação com o serviço externo."},
+            {"error": "Tempo limite excedido na comunicação com a API externa."},
             status=status.HTTP_504_GATEWAY_TIMEOUT,
         )
 
     except BrokenPipeError:
-        logger.warning("⚠️ Cliente desconectou antes do envio completo da resposta.")
-        return HttpResponse(status=499)  # Código não padrão (como no nginx)
+        logger.warning("⚠️ Cliente desconectou antes da resposta.")
+        return HttpResponse(status=499)
 
     except Exception as e:
-        logger.exception(f"❌ Erro interno no servidor Django: {e}")
+        logger.exception(f"❌ Erro interno no servidor: {e}")
         return Response(
             {"error": "Erro interno no servidor Django", "details": str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
