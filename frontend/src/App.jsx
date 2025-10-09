@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./App.css";
 import TabTryOn from "./components/TabTryOn";
 import Armario from "./components/Armario";
 import {
@@ -7,9 +8,6 @@ import {
   FaRulerCombined,
   FaStar,
   FaSun,
-  FaSnowflake,
-  FaCloudRain,
-  FaBriefcase,
   FaUserFriends,
   FaUserTie,
 } from "react-icons/fa";
@@ -70,49 +68,100 @@ function PrimaryButton({ children, onClick }) {
 
 /* --- ABA 1: COMO POSSO ME VESTIR HOJE? --- */
 function TabVestir() {
+  const [genero, setGenero] = useState("");
   const [clima, setClima] = useState("");
   const [evento, setEvento] = useState("");
   const [sugestao, setSugestao] = useState("");
+  const [imagensSugestao, setImagensSugestao] = useState([]);
+
+  const lookImages = {
+    quente: { masculino: "images/imagem_quente_m.png", feminino: "images/imagem_quente_f.png" },
+    frio: { masculino: "images/imagem_frio_m.png", feminino: "images/imagem_frio_f.png" },
+    chuvoso: { masculino: "images/imagem_chuvoso_m.png", feminino: "images/imagem_chuvoso_f.png" },
+    trabalho: { masculino: "images/imagem_trabalho_m.png", feminino: "images/imagem_trabalho_f.png" },
+    lazer: { masculino: "images/imagem_lazer_m.png", feminino: "images/imagem_lazer_f.png" },
+    formal: { masculino: "images/imagem_formal_m.png", feminino: "images/imagem_formal_f.png" },
+  };
 
   const gerarSugestao = () => {
+    if (!genero || !clima || !evento) {
+      setSugestao("Escolha gênero, clima e evento para ver uma sugestão.");
+      setImagensSugestao([]);
+      return;
+    }
+
     let look = "";
-    if (clima === "quente") look = "Camisa leve e bermuda em cores claras";
-    if (clima === "frio") look = "Casaco de lã com calça jeans escura";
-    if (clima === "chuvoso") look = "Jaqueta impermeável e botas";
+    let imgClima = "";
+    let imgEvento = "";
 
-    if (evento === "trabalho") look += " + Blazer slim fit";
-    if (evento === "lazer") look += " + Tênis confortável";
-    if (evento === "formal") look += " + Sapato social";
+    // clima
+    if (clima === "quente") {
+      look = genero === "masculino" ? "Bermuda e camisa leve" : "Vestido leve colorido";
+      imgClima = lookImages.quente[genero];
+    } else if (clima === "frio") {
+      look = genero === "masculino" ? "Casaco de lã com calça jeans escura" : "Casaco de lã e saia";
+      imgClima = lookImages.frio[genero];
+    } else if (clima === "chuvoso") {
+      look = genero === "masculino" ? "Jaqueta impermeável" : "Moletom";
+      imgClima = lookImages.chuvoso[genero];
+    }
 
-    setSugestao(look || "Escolha clima e evento para ver uma sugestão.");
+    // evento
+    if (evento === "trabalho") {
+      look += genero === "masculino" ? " + Blazer slim fit" : " + Blazer ou Camisa Social";
+      imgEvento = lookImages.trabalho[genero];
+    } else if (evento === "lazer") {
+      look += genero === "masculino" ? " + Tênis confortável" : " + Sandália ou Tênis";
+      imgEvento = lookImages.lazer[genero];
+    } else if (evento === "formal") {
+      look += genero === "masculino" ? " + Sapato social" : " + Scarpin ou Salto discreto";
+      imgEvento = lookImages.formal[genero];
+    }
+
+    setSugestao(look);
+    setImagensSugestao([imgClima, imgEvento]);
   };
 
   return (
     <div>
+      <Field label="Gênero">
+        <select value={genero} onChange={(e) => setGenero(e.target.value)}>
+          <option value="">--Selecione--</option>
+          <option value="masculino">Masculino 👨</option>
+          <option value="feminino">Feminino 👩</option>
+        </select>
+      </Field>
+
       <Field label="Clima" icon={FaSun}>
-        <div className="input-with-icon">
-          <select value={clima} onChange={(e) => setClima(e.target.value)}>
-            <option value="">--Selecione--</option>
-            <option value="quente">Quente ☀️</option>
-            <option value="frio">Frio ❄️</option>
-            <option value="chuvoso">Chuvoso 🌧️</option>
-          </select>
-        </div>
+        <select value={clima} onChange={(e) => setClima(e.target.value)}>
+          <option value="">--Selecione--</option>
+          <option value="quente">Quente ☀️</option>
+          <option value="frio">Frio ❄️</option>
+          <option value="chuvoso">Chuvoso 🌧️</option>
+        </select>
       </Field>
 
       <Field label="Evento" icon={FaUserFriends}>
-        <div className="input-with-icon">
-          <select value={evento} onChange={(e) => setEvento(e.target.value)}>
-            <option value="">--Selecione--</option>
-            <option value="trabalho">Trabalho 💼</option>
-            <option value="lazer">Lazer 🎉</option>
-            <option value="formal">Evento Formal 🤵</option>
-          </select>
-        </div>
+        <select value={evento} onChange={(e) => setEvento(e.target.value)}>
+          <option value="">--Selecione--</option>
+          <option value="trabalho">Trabalho 💼</option>
+          <option value="lazer">Lazer 🎉</option>
+          <option value="formal">Evento Formal 🤵</option>
+        </select>
       </Field>
 
       <PrimaryButton onClick={gerarSugestao}>Gerar Sugestão</PrimaryButton>
-      {sugestao && <p className="resultado">{sugestao}</p>}
+
+      {sugestao && (
+        <div className="resultado-com-imagem">
+          <p className="resultado">{sugestao}</p>
+          <div className="imagens-container">
+            {imagensSugestao.map((img, i) => (
+              <img key={i} src={img} alt="Sugestão de look" className="look-img" />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -18,6 +18,31 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
+
+.resultado-com-imagem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.imagens-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.look-img {
+  width: 100px;
+  height: 100px;
+  max-width: 100px;
+  max-height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+  flex-shrink: 0;
+}
+
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);
