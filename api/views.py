@@ -2,15 +2,15 @@ import logging
 import requests
 
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.generic import TemplateView
+from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 logger = logging.getLogger(__name__)
-
 
 # ---------- Frontend SPA ----------
 class FrontendAppView(TemplateView):
@@ -52,13 +52,6 @@ def try_on_diffusion(request):
     Envia para a API TexelModa (Try-On Diffusion)
     Retorna a imagem gerada (ou JSON em caso de erro).
     """
-
-    import requests
-    import logging
-    from django.http import HttpResponse
-    from rest_framework.response import Response
-    from rest_framework import status
-    from django.conf import settings
 
     logger = logging.getLogger(__name__)
 
@@ -159,9 +152,7 @@ def try_on_diffusion(request):
 
             headers["Content-Type"] = "application/json"
 
-            resp = requests.post(
-                url, headers=headers, json=payload, timeout=120
-            )
+            resp = requests.post(url, headers=headers, json=payload, timeout=120)
 
         # ---------- TRATA RESPOSTA ----------
         content_type = resp.headers.get("Content-Type", "").lower()
@@ -210,4 +201,45 @@ def try_on_diffusion(request):
         return Response(
             {"error": "Erro interno no servidor Django", "details": str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+# ---------- REMOÇÃO DE FUNDO ----------
+@csrf_exempt  # 🔥 Isso precisa vir ANTES do @api_view
+@api_view(["POST"])
+def remove_background(request):
+    """
+    Recebe uma imagem de roupa, envia para a API externa de remoção de fundo
+    e retorna a nova imagem (PNG com fundo transparente).
+    """
+    image_file = request.FILES.get("image")
+    if not image_file:
+        return Response({"error": "Nenhuma imagem enviada."}, status=400)
+
+    headers = {
+        "X-RapidAPI-Key": settings.TRY_ON_API_KEY,
+        "X-RapidAPI-Host": "background-remover3.p.rapidapi.com",
+    }
+
+    files = {"image_file": (image_file.name, image_file.read(), image_file.content_type)}
+
+    try:
+        resp = requests.post(
+            "https://background-remover3.p.rapidapi.com/remove",
+            headers=headers,
+            files=files,
+            timeout=60,
+        )
+
+        if resp.status_code != 200:
+            return Response(
+                {"error": "Falha ao remover fundo.", "details": resp.text},
+                status=resp.status_code,
+            )
+
+        return HttpResponse(resp.content, content_type="image/png")
+
+    except Exception as e:
+        return Response(
+            {"error": "Erro interno ao processar imagem.", "details": str(e)},
+            status=500,
         )

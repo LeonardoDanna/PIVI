@@ -1,5 +1,6 @@
 import { useState } from "react";
 import TabTryOn from "./components/TabTryOn";
+import Armario from "./components/Armario";
 import {
   FaTshirt,
   FaPalette,
@@ -255,6 +256,12 @@ const tabs = [
     title: "Try-On Virtual",
     icon: FaUserTie,
     component: <TabTryOn backendUrl={backendUrl} />,
+  },
+  {
+    id: "armario",
+    title: "Armário Virtual",
+    icon: FaTshirt,
+    component: <Armario />,
   },
 ];
 

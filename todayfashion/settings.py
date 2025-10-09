@@ -24,7 +24,7 @@ TRY_ON_API_HOST = "try-on-diffusion.p.rapidapi.com"
 # ==============================
 SECRET_KEY = "django-insecure-)h45be994pz^ki+8-6_t#ta*)^by18vadjkh0qvi^)bi8xpqkg"
 DEBUG = True
-ALLOWED_HOSTS = ["*"]  # <- permite conexões externas para testes (frontend local ou Vercel)
+ALLOWED_HOSTS = ["*"]  # permite conexões externas para testes (frontend local ou Vercel)
 
 # ==============================
 # APLICAÇÕES
@@ -45,7 +45,7 @@ INSTALLED_APPS = [
 # MIDDLEWARE
 # ==============================
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",          # 🔥 deve vir antes de CommonMiddleware e CSRF
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -55,8 +55,52 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# Permite chamadas do React (localhost:5173, 3000, etc)
+# ==============================
+# CORS e CSRF (para conexão com React local)
+# ==============================
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "https://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://127.0.0.1:5173",
+    "http://localhost:3000",
+    "https://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://127.0.0.1:3000",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+]
+
+# ⚙️ Cookies e CSRF em ambiente local
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_HTTPONLY = False
+CSRF_USE_SESSIONS = False
+
 
 # ==============================
 # URLs E TEMPLATES
