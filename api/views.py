@@ -77,19 +77,20 @@ def try_on_diffusion(request):
     background_prompt = request.data.get("background_prompt")
     seed = request.data.get("seed")
 
-    # === Headers e endpoint ===
-    if use_file:
-        url = f"{settings.TRY_ON_BASE_URL}/try-on-file"
-    else:
-        url = f"{settings.TRY_ON_BASE_URL}/try-on-url"
+    # === Detecta se é upload de arquivo ou uso de URL ===
+    use_file = any([avatar_file, clothing_file, background_file])
+
+    # === Define endpoint e headers ===
+    url = (
+        f"{settings.TRY_ON_BASE_URL}/try-on-file"
+        if use_file
+        else f"{settings.TRY_ON_BASE_URL}/try-on"
+    )
 
     headers = {
         "X-RapidAPI-Key": settings.TRY_ON_API_KEY,
         "X-RapidAPI-Host": settings.TRY_ON_API_HOST,
     }
-
-    # Detecta se é upload de arquivo ou uso de URL
-    use_file = any([avatar_file, clothing_file, background_file])
 
     try:
         if use_file:
