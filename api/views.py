@@ -1,8 +1,10 @@
+import io
 import logging
 import requests
+from PIL import Image, ImageEnhance, ImageOps
 
 from django.conf import settings
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from django.views.generic import TemplateView
 from django.views.decorators.csrf import csrf_exempt
 
@@ -12,68 +14,76 @@ from rest_framework.response import Response
 
 logger = logging.getLogger(__name__)
 
-# ---------- Frontend SPA ----------
+
+# ---------- FRONTEND ----------
 class FrontendAppView(TemplateView):
     template_name = "index.html"
 
 
-# ---------- Sanity check ----------
+# ---------- HELLO ----------
 @api_view(["GET"])
 def hello(request):
     return Response({"message": "API Django funcionando!"})
 
 
-# ---------- Helpers ----------
-def _get_file(req, *names):
-    """Retorna o primeiro arquivo encontrado em request.FILES dado um conjunto de chaves possíveis."""
-    for n in names:
-        f = req.FILES.get(n)
-        if f:
-            return f
-    return None
+# ---------- UTILS ----------
+def _resize_image(file, max_size=(768, 1024)):
+    """Redimensiona e otimiza imagem antes do envio."""
+    try:
+        img = Image.open(file).convert("RGB")
+        img = ImageOps.exif_transpose(img)
+        img.thumbnail(max_size, Image.LANCZOS)
+        buffer = io.BytesIO()
+        img.save(buffer, format="JPEG", quality=95, optimize=True)
+        buffer.seek(0)
+        return (file.name, buffer.read(), "image/jpeg")
+    except Exception:
+        file.seek(0)
+        return (file.name, file.read(), file.content_type)
 
 
-def _get_data(req, *names):
-    """Retorna o primeiro valor 'truthy' encontrado em request.data dado um conjunto de chaves possíveis."""
-    for n in names:
-        v = req.data.get(n)
-        if v:
-            return v
-    return None
+def _enhance_output(image_bytes):
+    """Aumenta nitidez, contraste e cor da imagem retornada."""
+    try:
+        img = Image.open(io.BytesIO(image_bytes))
+        img = ImageEnhance.Sharpness(img).enhance(1.8)
+        img = ImageEnhance.Contrast(img).enhance(1.2)
+        img = ImageEnhance.Color(img).enhance(1.1)
+        buffer = io.BytesIO()
+        img.save(buffer, format="JPEG", quality=95)
+        return buffer.getvalue()
+    except Exception as e:
+        logger.warning(f"Falha ao melhorar imagem: {e}")
+        return image_bytes
 
 
-# ---------- Try-On ----------
+# ---------- TRY-ON ----------
 @api_view(["POST"])
 def try_on_diffusion(request):
     """
-    Recebe do frontend:
-      - avatar_image / clothing_image (arquivos)
-      - avatar_image_url / clothing_image_url (URLs)
-    Envia para a API TexelModa (Try-On Diffusion)
-    Retorna a imagem gerada (ou JSON em caso de erro).
+    Recebe avatar e roupa (arquivos ou URLs),
+    envia para API Try-On Diffusion,
+    retorna imagem aprimorada.
     """
 
-    logger = logging.getLogger(__name__)
-
-    # === Entrada ===
     avatar_file = request.FILES.get("avatar_image")
     clothing_file = request.FILES.get("clothing_image")
+    background_file = request.FILES.get("background_image")
+
     avatar_url = request.data.get("avatar_image_url")
     clothing_url = request.data.get("clothing_image_url")
-
-    background_file = request.FILES.get("background_image")
     background_url = request.data.get("background_image_url")
 
     clothing_prompt = request.data.get("clothing_prompt")
     avatar_prompt = request.data.get("avatar_prompt")
-    avatar_sex = request.data.get("avatar_sex")
     background_prompt = request.data.get("background_prompt")
+    avatar_sex = request.data.get("avatar_sex")
     seed = request.data.get("seed")
+    quality = request.data.get("quality", "standard")
 
-    # === Detecta se é upload de arquivo ou uso de URL ===
     use_file = any([avatar_file, clothing_file, background_file])
 
-    # === Define endpoint e headers ===
+    # ---------- ENDPOINT ----------
     url = (
         f"{settings.TRY_ON_BASE_URL}/try-on-file"
         if use_file
@@ -85,95 +95,80 @@ def try_on_diffusion(request):
         "X-RapidAPI-Host": settings.TRY_ON_API_HOST,
     }
 
+    # ---------- PROMPTS AUTOMÁTICOS ----------
+    clothing_prompt = clothing_prompt or "ultra realistic fashion photo, detailed fabric texture, realistic lighting, 4k resolution"
+    avatar_prompt = avatar_prompt or "studio portrait full body, soft natural light, sharp details, professional lighting"
+    background_prompt = background_prompt or "plain white studio background, balanced light"
+
+    # ---------- PARÂMETROS DE QUALIDADE ----------
+    params = {
+        "clothing_prompt": clothing_prompt,
+        "avatar_prompt": avatar_prompt,
+        "background_prompt": background_prompt,
+        "avatar_sex": avatar_sex,
+        "seed": seed,
+    }
+
+    if quality == "high":
+        params.update({"steps": 60, "guidance_scale": 8.5})
+    elif quality == "ultra":
+        params.update({"steps": 75, "guidance_scale": 9.0, "enhance": True})
+    else:
+        params.update({"steps": 40, "guidance_scale": 7.5})
+
     try:
+        # ---------- ARQUIVOS ----------
         if use_file:
-            # ---------- UPLOAD DE ARQUIVOS ----------
-            files, data = {}, {}
+            files = {}
 
             if avatar_file:
-                files["avatar_image"] = (
-                    avatar_file.name,
-                    avatar_file.read(),
-                    avatar_file.content_type,
-                )
-
+                files["avatar_image"] = _resize_image(avatar_file)
             if clothing_file:
-                files["clothing_image"] = (
-                    clothing_file.name,
-                    clothing_file.read(),
-                    clothing_file.content_type,
-                )
-
+                files["clothing_image"] = _resize_image(clothing_file)
             if background_file:
-                files["background_image"] = (
-                    background_file.name,
-                    background_file.read(),
-                    background_file.content_type,
-                )
-
-            for k, v in {
-                "clothing_prompt": clothing_prompt,
-                "avatar_prompt": avatar_prompt,
-                "avatar_sex": avatar_sex,
-                "background_prompt": background_prompt,
-                "seed": seed,
-            }.items():
-                if v:
-                    data[k] = v
+                files["background_image"] = _resize_image(background_file)
 
             resp = requests.post(
-                url, headers=headers, files=files, data=data, timeout=120
+                url, headers=headers, files=files, data=params, timeout=150
             )
 
+        # ---------- URLs ----------
         else:
-            # ---------- ENVIO VIA URL ----------
             if not (avatar_url and clothing_url):
                 return Response(
-                    {
-                        "error": "É necessário enviar avatar_image_url e clothing_image_url ou arquivos válidos."
-                    },
+                    {"error": "Envie avatar_image_url e clothing_image_url ou arquivos válidos."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
             payload = {
-                k: v
-                for k, v in {
-                    "avatar_image_url": avatar_url,
-                    "clothing_image_url": clothing_url,
-                    "background_image_url": background_url,
-                    "clothing_prompt": clothing_prompt,
-                    "avatar_prompt": avatar_prompt,
-                    "avatar_sex": avatar_sex,
-                    "background_prompt": background_prompt,
-                    "seed": seed,
-                }.items()
-                if v is not None
+                **params,
+                "avatar_image_url": avatar_url,
+                "clothing_image_url": clothing_url,
             }
+            if background_url:
+                payload["background_image_url"] = background_url
 
             headers["Content-Type"] = "application/json"
+            resp = requests.post(url, headers=headers, json=payload, timeout=150)
 
-            resp = requests.post(url, headers=headers, json=payload, timeout=120)
-
-        # ---------- TRATA RESPOSTA ----------
+        # ---------- RESPOSTA ----------
         content_type = resp.headers.get("Content-Type", "").lower()
 
         if resp.status_code == 200:
-            # Caso seja imagem
             if "image" in content_type or "octet-stream" in content_type:
-                return HttpResponse(resp.content, content_type=content_type)
+                enhanced = _enhance_output(resp.content)
+                return HttpResponse(enhanced, content_type="image/jpeg")
 
-            # Caso seja JSON (às vezes API retorna link/base64)
             if "application/json" in content_type:
                 return Response(resp.json(), status=200)
 
-            # Tipo inesperado
             logger.warning(f"Tipo de resposta inesperado: {content_type}")
             return Response(
                 {"warning": "Tipo de resposta inesperado", "content_type": content_type},
                 status=200,
             )
 
-        # Se a API respondeu com erro
+        # ---------- ERRO ----------
         try:
             err = resp.json()
         except Exception:
@@ -186,7 +181,7 @@ def try_on_diffusion(request):
         )
 
     except requests.exceptions.Timeout:
-        logger.error("⏱ Timeout na requisição à API Try-On Diffusion.")
+        logger.error("⏱ Timeout na API externa Try-On Diffusion.")
         return Response(
             {"error": "Tempo limite excedido na comunicação com a API externa."},
             status=status.HTTP_504_GATEWAY_TIMEOUT,
@@ -203,30 +198,24 @@ def try_on_diffusion(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-# ---------- REMOÇÃO DE FUNDO ----------
-@csrf_exempt  # 🔥 Isso precisa vir ANTES do @api_view
+# ---------- REMOVE BACKGROUND ----------
+@csrf_exempt
 @api_view(["POST"])
 def remove_background(request):
-    """
-    Recebe uma imagem de roupa, envia para a API externa de remoção de fundo
-    e retorna a nova imagem (PNG com fundo transparente).
-    """
+    """Remove o fundo usando a API remove.bg."""
     image_file = request.FILES.get("image")
     if not image_file:
         return Response({"error": "Nenhuma imagem enviada."}, status=400)
 
-    headers = {
-        "X-RapidAPI-Key": settings.TRY_ON_API_KEY,
-        "X-RapidAPI-Host": "background-remover3.p.rapidapi.com",
-    }
-
+    headers = {"X-Api-Key": settings.REMOVE_BG_API_KEY}
     files = {"image_file": (image_file.name, image_file.read(), image_file.content_type)}
 
     try:
         resp = requests.post(
-            "https://background-remover3.p.rapidapi.com/remove",
+            "https://api.remove.bg/v1.0/removebg",
             headers=headers,
             files=files,
+            data={"size": "auto", "type": "auto"},
             timeout=60,
         )
 
@@ -240,6 +229,5 @@ def remove_background(request):
 
     except Exception as e:
         return Response(
-            {"error": "Erro interno ao processar imagem.", "details": str(e)},
-            status=500,
+            {"error": "Erro interno ao processar imagem.", "details": str(e)}, status=500
         )

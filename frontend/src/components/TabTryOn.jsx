@@ -8,26 +8,47 @@ export default function TryOnForm({ backendUrl }) {
   const [clothingImage, setClothingImage] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState("");
   const [clothingUrl, setClothingUrl] = useState("");
+  const [quality, setQuality] = useState("standard");
+  const [progress, setProgress] = useState(0);
+  const [stage, setStage] = useState("idle"); // idle | removing | generating
 
-  // Controlador global de requisições
   const controllerRef = useRef(null);
 
-  // Cancela requisições pendentes ao desmontar o componente
   useEffect(() => {
     return () => {
       if (controllerRef.current) controllerRef.current.abort();
     };
   }, []);
 
+  async function removeBackground(file) {
+    setStage("removing");
+    setProgress(20);
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const resp = await fetch(
+      backendUrl.replace("try-on-diffusion", "remove-background"),
+      { method: "POST", body: formData }
+    );
+
+    if (!resp.ok) throw new Error("Falha ao remover fundo da roupa.");
+    const blob = await resp.blob();
+    const cleanedFile = new File([blob], file.name, { type: "image/png" });
+    console.log("✅ Fundo removido:", cleanedFile);
+    return cleanedFile;
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
     setError("");
     setResultImage(null);
+    setProgress(10);
+    setStage("generating");
 
     try {
       let options = {};
-
       const hasFiles = avatarImage || clothingImage;
       const hasUrls = avatarUrl.trim() !== "" && clothingUrl.trim() !== "";
 
@@ -39,19 +60,27 @@ export default function TryOnForm({ backendUrl }) {
 
       if (hasFiles) {
         const formData = new FormData();
-        if (avatarImage) formData.append("avatar_image", avatarImage);
-        if (clothingImage) formData.append("clothing_image", clothingImage);
 
-        options = {
-          method: "POST",
-          body: formData,
-        };
+        if (avatarImage) formData.append("avatar_image", avatarImage);
+
+        // 🔥 Auto background clean
+        let finalClothingFile = clothingImage;
+        if (clothingImage) {
+          setStage("removing");
+          finalClothingFile = await removeBackground(clothingImage);
+        }
+
+        if (finalClothingFile)
+          formData.append("clothing_image", finalClothingFile);
+
+        formData.append("quality", quality);
+        options = { method: "POST", body: formData };
       } else {
         const payload = {
           avatar_image_url: avatarUrl,
           clothing_image_url: clothingUrl,
+          quality,
         };
-
         options = {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -59,20 +88,21 @@ export default function TryOnForm({ backendUrl }) {
         };
       }
 
-      // 🚀 Controlador para abortar requisições antigas
       controllerRef.current = new AbortController();
       options.signal = controllerRef.current.signal;
+      setProgress(50);
 
-      // ⏱ Timeout de 90s para evitar travas
       const timeout = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Tempo limite excedido.")), 90000)
+        setTimeout(() => reject(new Error("Tempo limite excedido.")), 120000)
       );
 
-      // Faz a requisição aguardando até o final
       const response = await Promise.race([
         fetch(backendUrl, options),
         timeout,
       ]);
+
+      setStage("generating");
+      setProgress(80);
 
       if (!response.ok) {
         let errData;
@@ -92,20 +122,16 @@ export default function TryOnForm({ backendUrl }) {
         contentType.includes("octet-stream")
       ) {
         const blob = await response.blob();
-        await blob.arrayBuffer(); // 🔒 garante leitura completa
         const imageUrl = URL.createObjectURL(blob);
         console.log("✅ Imagem recebida — tamanho:", blob.size, "bytes");
         setResultImage(imageUrl);
       } else {
-        try {
-          const data = await response.json();
-          console.log("🔗 Resposta JSON:", data);
-          setResultImage(data.output_url || data.result || null);
-        } catch (err) {
-          console.error("Erro ao ler JSON:", err);
-          setError("Resposta inesperada do servidor.");
-        }
+        const data = await response.json();
+        console.log("🔗 Resposta JSON:", data);
+        setResultImage(data.output_url || data.result || null);
       }
+
+      setProgress(100);
     } catch (err) {
       if (err.name === "AbortError") {
         console.warn("🔕 Requisição cancelada.");
@@ -115,49 +141,98 @@ export default function TryOnForm({ backendUrl }) {
       }
     } finally {
       setLoading(false);
+      setTimeout(() => setProgress(0), 1500);
+      setStage("idle");
     }
   }
 
-  // 👇 O return do componente deve ficar fora da função handleSubmit
   return (
     <div>
       <h3>👕 Try-On Virtual</h3>
 
       <form onSubmit={handleSubmit} className="tryon-form">
+        {/* Avatar */}
         <div className="form-group">
           <label>🧍 Avatar (foto da pessoa)</label>
           <input
             type="file"
             accept="image/*"
+            disabled={loading}
             onChange={(e) => setAvatarImage(e.target.files[0])}
           />
           <input
             type="text"
             placeholder="ou URL do avatar"
             value={avatarUrl}
+            disabled={loading}
             onChange={(e) => setAvatarUrl(e.target.value)}
           />
         </div>
 
+        {/* Roupa */}
         <div className="form-group">
           <label>👚 Roupa</label>
           <input
             type="file"
             accept="image/*"
+            disabled={loading}
             onChange={(e) => setClothingImage(e.target.files[0])}
           />
           <input
             type="text"
             placeholder="ou URL da roupa"
             value={clothingUrl}
+            disabled={loading}
             onChange={(e) => setClothingUrl(e.target.value)}
           />
         </div>
 
+        {/* Qualidade */}
+        <div className="form-group">
+          <label>⚙️ Qualidade da Geração</label>
+          <select
+            value={quality}
+            onChange={(e) => setQuality(e.target.value)}
+            disabled={loading}
+          >
+            <option value="standard">Padrão (rápido)</option>
+            <option value="high">Alta (detalhada)</option>
+            <option value="ultra">Ultra (máxima qualidade)</option>
+          </select>
+        </div>
+
+        {/* Botão */}
         <button type="submit" className="btn-primary" disabled={loading}>
-          {loading ? "Gerando imagem..." : "Testar Try-On"}
+          {loading
+            ? stage === "removing"
+              ? "Removendo fundo da roupa..."
+              : "Gerando imagem..."
+            : "Testar Try-On"}
         </button>
       </form>
+
+      {/* Barra de progresso */}
+      {loading && (
+        <div
+          style={{
+            width: "100%",
+            height: "8px",
+            background: "#eee",
+            borderRadius: "4px",
+            marginTop: "10px",
+          }}
+        >
+          <div
+            style={{
+              width: `${progress}%`,
+              height: "100%",
+              background: "#007bff",
+              borderRadius: "4px",
+              transition: "width 0.3s ease",
+            }}
+          />
+        </div>
+      )}
 
       {error && <p className="error">⚠️ {error}</p>}
 
