@@ -33,8 +33,14 @@ def _resize_image(file, max_size=(768, 1024)):
         img = Image.open(file).convert("RGB")
         img = ImageOps.exif_transpose(img)
         img.thumbnail(max_size, Image.LANCZOS)
+
+        # 🔧 Ajuste leve de brilho e contraste para entrada mais equilibrada
+        img = ImageEnhance.Brightness(img).enhance(1.05)
+        img = ImageEnhance.Contrast(img).enhance(1.08)
+        img = ImageEnhance.Color(img).enhance(1.05)
+
         buffer = io.BytesIO()
-        img.save(buffer, format="JPEG", quality=95, optimize=True)
+        img.save(buffer, format="JPEG", quality=96, optimize=True)
         buffer.seek(0)
         return (file.name, buffer.read(), "image/jpeg")
     except Exception:
@@ -43,15 +49,29 @@ def _resize_image(file, max_size=(768, 1024)):
 
 
 def _enhance_output(image_bytes):
-    """Aumenta nitidez, contraste e cor da imagem retornada."""
+    """Aprimora a imagem gerada: remove aura, corrige fundo e mantém nitidez."""
     try:
-        img = Image.open(io.BytesIO(image_bytes))
-        img = ImageEnhance.Sharpness(img).enhance(1.8)
-        img = ImageEnhance.Contrast(img).enhance(1.2)
-        img = ImageEnhance.Color(img).enhance(1.1)
+        img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+
+        # ✨ Correções sutis de luz, contraste e saturação
+        img = ImageOps.autocontrast(img, cutoff=2)
+        img = ImageEnhance.Brightness(img).enhance(1.02)
+        img = ImageEnhance.Contrast(img).enhance(1.1)
+        img = ImageEnhance.Color(img).enhance(1.05)
+        img = ImageEnhance.Sharpness(img).enhance(1.15)
+
+        # ⚪ Força fundo branco puro sem halo ou margem
+        white_bg = Image.new("RGB", img.size, (255, 255, 255))
+        white_bg.paste(img)
+
+        # 📈 Upscale leve para maior definição final (sem distorcer)
+        w, h = white_bg.size
+        upscale = white_bg.resize((int(w * 1.5), int(h * 1.5)), Image.LANCZOS)
+
         buffer = io.BytesIO()
-        img.save(buffer, format="JPEG", quality=95)
+        upscale.save(buffer, format="JPEG", quality=97, optimize=True)
         return buffer.getvalue()
+
     except Exception as e:
         logger.warning(f"Falha ao melhorar imagem: {e}")
         return image_bytes
@@ -62,8 +82,10 @@ def _enhance_output(image_bytes):
 def try_on_diffusion(request):
     """
     Recebe avatar e roupa (arquivos ou URLs),
-    envia para API Try-On Diffusion,
-    retorna imagem aprimorada.
+    identifica o tipo da roupa,
+    aplica o prompt correspondente,
+    envia para a API Try-On Diffusion,
+    e retorna imagem aprimorada.
     """
 
     avatar_file = request.FILES.get("avatar_image")
@@ -74,6 +96,10 @@ def try_on_diffusion(request):
     clothing_url = request.data.get("clothing_image_url")
     background_url = request.data.get("background_image_url")
 
+    # 👕 Tipo da roupa (opcional, enviado pelo front)
+    clothing_type = (request.data.get("clothing_type") or "").lower()
+
+    # Prompts manuais opcionais
     clothing_prompt = request.data.get("clothing_prompt")
     avatar_prompt = request.data.get("avatar_prompt")
     background_prompt = request.data.get("background_prompt")
@@ -83,7 +109,6 @@ def try_on_diffusion(request):
 
     use_file = any([avatar_file, clothing_file, background_file])
 
-    # ---------- ENDPOINT ----------
     url = (
         f"{settings.TRY_ON_BASE_URL}/try-on-file"
         if use_file
@@ -95,10 +120,50 @@ def try_on_diffusion(request):
         "X-RapidAPI-Host": settings.TRY_ON_API_HOST,
     }
 
-    # ---------- PROMPTS AUTOMÁTICOS ----------
-    clothing_prompt = clothing_prompt or "ultra realistic fashion photo, detailed fabric texture, realistic lighting, 4k resolution"
-    avatar_prompt = avatar_prompt or "studio portrait full body, soft natural light, sharp details, professional lighting"
-    background_prompt = background_prompt or "plain white studio background, balanced light"
+    PROMPTS_BY_TYPE = {
+        "shirt": (
+            "realistic photo of a t-shirt or blouse, upper body clothing only, "
+            "visible sleeves and collar, fits naturally on torso, soft lighting"
+        ),
+        "pants": (
+            "realistic photo of pants or jeans, bottom clothing only, "
+            "fitted at waist and legs, clear separation from torso, realistic folds"
+        ),
+        "shorts": (
+            "realistic photo of shorts, bottom clothing only, "
+            "above knees, clear waistline, realistic shadows"
+        ),
+        "jacket": (
+            "realistic photo of a jacket or coat, worn over shirt, "
+            "visible sleeves, collar and zipper/buttons, fabric thickness visible"
+        ),
+        "dress": (
+            "realistic photo of a dress, full body garment, "
+            "smooth transition from top to bottom, fabric flows naturally"
+        ),
+        "skirt": (
+            "realistic photo of a skirt, worn on hips, "
+            "covering part of thighs, clear separation from torso"
+        ),
+        "generic": (
+            "ultra realistic fashion photo, detailed fabric texture, "
+            "fabric following body curves naturally, soft realistic wrinkles, "
+            "studio-grade lighting, realistic shadows"
+        ),
+    }
+
+    # Se o front não mandou clothing_prompt, escolhe pelo tipo
+    if not clothing_prompt:
+        clothing_prompt = PROMPTS_BY_TYPE.get(clothing_type, PROMPTS_BY_TYPE["generic"])
+
+    avatar_prompt = avatar_prompt or (
+        "studio portrait full body, natural pose, realistic body motion, "
+        "sharp details, professional fashion catalog photo"
+    )
+    background_prompt = background_prompt or (
+        "pure white seamless background, no gradient, no shadow edges, "
+        "soft neutral studio light"
+    )
 
     # ---------- PARÂMETROS DE QUALIDADE ----------
     params = {
@@ -114,7 +179,7 @@ def try_on_diffusion(request):
     elif quality == "ultra":
         params.update({"steps": 75, "guidance_scale": 9.0, "enhance": True})
     else:
-        params.update({"steps": 40, "guidance_scale": 7.5})
+        params.update({"steps": 45, "guidance_scale": 7.8})
 
     try:
         # ---------- ARQUIVOS ----------

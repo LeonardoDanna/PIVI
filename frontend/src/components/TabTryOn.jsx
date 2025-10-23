@@ -10,9 +10,28 @@ export default function TryOnForm({ backendUrl }) {
   const [clothingUrl, setClothingUrl] = useState("");
   const [quality, setQuality] = useState("standard");
   const [progress, setProgress] = useState(0);
-  const [stage, setStage] = useState("idle"); // idle | removing | generating
+  const [stage, setStage] = useState("idle");
+  const [clothingType, setClothingType] = useState("generic"); // 👕 novo estado
 
   const controllerRef = useRef(null);
+
+  // 🔤 Prompts específicos por tipo de roupa
+  const PROMPTS_BY_TYPE = {
+    generic:
+      "ultra realistic fashion photo, detailed fabric texture, studio lighting, soft realistic wrinkles",
+    shirt:
+      "realistic photo of a t-shirt or blouse, upper body clothing only, visible sleeves and collar, fits naturally on torso, professional fashion photo",
+    pants:
+      "realistic photo of pants or jeans, bottom clothing only, fitted at waist and legs, clear separation from torso, realistic fabric folds",
+    shorts:
+      "realistic photo of shorts, bottom clothing only, above knees, clear waistline, realistic shadows and texture",
+    jacket:
+      "realistic photo of a jacket, worn over shirt, visible sleeves and zipper/buttons, fabric thickness visible",
+    dress:
+      "realistic photo of a dress, full body garment, smooth fabric transition from top to bottom, professional studio lighting",
+    skirt:
+      "realistic photo of a skirt, worn at waist, fabric ending around thighs, clear separation from upper body, soft natural folds",
+  };
 
   useEffect(() => {
     return () => {
@@ -58,12 +77,15 @@ export default function TryOnForm({ backendUrl }) {
         return;
       }
 
+      // 🧠 Seleciona prompt com base no tipo escolhido
+      const clothingPrompt =
+        PROMPTS_BY_TYPE[clothingType] || PROMPTS_BY_TYPE.generic;
+
       if (hasFiles) {
         const formData = new FormData();
 
         if (avatarImage) formData.append("avatar_image", avatarImage);
 
-        // 🔥 Auto background clean
         let finalClothingFile = clothingImage;
         if (clothingImage) {
           setStage("removing");
@@ -73,12 +95,16 @@ export default function TryOnForm({ backendUrl }) {
         if (finalClothingFile)
           formData.append("clothing_image", finalClothingFile);
 
+        // 🪄 inclui o prompt no FormData
+        formData.append("clothing_prompt", clothingPrompt);
         formData.append("quality", quality);
+
         options = { method: "POST", body: formData };
       } else {
         const payload = {
           avatar_image_url: avatarUrl,
           clothing_image_url: clothingUrl,
+          clothing_prompt: clothingPrompt, // 🪄 inclui prompt no JSON
           quality,
         };
         options = {
@@ -185,6 +211,24 @@ export default function TryOnForm({ backendUrl }) {
             disabled={loading}
             onChange={(e) => setClothingUrl(e.target.value)}
           />
+        </div>
+
+        {/* Tipo da roupa */}
+        <div className="form-group">
+          <label>👗 Tipo da Roupa</label>
+          <select
+            value={clothingType}
+            onChange={(e) => setClothingType(e.target.value)}
+            disabled={loading}
+          >
+            <option value="generic">Genérico</option>
+            <option value="shirt">Camisa / Blusa</option>
+            <option value="pants">Calça</option>
+            <option value="shorts">Shorts</option>
+            <option value="jacket">Jaqueta / Casaco</option>
+            <option value="dress">Vestido</option>
+            <option value="skirt">Saia</option>
+          </select>
         </div>
 
         {/* Qualidade */}
