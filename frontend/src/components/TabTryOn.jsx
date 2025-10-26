@@ -11,27 +11,53 @@ export default function TryOnForm({ backendUrl }) {
   const [quality, setQuality] = useState("standard");
   const [progress, setProgress] = useState(0);
   const [stage, setStage] = useState("idle");
-  const [clothingType, setClothingType] = useState("generic"); // 👕 novo estado
+  const [clothingType, setClothingType] = useState("generic");
 
   const controllerRef = useRef(null);
 
-  // 🔤 Prompts específicos por tipo de roupa
   const PROMPTS_BY_TYPE = {
-    generic:
-      "ultra realistic fashion photo, detailed fabric texture, studio lighting, soft realistic wrinkles",
-    shirt:
-      "realistic photo of a t-shirt or blouse, upper body clothing only, visible sleeves and collar, fits naturally on torso, professional fashion photo",
-    pants:
-      "realistic photo of pants or jeans, bottom clothing only, fitted at waist and legs, clear separation from torso, realistic fabric folds",
-    shorts:
-      "realistic photo of shorts, bottom clothing only, above knees, clear waistline, realistic shadows and texture",
-    jacket:
-      "realistic photo of a jacket, worn over shirt, visible sleeves and zipper/buttons, fabric thickness visible",
-    dress:
-      "realistic photo of a dress, full body garment, smooth fabric transition from top to bottom, professional studio lighting",
-    skirt:
-      "realistic photo of a skirt, worn at waist, fabric ending around thighs, clear separation from upper body, soft natural folds",
+    generic: `
+      apply the clothing naturally on the person in the input photo,
+      keep the person's original face, body, pose, lighting and background unchanged,
+      only replace the clothing region realistically, high detail and photorealism.
+    `,
+    shirt: `
+      make the person wear the provided shirt or blouse naturally,
+      preserve the original face, body shape, pose, lighting and background exactly,
+      only modify the upper body clothing region, realistic fabric folds and texture.
+    `,
+    pants: `
+      make the person wear the provided pants naturally on the lower body,
+      preserve the original face, skin, pose, lighting and background without change,
+      only modify the waist-to-feet region for the pants, realistic texture, shadows and folds.
+    `,
+    shorts: `
+      make the person wear the provided shorts realistically,
+      preserve the original face, pose, lighting and background exactly,
+      only modify the lower body region to show shorts, photorealistic texture.
+    `,
+    jacket: `
+      make the person wear the provided jacket over existing clothes naturally,
+      preserve the original face, pose, lighting and background without change,
+      only modify torso and arms, realistic jacket fabric and lighting.
+    `,
+    dress: `
+      make the person wear the provided dress naturally,
+      preserve the original face, pose, lighting and background identical,
+      modify only the clothing region, realistic full-body garment fit.
+    `,
+    skirt: `
+      make the person wear the provided skirt realistically,
+      preserve the original face, pose, lighting and background,
+      modify only the lower torso region, realistic skirt folds and shadows.
+    `,
   };
+
+  const NEGATIVE_PROMPT = `
+    face changes, different person, distorted body, altered lighting,
+    background change, unrealistic proportions, double limbs,
+    blur, low quality, artifacts, bad anatomy, fake face
+  `;
 
   useEffect(() => {
     return () => {
@@ -42,19 +68,16 @@ export default function TryOnForm({ backendUrl }) {
   async function removeBackground(file) {
     setStage("removing");
     setProgress(20);
-
     const formData = new FormData();
     formData.append("image", file);
-
     const resp = await fetch(
       backendUrl.replace("try-on-diffusion", "remove-background"),
       { method: "POST", body: formData }
     );
-
-    if (!resp.ok) throw new Error("Falha ao remover fundo da roupa.");
+    if (!resp.ok) throw new Error("Failed to remove background.");
     const blob = await resp.blob();
     const cleanedFile = new File([blob], file.name, { type: "image/png" });
-    console.log("✅ Fundo removido:", cleanedFile);
+    console.log("Background removed:", cleanedFile);
     return cleanedFile;
   }
 
@@ -67,23 +90,26 @@ export default function TryOnForm({ backendUrl }) {
     setStage("generating");
 
     try {
-      let options = {};
       const hasFiles = avatarImage || clothingImage;
       const hasUrls = avatarUrl.trim() !== "" && clothingUrl.trim() !== "";
 
       if (!hasFiles && !hasUrls) {
-        setError("Envie arquivos ou URLs válidas para o avatar e a roupa.");
+        setError(
+          "Please upload valid files or URLs for both avatar and clothing."
+        );
         setLoading(false);
         return;
       }
 
-      // 🧠 Seleciona prompt com base no tipo escolhido
       const clothingPrompt =
         PROMPTS_BY_TYPE[clothingType] || PROMPTS_BY_TYPE.generic;
 
+      let options = {};
+      controllerRef.current = new AbortController();
+      const signal = controllerRef.current.signal;
+
       if (hasFiles) {
         const formData = new FormData();
-
         if (avatarImage) formData.append("avatar_image", avatarImage);
 
         let finalClothingFile = clothingImage;
@@ -95,39 +121,45 @@ export default function TryOnForm({ backendUrl }) {
         if (finalClothingFile)
           formData.append("clothing_image", finalClothingFile);
 
-        // 🪄 inclui o prompt no FormData
         formData.append("clothing_prompt", clothingPrompt);
+        formData.append("negative_prompt", NEGATIVE_PROMPT);
         formData.append("quality", quality);
+        formData.append("clothing_type", clothingType);
 
-        options = { method: "POST", body: formData };
+        options = { method: "POST", body: formData, signal };
       } else {
         const payload = {
           avatar_image_url: avatarUrl,
           clothing_image_url: clothingUrl,
-          clothing_prompt: clothingPrompt, // 🪄 inclui prompt no JSON
+          clothing_prompt: clothingPrompt,
+          negative_prompt: NEGATIVE_PROMPT,
           quality,
+          clothing_type: clothingType,
         };
         options = {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
+          signal,
         };
       }
 
-      controllerRef.current = new AbortController();
-      options.signal = controllerRef.current.signal;
-      setProgress(50);
+      console.groupCollapsed("TRY-ON REQUEST");
+      console.log("Clothing type:", clothingType);
+      console.log("Quality:", quality);
+      console.log("Clothing prompt:", clothingPrompt.trim());
+      console.log("Negative prompt:", NEGATIVE_PROMPT.trim());
+      console.groupEnd();
 
+      setProgress(50);
       const timeout = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Tempo limite excedido.")), 120000)
+        setTimeout(() => reject(new Error("Request timeout.")), 120000)
       );
 
       const response = await Promise.race([
         fetch(backendUrl, options),
         timeout,
       ]);
-
-      setStage("generating");
       setProgress(80);
 
       if (!response.ok) {
@@ -135,13 +167,13 @@ export default function TryOnForm({ backendUrl }) {
         try {
           errData = await response.json();
         } catch {
-          errData = { error: "Erro inesperado na API." };
+          errData = { error: "Unexpected API error." };
         }
-        throw new Error(errData.error || "Erro ao processar imagem.");
+        throw new Error(errData.error || "Image processing failed.");
       }
 
       const contentType = response.headers.get("Content-Type") || "";
-      console.log("🔍 Tipo de resposta:", contentType);
+      console.log("Response content type:", contentType);
 
       if (
         contentType.includes("image") ||
@@ -149,21 +181,21 @@ export default function TryOnForm({ backendUrl }) {
       ) {
         const blob = await response.blob();
         const imageUrl = URL.createObjectURL(blob);
-        console.log("✅ Imagem recebida — tamanho:", blob.size, "bytes");
+        console.log("Image received:", blob.size, "bytes");
         setResultImage(imageUrl);
       } else {
         const data = await response.json();
-        console.log("🔗 Resposta JSON:", data);
+        console.log("JSON response:", data);
         setResultImage(data.output_url || data.result || null);
       }
 
       setProgress(100);
     } catch (err) {
       if (err.name === "AbortError") {
-        console.warn("🔕 Requisição cancelada.");
+        console.log("Request aborted.");
       } else {
-        console.error("Erro no Try-On:", err);
-        setError(err.message || "Falha ao gerar imagem.");
+        console.error("Try-On error:", err);
+        setError(err.message || "Failed to generate image.");
       }
     } finally {
       setLoading(false);
@@ -174,12 +206,10 @@ export default function TryOnForm({ backendUrl }) {
 
   return (
     <div>
-      <h3>👕 Try-On Virtual</h3>
-
+      <h3>Virtual Try-On</h3>
       <form onSubmit={handleSubmit} className="tryon-form">
-        {/* Avatar */}
         <div className="form-group">
-          <label>🧍 Avatar (foto da pessoa)</label>
+          <label>Avatar (person photo)</label>
           <input
             type="file"
             accept="image/*"
@@ -188,16 +218,15 @@ export default function TryOnForm({ backendUrl }) {
           />
           <input
             type="text"
-            placeholder="ou URL do avatar"
+            placeholder="or avatar URL"
             value={avatarUrl}
             disabled={loading}
             onChange={(e) => setAvatarUrl(e.target.value)}
           />
         </div>
 
-        {/* Roupa */}
         <div className="form-group">
-          <label>👚 Roupa</label>
+          <label>Clothing</label>
           <input
             type="file"
             accept="image/*"
@@ -206,56 +235,52 @@ export default function TryOnForm({ backendUrl }) {
           />
           <input
             type="text"
-            placeholder="ou URL da roupa"
+            placeholder="or clothing URL"
             value={clothingUrl}
             disabled={loading}
             onChange={(e) => setClothingUrl(e.target.value)}
           />
         </div>
 
-        {/* Tipo da roupa */}
         <div className="form-group">
-          <label>👗 Tipo da Roupa</label>
+          <label>Clothing Type</label>
           <select
             value={clothingType}
             onChange={(e) => setClothingType(e.target.value)}
             disabled={loading}
           >
-            <option value="generic">Genérico</option>
-            <option value="shirt">Camisa / Blusa</option>
-            <option value="pants">Calça</option>
+            <option value="generic">Generic</option>
+            <option value="shirt">Shirt / Blouse</option>
+            <option value="pants">Pants</option>
             <option value="shorts">Shorts</option>
-            <option value="jacket">Jaqueta / Casaco</option>
-            <option value="dress">Vestido</option>
-            <option value="skirt">Saia</option>
+            <option value="jacket">Jacket / Coat</option>
+            <option value="dress">Dress</option>
+            <option value="skirt">Skirt</option>
           </select>
         </div>
 
-        {/* Qualidade */}
         <div className="form-group">
-          <label>⚙️ Qualidade da Geração</label>
+          <label>Generation Quality</label>
           <select
             value={quality}
             onChange={(e) => setQuality(e.target.value)}
             disabled={loading}
           >
-            <option value="standard">Padrão (rápido)</option>
-            <option value="high">Alta (detalhada)</option>
-            <option value="ultra">Ultra (máxima qualidade)</option>
+            <option value="standard">Standard (fast)</option>
+            <option value="high">High (detailed)</option>
+            <option value="ultra">Ultra (maximum quality)</option>
           </select>
         </div>
 
-        {/* Botão */}
         <button type="submit" className="btn-primary" disabled={loading}>
           {loading
             ? stage === "removing"
-              ? "Removendo fundo da roupa..."
-              : "Gerando imagem..."
-            : "Testar Try-On"}
+              ? "Removing background..."
+              : "Generating..."
+            : "Run Try-On"}
         </button>
       </form>
 
-      {/* Barra de progresso */}
       {loading && (
         <div
           style={{
@@ -278,14 +303,14 @@ export default function TryOnForm({ backendUrl }) {
         </div>
       )}
 
-      {error && <p className="error">⚠️ {error}</p>}
+      {error && <p className="error">{error}</p>}
 
       {resultImage && (
         <div className="resultado">
-          <h4>🖼️ Resultado</h4>
+          <h4>Result</h4>
           <img
             src={resultImage}
-            alt="Resultado Try-On"
+            alt="Try-On Result"
             className="tryon-result"
             style={{
               maxWidth: "100%",
