@@ -400,9 +400,29 @@ export default function App() {
   const [userProfile, setUserProfile] = useState(
     JSON.parse(localStorage.getItem("userProfile")) || { name: "Usuário", avatarUrl: null }
   );
+  const [showWelcome, setShowWelcome] = useState(true);
+
+  const handleClosePopup = () => {
+    setShowWelcome(false);
+  };
 
   return (
     <>
+      {showWelcome && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h2>👗 Bem-vindo(a) ao <span className="highlight">TodayFashion</span>!</h2>
+            <p>
+              A IA que vai te ajudar a descobrir o que vestir, combinar cores,
+              testar looks e organizar seu guarda-roupa de forma inteligente 💫
+            </p>
+            <button className="btn-primary" onClick={handleClosePopup}>
+              Começar
+            </button>
+          </div>
+        </div>
+      )}
+
       <header>Today's Fashion</header>
       <div className="container">
         <nav className="tabs">
@@ -437,7 +457,10 @@ export default function App() {
 
         <div className="tab-content">
           {activeTab === "meuPerfil" ? (
-            <MeuPerfil userProfile={userProfile} setUserProfile={setUserProfile} />
+            <MeuPerfil
+              userProfile={userProfile}
+              setUserProfile={setUserProfile}
+            />
           ) : (
             tabs.find((t) => t.id === activeTab)?.component
           )}
