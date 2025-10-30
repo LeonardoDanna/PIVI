@@ -411,7 +411,7 @@ export default function App() {
       {showWelcome && (
         <div className="popup-overlay">
           <div className="popup-box">
-            <h2>👗 Bem-vindo(a) ao <span className="highlight">TodayFashion</span>!</h2>
+            <h2>👗 Bem-vindo(a) ao <span className="highlight">Today's Fashion</span>!</h2>
             <p>
               A IA que vai te ajudar a descobrir o que vestir, combinar cores,
               testar looks e organizar seu guarda-roupa de forma inteligente 💫

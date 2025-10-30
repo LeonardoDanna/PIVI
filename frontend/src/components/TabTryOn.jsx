@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { FaTshirt, FaUserAlt, FaImage } from "react-icons/fa"; // 👈 novos ícones
+import { FaTshirt, FaUserAlt, FaImage } from "react-icons/fa";
 
 export default function TryOnForm({ backendUrl }) {
   const [loading, setLoading] = useState(false);
@@ -22,7 +22,7 @@ export default function TryOnForm({ backendUrl }) {
       keep the person's original face, body, pose, lighting and background unchanged,
       only replace the clothing region realistically, high detail and photorealism.
     `,
-    shirt: `
+  shirt: `
       make the person wear the provided shirt or blouse naturally,
       preserve the original face, body shape, pose, lighting and background exactly,
       only modify the upper body clothing region, realistic fabric folds and texture.
@@ -77,9 +77,7 @@ export default function TryOnForm({ backendUrl }) {
     );
     if (!resp.ok) throw new Error("Failed to remove background.");
     const blob = await resp.blob();
-    const cleanedFile = new File([blob], file.name, { type: "image/png" });
-    console.log("Background removed:", cleanedFile);
-    return cleanedFile;
+    return new File([blob], file.name, { type: "image/png" });
   }
 
   async function handleSubmit(e) {
@@ -95,15 +93,12 @@ export default function TryOnForm({ backendUrl }) {
       const hasUrls = avatarUrl.trim() !== "" && clothingUrl.trim() !== "";
 
       if (!hasFiles && !hasUrls) {
-        setError(
-          "Please upload valid files or URLs for both avatar and clothing."
-        );
+        setError("Please upload valid files or URLs for both avatar and clothing.");
         setLoading(false);
         return;
       }
 
-      const clothingPrompt =
-        PROMPTS_BY_TYPE[clothingType] || PROMPTS_BY_TYPE.generic;
+      const clothingPrompt = PROMPTS_BY_TYPE[clothingType] || PROMPTS_BY_TYPE.generic;
 
       let options = {};
       controllerRef.current = new AbortController();
@@ -115,12 +110,9 @@ export default function TryOnForm({ backendUrl }) {
 
         let finalClothingFile = clothingImage;
         if (clothingImage) {
-          setStage("removing");
           finalClothingFile = await removeBackground(clothingImage);
         }
-
-        if (finalClothingFile)
-          formData.append("clothing_image", finalClothingFile);
+        if (finalClothingFile) formData.append("clothing_image", finalClothingFile);
 
         formData.append("clothing_prompt", clothingPrompt);
         formData.append("negative_prompt", NEGATIVE_PROMPT);
@@ -145,57 +137,32 @@ export default function TryOnForm({ backendUrl }) {
         };
       }
 
-      console.groupCollapsed("TRY-ON REQUEST");
-      console.log("Clothing type:", clothingType);
-      console.log("Quality:", quality);
-      console.log("Clothing prompt:", clothingPrompt.trim());
-      console.log("Negative prompt:", NEGATIVE_PROMPT.trim());
-      console.groupEnd();
-
       setProgress(50);
       const timeout = new Promise((_, reject) =>
         setTimeout(() => reject(new Error("Request timeout.")), 120000)
       );
-
-      const response = await Promise.race([
-        fetch(backendUrl, options),
-        timeout,
-      ]);
+      const response = await Promise.race([fetch(backendUrl, options), timeout]);
       setProgress(80);
 
       if (!response.ok) {
         let errData;
-        try {
-          errData = await response.json();
-        } catch {
-          errData = { error: "Unexpected API error." };
-        }
+        try { errData = await response.json(); } 
+        catch { errData = { error: "Unexpected API error." }; }
         throw new Error(errData.error || "Image processing failed.");
       }
 
       const contentType = response.headers.get("Content-Type") || "";
-      console.log("Response content type:", contentType);
-
-      if (
-        contentType.includes("image") ||
-        contentType.includes("octet-stream")
-      ) {
+      if (contentType.includes("image") || contentType.includes("octet-stream")) {
         const blob = await response.blob();
-        const imageUrl = URL.createObjectURL(blob);
-        console.log("Image received:", blob.size, "bytes");
-        setResultImage(imageUrl);
+        setResultImage(URL.createObjectURL(blob));
       } else {
         const data = await response.json();
-        console.log("JSON response:", data);
         setResultImage(data.output_url || data.result || null);
       }
 
       setProgress(100);
     } catch (err) {
-      if (err.name === "AbortError") {
-        console.log("Request aborted.");
-      } else {
-        console.error("Try-On error:", err);
+      if (err.name !== "AbortError") {
         setError(err.message || "Failed to generate image.");
       }
     } finally {
@@ -208,20 +175,17 @@ export default function TryOnForm({ backendUrl }) {
   return (
     <div style={{ color: "#fff" }}>
       <h3 style={{ textAlign: "center", color: "#fff", marginBottom: "1.5rem" }}>
-        <FaTshirt style={{ marginRight: "8px" }} />
+        <FaTshirt style={{ marginRight: 8 }} />
         Try-On Virtual
       </h3>
 
+      {/* ===== FORM ÚNICO ===== */}
       <form onSubmit={handleSubmit} className="tryon-form">
-        <div className="form-group" style={{ marginBottom: "2rem" }}>
-          <label style={{ color: "#fff", fontWeight: "600" }}>
-            <FaUserAlt style={{ marginRight: "6px" }} /> Avatar (sua foto)
+        {/* Avatar */}
+        <div className="form-group" style={{ marginBottom: "1.25rem" }}>
+          <label style={{ color: "#fff", fontWeight: 600 }}>
+            <FaUserAlt style={{ marginRight: 6 }} /> Avatar (sua foto)
           </label>
-    <div>
-      <h3>Virtual Try-On</h3>
-      <form onSubmit={handleSubmit} className="tryon-form">
-        <div className="form-group">
-          <label>Avatar (person photo)</label>
           <input
             type="file"
             accept="image/*"
@@ -230,19 +194,18 @@ export default function TryOnForm({ backendUrl }) {
           />
           <input
             type="text"
-            placeholder="or avatar URL"
+            placeholder="ou URL do avatar"
             value={avatarUrl}
             disabled={loading}
             onChange={(e) => setAvatarUrl(e.target.value)}
           />
         </div>
 
-        <div className="form-group" style={{ marginBottom: "2rem" }}>
-          <label style={{ color: "#fff", fontWeight: "600" }}>
-            <FaTshirt style={{ marginRight: "6px" }} /> Roupa
+        {/* Roupa */}
+        <div className="form-group" style={{ marginBottom: "1.25rem" }}>
+          <label style={{ color: "#fff", fontWeight: 600 }}>
+            <FaTshirt style={{ marginRight: 6 }} /> Roupa
           </label>
-        <div className="form-group">
-          <label>Clothing</label>
           <input
             type="file"
             accept="image/*"
@@ -251,60 +214,59 @@ export default function TryOnForm({ backendUrl }) {
           />
           <input
             type="text"
-            placeholder="or clothing URL"
+            placeholder="ou URL da roupa"
             value={clothingUrl}
             disabled={loading}
             onChange={(e) => setClothingUrl(e.target.value)}
           />
         </div>
 
+        {/* Tipo de roupa */}
         <div className="form-group">
-          <label>Clothing Type</label>
+          <label>Tipo de Roupa</label>
           <select
             value={clothingType}
             onChange={(e) => setClothingType(e.target.value)}
             disabled={loading}
           >
-            <option value="generic">Generic</option>
-            <option value="shirt">Shirt / Blouse</option>
-            <option value="pants">Pants</option>
+            <option value="generic">Genérico</option>
+            <option value="shirt">Camiseta/Blusa</option>
+            <option value="pants">Calça</option>
             <option value="shorts">Shorts</option>
-            <option value="jacket">Jacket / Coat</option>
-            <option value="dress">Dress</option>
-            <option value="skirt">Skirt</option>
+            <option value="jacket">Jaqueta/Coat</option>
+            <option value="dress">Vestido</option>
+            <option value="skirt">Saia</option>
           </select>
         </div>
 
+        {/* Qualidade */}
         <div className="form-group">
-          <label>Generation Quality</label>
+          <label>Qualidade</label>
           <select
             value={quality}
             onChange={(e) => setQuality(e.target.value)}
             disabled={loading}
           >
-            <option value="standard">Standard (fast)</option>
-            <option value="high">High (detailed)</option>
-            <option value="ultra">Ultra (maximum quality)</option>
+            <option value="standard">Standard (rápido)</option>
+            <option value="high">High (detalhado)</option>
+            <option value="ultra">Ultra (máxima qualidade)</option>
           </select>
         </div>
 
         <button type="submit" className="btn-primary" disabled={loading}>
-          {loading
-            ? stage === "removing"
-              ? "Removing background..."
-              : "Generating..."
-            : "Run Try-On"}
+          {loading ? (stage === "removing" ? "Removendo fundo..." : "Gerando...") : "Executar Try-On"}
         </button>
       </form>
 
+      {/* Barra de progresso */}
       {loading && (
         <div
           style={{
             width: "100%",
-            height: "8px",
+            height: 8,
             background: "#eee",
-            borderRadius: "4px",
-            marginTop: "10px",
+            borderRadius: 4,
+            marginTop: 10,
           }}
         >
           <div
@@ -312,30 +274,30 @@ export default function TryOnForm({ backendUrl }) {
               width: `${progress}%`,
               height: "100%",
               background: "#007bff",
-              borderRadius: "4px",
+              borderRadius: 4,
               transition: "width 0.3s ease",
             }}
           />
         </div>
       )}
 
+      {/* Erro */}
       {error && <p className="error">{error}</p>}
 
+      {/* Resultado */}
       {resultImage && (
         <div className="resultado" style={{ marginTop: "1.5rem" }}>
           <h4 style={{ color: "#fff" }}>
-            <FaImage style={{ marginRight: "6px" }} /> Resultado
+            <FaImage style={{ marginRight: 6 }} /> Resultado
           </h4>
-        <div className="resultado">
-          <h4>Result</h4>
           <img
             src={resultImage}
             alt="Try-On Result"
             className="tryon-result"
             style={{
               maxWidth: "100%",
-              borderRadius: "12px",
-              marginTop: "15px",
+              borderRadius: 12,
+              marginTop: 15,
               boxShadow: "0 2px 10px rgba(0,0,0,0.3)",
             }}
           />
