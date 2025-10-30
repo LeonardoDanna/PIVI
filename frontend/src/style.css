@@ -2,17 +2,19 @@
 body {
   margin: 0;
   font-family: "Poppins", sans-serif;
-  background-color: #f8f6ff; /* branco com leve violeta */
+  background-color: #f2f2f2ba; /* fundo cinza claro */
   color: #2c2c2c;
 }
 
 header {
-  background: linear-gradient(90deg, #6a0dad, #8a2be2);
-  color: #fff;
+  background: #000; /* preto */
+  color: #fff; /* texto branco */
   padding: 1rem 1.25rem;
   text-align: center;
   font-size: 1.7rem;
   font-weight: 600;
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .container {
@@ -21,7 +23,7 @@ header {
   padding: 2rem;
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 6px 24px rgba(58, 16, 104, 0.12);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
 }
 
 /* Tabs */
@@ -46,25 +48,27 @@ header {
   border: none;
   cursor: pointer;
   border-radius: 12px;
-  background: #efe6fb;
-  color: #4b0082;
+  background: #333; /* cinza escuro no lugar do roxo claro */
+  color: #fff; /* texto branco */
   font-weight: 600;
   transition: transform 0.04s ease, background 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 2px 0 rgba(75, 0, 130, 0.2);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
 }
 
 .tabs button:hover {
-  background: #e2d0fa;
+  background: #444; /* hover ligeiramente mais claro */
 }
 
 .tabs button:active {
+  background: #d5e8ff; /* azul bem clarinho ao clicar */
+  color: #000; /* texto escuro para contraste */
   transform: translateY(1px);
 }
 
 .tabs button.active {
-  background: #6a0dad;
-  color: #fff;
-  box-shadow: 0 3px 0 rgba(58, 16, 104, 0.35);
+  background: #000; /* preto */
+  color: #fffefe;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
 }
 
 .tab-icon {
@@ -79,8 +83,8 @@ header {
 .tab-content {
   padding: 1.2rem;
   border-radius: 12px;
-  background: #faf7ff;
-  border: 1px solid #eadbff;
+  background: #52575b; /* azul clarinho pro quadrado */
+  border: 1px solid #ddd;
 }
 
 /* Fields */
@@ -94,7 +98,7 @@ header {
   gap: 0.5rem;
   font-weight: 600;
   margin-bottom: 0.35rem;
-  color: #4b0082;
+  color: #0c0c0c; /* texto preto */
 }
 
 .field label svg {
@@ -109,49 +113,48 @@ header {
   gap: 0.5rem;
 }
 
-.inline-icon {
-  flex-shrink: 0;
-  font-size: 1.1rem;
-  opacity: 0.9;
-}
-
 /* Inputs */
-input, select {
+input,
+select {
   width: 100%;
   padding: 0.7rem 0.8rem;
-  border: 1px solid #d8c6ff;
+  border: 1px solid #ccc;
   border-radius: 10px;
-  background: #ffffff;
-  color: #2c2c2c;
+  background: #f2f2f2;
+  color: #171717; /* texto preto selecione */
   outline: none;
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
   font-family: "Poppins", sans-serif;
 }
 
-input:focus, select:focus {
-  border-color: #8a2be2;
-  box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.15);
+input:focus,
+select:focus {
+  border-color: #000;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.15);
 }
 
 /* Buttons */
-.btn-primary, button.btn-primary {
+.btn-primary,
+button.btn-primary {
   margin-top: 1rem;
   padding: 0.8rem 1.2rem;
   border: none;
   border-radius: 10px;
-  background: #6a0dad;
+  background: #111111; /* preto */
   color: #fff;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.04s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 0 rgba(58, 16, 104, 0.35);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35);
 }
 
 .btn-primary:hover {
-  background: #5c0bb8;
+  background: #333; /* cinza escuro */
 }
 
 .btn-primary:active {
+  background: #aedff9; /* azul clarinho ao clicar */
+  color: #151515;
   transform: translateY(1px);
 }
 
@@ -159,9 +162,9 @@ input:focus, select:focus {
 .resultado {
   margin-top: 1rem;
   padding: 0.9rem 1rem;
-  background: #efe6fb;
-  border: 1px solid #ddc7ff;
+  background: #e0e0e0a6; /* fundo cinza */
+  border: 1px solid #ccc;
   border-radius: 10px;
   font-weight: 600;
-  color: #3a1068;
+  color: #161616; /* texto preto */
 }

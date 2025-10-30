@@ -10,6 +10,7 @@ import {
   FaSun,
   FaUserFriends,
   FaUserTie,
+  FaUser
 } from "react-icons/fa";
 
 // ✅ URL fixa (ambiente local)
@@ -124,7 +125,7 @@ function TabVestir() {
 
   return (
     <div>
-      <Field label="Gênero">
+      <Field label="Gênero" icon={FaUser}>
         <select value={genero} onChange={(e) => setGenero(e.target.value)}>
           <option value="">--Selecione--</option>
           <option value="masculino">Masculino 👨</option>
@@ -308,7 +309,7 @@ const tabs = [
   },
   {
     id: "armario",
-    title: "Armário Virtual",
+    title: "Guarda-Roupa Virtual",
     icon: FaTshirt,
     component: <Armario />,
   },

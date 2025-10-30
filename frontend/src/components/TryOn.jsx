@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { FaUser, FaTshirt, FaMagic, FaImage } from "react-icons/fa";
 
 const TryOn = () => {
   const [avatarImage, setAvatarImage] = useState(null);
@@ -100,10 +101,30 @@ const TryOn = () => {
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.title}>👕 Try-On Diffusion</h2>
+      <h2
+        style={{
+          ...styles.title,
+          color: "#fff",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+        }}
+      >
+        <FaMagic style={{ color: "#4da3ff" }} /> Try-On Virtual
+      </h2>
 
       <form onSubmit={handleSubmit} style={styles.form}>
-        <h4>🧍 Avatar</h4>
+        {/* Avatar */}
+        <h4
+          style={{
+            color: "#fff",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
+        >
+          <FaUser style={{ color: "#4da3ff" }} /> Avatar (foto da pessoa)
+        </h4>
         <input
           type="file"
           accept="image/*"
@@ -117,7 +138,20 @@ const TryOn = () => {
           style={styles.input}
         />
 
-        <h4>👚 Roupa</h4>
+        {/* Espaçamento entre avatar e roupa */}
+        <div style={{ height: "12px" }} />
+
+        {/* Roupa */}
+        <h4
+          style={{
+            color: "#fff",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
+        >
+          <FaTshirt style={{ color: "#ff8c8c" }} /> Roupa
+        </h4>
         <input
           type="file"
           accept="image/*"
@@ -140,7 +174,16 @@ const TryOn = () => {
 
       {resultImage && (
         <div style={styles.result}>
-          <h4>🖼️ Resultado</h4>
+          <h4
+            style={{
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+            }}
+          >
+            <FaImage style={{ color: "#4da3ff" }} /> Resultado
+          </h4>
           <img src={resultImage} alt="Resultado Try-On" style={styles.image} />
         </div>
       )}
@@ -161,9 +204,9 @@ const styles = {
     flexDirection: "column",
     gap: 10,
     padding: 20,
-    background: "#f9f9f9",
+    background: "rgba(255, 255, 255, 0.05)",
     borderRadius: 12,
-    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
   },
   input: {
     padding: 8,

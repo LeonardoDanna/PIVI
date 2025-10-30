@@ -27,7 +27,7 @@ Siga os passos abaixo para rodar o projeto no seu terminal e explorar combina√ß√
 
 ```bash
 git clone https://github.com/LeonardoDanna/PIVI.git
-cd TodayFashion
+cd PIVI
 ```
 
 ### 2. Criar e ativar ambiente virtual
@@ -61,9 +61,10 @@ python manage.py runserver
 cd frontend
 npm install
 npm run dev
+*open the link given here*
 ```
 
-### 7. Rodar o frontend integrado no Django
+### 7. Rodar o frontend integrado no Django [em outro terminal]
 
 ```
 cd frontend

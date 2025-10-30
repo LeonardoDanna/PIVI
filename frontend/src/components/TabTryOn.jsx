@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { FaTshirt, FaUserAlt, FaImage } from "react-icons/fa"; // 👈 novos ícones
 
 export default function TryOnForm({ backendUrl }) {
   const [loading, setLoading] = useState(false);
@@ -120,12 +121,17 @@ export default function TryOnForm({ backendUrl }) {
 
   // 👇 O return do componente deve ficar fora da função handleSubmit
   return (
-    <div>
-      <h3>👕 Try-On Virtual</h3>
+    <div style={{ color: "#fff" }}>
+      <h3 style={{ textAlign: "center", color: "#fff", marginBottom: "1.5rem" }}>
+        <FaTshirt style={{ marginRight: "8px" }} />
+        Try-On Virtual
+      </h3>
 
       <form onSubmit={handleSubmit} className="tryon-form">
-        <div className="form-group">
-          <label>🧍 Avatar (foto da pessoa)</label>
+        <div className="form-group" style={{ marginBottom: "2rem" }}>
+          <label style={{ color: "#fff", fontWeight: "600" }}>
+            <FaUserAlt style={{ marginRight: "6px" }} /> Avatar (sua foto)
+          </label>
           <input
             type="file"
             accept="image/*"
@@ -139,8 +145,10 @@ export default function TryOnForm({ backendUrl }) {
           />
         </div>
 
-        <div className="form-group">
-          <label>👚 Roupa</label>
+        <div className="form-group" style={{ marginBottom: "2rem" }}>
+          <label style={{ color: "#fff", fontWeight: "600" }}>
+            <FaTshirt style={{ marginRight: "6px" }} /> Roupa
+          </label>
           <input
             type="file"
             accept="image/*"
@@ -162,8 +170,10 @@ export default function TryOnForm({ backendUrl }) {
       {error && <p className="error">⚠️ {error}</p>}
 
       {resultImage && (
-        <div className="resultado">
-          <h4>🖼️ Resultado</h4>
+        <div className="resultado" style={{ marginTop: "1.5rem" }}>
+          <h4 style={{ color: "#fff" }}>
+            <FaImage style={{ marginRight: "6px" }} /> Resultado
+          </h4>
           <img
             src={resultImage}
             alt="Resultado Try-On"
@@ -172,7 +182,7 @@ export default function TryOnForm({ backendUrl }) {
               maxWidth: "100%",
               borderRadius: "12px",
               marginTop: "15px",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.15)",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.3)",
             }}
           />
         </div>

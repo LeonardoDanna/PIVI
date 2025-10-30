@@ -1,24 +1,158 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
+
+:root {
+  --preto: #000;
+  --cinza-claro: #f2f2f2;
+  --cinza: #e0e0e0;
+  --cinza-escuro: #333;
+  --branco: #fff;
+  --azul-claro: #d5e8ff;
+  --sombra: rgba(0, 0, 0, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
+body {
+  background-color: var(--cinza-claro);
+  color: var(--cinza-escuro);
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background-color: var(--preto);
+  color: var(--branco);
+  font-size: 1.8rem;
+  font-weight: 600;
+  padding: 1.5rem;
   text-align: center;
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 2px 6px var(--sombra);
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.container {
+  background-color: var(--branco);
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px var(--sombra);
+  max-width: 1000px;
 }
 
+/* Tabs (botões superiores) */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 2rem;
+}
 
+.tabs button {
+  background-color: var(--cinza);
+  color: var(--cinza-escuro);
+  border: none;
+  border-radius: 8px;
+  padding: 0.8rem 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.tabs button:hover {
+  background-color: var(--azul-claro);
+}
+
+.tabs button.active {
+  background-color: var(--preto);
+  color: var(--branco);
+  box-shadow: 0 3px 8px var(--sombra);
+}
+
+/* Ícones das abas */
+.tab-icon {
+  font-size: 1.1rem;
+}
+
+/* Conteúdo das abas */
+.tab-content {
+  text-align: left;
+  margin-top: 1rem;
+}
+
+/* Campos (select, input) */
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+/* Labels dos campos */
+.field label {
+  font-weight: 500;
+  color: var(--branco);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.field select,
+.field input {
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--cinza);
+  border-radius: 6px;
+  background-color: var(--cinza-claro);
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s ease;
+}
+
+.field select:focus,
+.field input:focus {
+  border-color: var(--preto);
+  background-color: var(--branco);
+}
+
+/* Botão principal */
+.btn-primary {
+  background-color: var(--preto);
+  color: var(--branco);
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--cinza-escuro);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px var(--sombra);
+}
+
+.btn-primary:active {
+  background-color: var(--azul-claro);
+  color: var(--cinza-escuro);
+}
+
+/* Resultado */
+.resultado {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  text-align: center;
+  color: var(--cinza-escuro);
+}
+
+/* Resultado com imagem */
 .resultado-com-imagem {
   display: flex;
   flex-direction: column;
@@ -28,40 +162,29 @@
 .imagens-container {
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 16px;
   margin-top: 10px;
 }
 
 .look-img {
-  width: 100px;
-  height: 100px;
-  max-width: 100px;
-  max-height: 100px;
+  width: 120px;
+  height: 120px;
   object-fit: cover;
-  border-radius: 8px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.2);
-  flex-shrink: 0;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px var(--sombra);
+  transition: transform 0.2s ease;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.look-img:hover {
+  transform: scale(1.05);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .tabs {
+    flex-direction: column;
   }
-  to {
-    transform: rotate(360deg);
+  .container {
+    padding: 1.5rem;
   }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
 }
