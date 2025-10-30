@@ -10,7 +10,8 @@ import {
   FaSun,
   FaUserFriends,
   FaUserTie,
-  FaUser
+  FaUser,
+  FaUserCircle
 } from "react-icons/fa";
 
 // ✅ URL fixa (ambiente local)
@@ -275,7 +276,86 @@ function TabMelhorar() {
   );
 }
 
-// ✅ Agora passamos a prop `backendUrl` para a aba do Try-On
+/* --- ABA MEU PERFIL --- */
+function MeuPerfil({ userProfile, setUserProfile }) {
+  const [name, setName] = useState(userProfile.name || "");
+  const [description, setDescription] = useState(userProfile.description || "");
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoUrl, setPhotoUrl] = useState("");
+  const [savedPhoto, setSavedPhoto] = useState(userProfile.avatarUrl || "");
+
+  const handleSave = () => {
+    let finalPhoto = savedPhoto;
+
+    if (photoFile) {
+      finalPhoto = URL.createObjectURL(photoFile);
+    } else if (photoUrl.trim() !== "") {
+      finalPhoto = photoUrl;
+    }
+
+    const perfilData = {
+      name,
+      description,
+      avatarUrl: finalPhoto,
+    };
+
+    setUserProfile(perfilData);
+    localStorage.setItem("userProfile", JSON.stringify(perfilData));
+    setSavedPhoto(finalPhoto);
+    alert("Perfil salvo com sucesso!");
+  };
+
+  return (
+    <div className="perfil-container">
+      <h2>Meu Perfil</h2>
+      <Field label="Nome de Usuário" icon={FaUserCircle}>
+        <input value={name} onChange={(e) => setName(e.target.value)} />
+      </Field>
+      <Field label="Descrição do Perfil">
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={3}
+          style={{ resize: "none", padding: "0.7rem", borderRadius: "6px" }}
+        />
+      </Field>
+      <Field label="Foto de Perfil">
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setPhotoFile(e.target.files[0])}
+        />
+        <input
+          type="text"
+          placeholder="ou URL da foto"
+          value={photoUrl}
+          onChange={(e) => setPhotoUrl(e.target.value)}
+        />
+      </Field>
+      <button className="btn-primary" onClick={handleSave}>
+        Salvar Perfil
+      </button>
+
+      {savedPhoto && (
+        <div className="resultado-com-imagem" style={{ marginTop: "1rem" }}>
+          <img
+            src={savedPhoto}
+            alt="Foto do perfil"
+            style={{
+              width: "120px",
+              height: "120px",
+              borderRadius: "50%",
+              objectFit: "cover",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* --- CONFIGURAÇÃO DAS ABAS --- */
 const tabs = [
   {
     id: "vestir",
@@ -317,6 +397,9 @@ const tabs = [
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("vestir");
+  const [userProfile, setUserProfile] = useState(
+    JSON.parse(localStorage.getItem("userProfile")) || { name: "Usuário", avatarUrl: null }
+  );
 
   return (
     <>
@@ -333,9 +416,31 @@ export default function App() {
               <span className="tab-text">{title}</span>
             </button>
           ))}
+
+          {/* Ícone de perfil */}
+          <button
+            className="profile-btn"
+            onClick={() => setActiveTab("meuPerfil")}
+            title="Meu Perfil"
+          >
+            {userProfile.avatarUrl ? (
+              <img
+                src={userProfile.avatarUrl}
+                alt="Perfil"
+                className="profile-icon"
+              />
+            ) : (
+              <FaUserCircle className="profile-icon" />
+            )}
+          </button>
         </nav>
+
         <div className="tab-content">
-          {tabs.find((t) => t.id === activeTab)?.component}
+          {activeTab === "meuPerfil" ? (
+            <MeuPerfil userProfile={userProfile} setUserProfile={setUserProfile} />
+          ) : (
+            tabs.find((t) => t.id === activeTab)?.component
+          )}
         </div>
       </div>
     </>

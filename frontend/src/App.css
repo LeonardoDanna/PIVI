@@ -188,3 +188,25 @@ header {
     padding: 1.5rem;
   }
 }
+/* Meu Perfil: texto branco */
+.perfil-container {
+  color: var(--branco);
+}
+
+.perfil-container input,
+.perfil-container select {
+  color: #000; /* mantém o texto dos inputs legível */
+  background-color: var(--cinza-claro);
+}
+.profile-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.profile-icon {
+  width: 32px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+}
