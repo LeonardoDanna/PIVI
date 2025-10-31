@@ -1,25 +1,40 @@
 import { useState, useEffect } from "react";
 import { FaUserCircle, FaUpload } from "react-icons/fa";
 
-export default function TabPerfil() {
-  const [username, setUsername] = useState("");
-  const [description, setDescription] = useState("");
+export default function TabPerfil({ userProfile, setUserProfile }) {
+  // estado local espelhando o que o App usa
+  const [name, setName] = useState(userProfile?.name || "");
+  const [description, setDescription] = useState(userProfile?.description || "");
   const [photoFile, setPhotoFile] = useState(null);
   const [photoUrl, setPhotoUrl] = useState("");
-  const [savedPhoto, setSavedPhoto] = useState("");
+  const [savedPhoto, setSavedPhoto] = useState(userProfile?.avatarUrl || "");
 
-  // Carrega dados do localStorage ao montar
+  // se o App mudar (ex.: hidratação), sincroniza
   useEffect(() => {
-    const perfil = JSON.parse(localStorage.getItem("userProfile") || "{}");
-    if (perfil.username) setUsername(perfil.username);
-    if (perfil.description) setDescription(perfil.description);
-    if (perfil.photo) setSavedPhoto(perfil.photo);
-  }, []);
+    setName(userProfile?.name || "");
+    setDescription(userProfile?.description || "");
+    setSavedPhoto(userProfile?.avatarUrl || "");
+  }, [userProfile]);
 
-  // Salva dados no localStorage
+  // fallback: hidrata do localStorage só se o App vier vazio
+  useEffect(() => {
+    if (!userProfile?.name && !userProfile?.avatarUrl) {
+      const stored = JSON.parse(localStorage.getItem("userProfile") || "{}");
+      if (stored.name || stored.avatarUrl || stored.description) {
+        setName(stored.name || "");
+        setDescription(stored.description || "");
+        setSavedPhoto(stored.avatarUrl || "");
+        setUserProfile({
+          name: stored.name || "",
+          description: stored.description || "",
+          avatarUrl: stored.avatarUrl || "",
+        });
+      }
+    }
+  }, []); // intencional, roda uma vez
+
   const handleSave = () => {
     let finalPhoto = savedPhoto;
-
     if (photoFile) {
       finalPhoto = URL.createObjectURL(photoFile);
     } else if (photoUrl.trim() !== "") {
@@ -27,11 +42,12 @@ export default function TabPerfil() {
     }
 
     const perfilData = {
-      username,
+      name,
       description,
-      photo: finalPhoto,
+      avatarUrl: finalPhoto,
     };
 
+    setUserProfile(perfilData); // atualiza header imediatamente
     localStorage.setItem("userProfile", JSON.stringify(perfilData));
     setSavedPhoto(finalPhoto);
     alert("Perfil salvo com sucesso!");
@@ -48,8 +64,8 @@ export default function TabPerfil() {
         <label>Nome de Usuário</label>
         <input
           type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           placeholder="Digite seu nome de usuário"
         />
       </div>
