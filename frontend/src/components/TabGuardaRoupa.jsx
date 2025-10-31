@@ -62,7 +62,7 @@ export default function Armario() {
 
       {resultImage && (
         <div className="armario-resultado">
-          <h4>Roupa sem fundo:</h4>
+          <h4>Roupa:</h4>
           <img src={resultImage} alt="Roupa processada" />
         </div>
       )}
