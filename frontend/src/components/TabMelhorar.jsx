@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaStar } from "react-icons/fa"; // ✅ ícone correto
+import { FaStar } from "react-icons/fa";
 
 export default function TabMelhorar({ Field, PrimaryButton }) {
   const [estilo, setEstilo] = useState("");
@@ -17,7 +17,7 @@ export default function TabMelhorar({ Field, PrimaryButton }) {
   };
 
   return (
-    <div>
+    <div className="tab-melhorar">
       <Field label="Estilo atual" icon={FaStar}>
         <select value={estilo} onChange={(e) => setEstilo(e.target.value)}>
           <option value="">--Selecione--</option>
@@ -26,8 +26,10 @@ export default function TabMelhorar({ Field, PrimaryButton }) {
           <option value="esportivo">Esportivo</option>
         </select>
       </Field>
+
       <PrimaryButton onClick={recomendar}>Recomendar</PrimaryButton>
-      {resultado && <p className="resultado">{resultado}</p>}
+
+      {resultado && <p className="melhorar-resultado">{resultado}</p>}
     </div>
   );
 }

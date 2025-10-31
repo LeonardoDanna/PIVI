@@ -1,99 +1,70 @@
+/* =========================
+   Tema Today Fashion — Roxo & Dourado (DAY MODE)
+   ========================= */
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --bg: #fdfbff;
+  --bg-elev: #ffffff;
+  --card: #faf7ff;
+  --primary: #7C4DFF; /* roxo moderno */
+  --primary-2: #9B6BFF;
+  --gold: #C49B0B;
+  --text: #2A2047;
+  --muted: #6C63A5;
+  --border: #e2daf7;
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(10, 2, 25, 0.1);
+  --shadow-soft: 0 6px 18px rgba(10, 2, 25, 0.08);
+  color-scheme: light;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
+
+/* ===== Base ===== */
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  font-family: ui-sans-serif, system-ui, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  color: var(--text);
+  background:
+    radial-gradient(1000px 800px at 10% -10%, rgba(124,77,255,0.1), transparent 60%),
+    radial-gradient(800px 600px at 90% 10%, rgba(200,156,29,0.1), transparent 60%),
+    linear-gradient(180deg, #FFFFFF, var(--bg));
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* Links */
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+a:hover { color: var(--primary-2); }
+
+/* Container base */
+.container {
+  max-width: 1100px;
+  margin: 26px auto 60px;
+  padding: 0 20px;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+/* Header */
+header {
+  width: 100%;
+  padding: 20px 28px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--primary);
+  background: linear-gradient(180deg, #FDFBFF, #F5F1FF);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  box-shadow: var(--shadow-soft);
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
-.tryon-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.tryon-form input {
-  padding: 8px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-.tryon-result {
-  max-width: 100%;
-  margin-top: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-  padding: 10px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
+/* Responsivo global mínimo */
+@media (max-width: 720px) {
+  .container { padding: 0 16px; }
 }

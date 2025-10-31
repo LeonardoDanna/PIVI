@@ -1,22 +1,23 @@
 import { useState, useEffect } from "react";
-import { FaUserCircle, FaUpload } from "react-icons/fa";
+import { FaUpload } from "react-icons/fa";
+
+const PLACEHOLDER =
+  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"><rect width="160" height="160" rx="80" fill="%23EDE7FF"/><circle cx="80" cy="62" r="28" fill="%237C4DFF"/><path d="M30 132c8-24 28-36 50-36s42 12 50 36" fill="%237C4DFF"/></svg>';
 
 export default function TabPerfil({ userProfile, setUserProfile }) {
-  // estado local espelhando o que o App usa
   const [name, setName] = useState(userProfile?.name || "");
   const [description, setDescription] = useState(userProfile?.description || "");
   const [photoFile, setPhotoFile] = useState(null);
   const [photoUrl, setPhotoUrl] = useState("");
   const [savedPhoto, setSavedPhoto] = useState(userProfile?.avatarUrl || "");
+  const [previewUrl, setPreviewUrl] = useState("");
 
-  // se o App mudar (ex.: hidratação), sincroniza
   useEffect(() => {
     setName(userProfile?.name || "");
     setDescription(userProfile?.description || "");
     setSavedPhoto(userProfile?.avatarUrl || "");
   }, [userProfile]);
 
-  // fallback: hidrata do localStorage só se o App vier vazio
   useEffect(() => {
     if (!userProfile?.name && !userProfile?.avatarUrl) {
       const stored = JSON.parse(localStorage.getItem("userProfile") || "{}");
@@ -31,23 +32,31 @@ export default function TabPerfil({ userProfile, setUserProfile }) {
         });
       }
     }
-  }, []); // intencional, roda uma vez
+  }, []);
+
+  useEffect(() => {
+    let revoke;
+    if (photoFile) {
+      const objUrl = URL.createObjectURL(photoFile);
+      setPreviewUrl(objUrl);
+      revoke = () => URL.revokeObjectURL(objUrl);
+    } else if (photoUrl.trim()) {
+      setPreviewUrl(photoUrl.trim());
+    } else if (savedPhoto) {
+      setPreviewUrl(savedPhoto);
+    } else {
+      setPreviewUrl(PLACEHOLDER);
+    }
+    return () => revoke && revoke();
+  }, [photoFile, photoUrl, savedPhoto]);
 
   const handleSave = () => {
     let finalPhoto = savedPhoto;
-    if (photoFile) {
-      finalPhoto = URL.createObjectURL(photoFile);
-    } else if (photoUrl.trim() !== "") {
-      finalPhoto = photoUrl;
-    }
+    if (photoFile) finalPhoto = previewUrl;
+    else if (photoUrl.trim()) finalPhoto = photoUrl.trim();
 
-    const perfilData = {
-      name,
-      description,
-      avatarUrl: finalPhoto,
-    };
-
-    setUserProfile(perfilData); // atualiza header imediatamente
+    const perfilData = { name, description, avatarUrl: finalPhoto };
+    setUserProfile(perfilData);
     localStorage.setItem("userProfile", JSON.stringify(perfilData));
     setSavedPhoto(finalPhoto);
     alert("Perfil salvo com sucesso!");
@@ -55,11 +64,6 @@ export default function TabPerfil({ userProfile, setUserProfile }) {
 
   return (
     <div className="perfil-container">
-      <h2 style={{ textAlign: "center", marginBottom: "1.5rem" }}>
-        <FaUserCircle style={{ marginRight: "8px" }} />
-        Meu Perfil
-      </h2>
-
       <div className="field">
         <label>Nome de Usuário</label>
         <input
@@ -73,22 +77,22 @@ export default function TabPerfil({ userProfile, setUserProfile }) {
       <div className="field">
         <label>Descrição do Perfil</label>
         <textarea
+          className="perfil-descricao"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Escreva uma descrição sobre você"
           rows={3}
-          style={{ resize: "none", padding: "0.7rem", borderRadius: "6px" }}
         />
       </div>
 
       <div className="field">
         <label>
-          <FaUpload style={{ marginRight: "6px" }} /> Foto do Perfil
+          <FaUpload className="perfil-icone-upload" /> Foto do Perfil
         </label>
         <input
           type="file"
           accept="image/*"
-          onChange={(e) => setPhotoFile(e.target.files[0])}
+          onChange={(e) => setPhotoFile(e.target.files?.[0] || null)}
         />
         <input
           type="text"
@@ -102,23 +106,17 @@ export default function TabPerfil({ userProfile, setUserProfile }) {
         Salvar Perfil
       </button>
 
-      {savedPhoto && (
-        <div className="resultado-com-imagem" style={{ marginTop: "1.5rem" }}>
-          <h4 style={{ color: "#fff" }}>Foto Salva</h4>
-          <img
-            src={savedPhoto}
-            alt="Foto do perfil"
-            style={{
-              width: "120px",
-              height: "120px",
-              borderRadius: "50%",
-              objectFit: "cover",
-              marginTop: "10px",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-            }}
-          />
-        </div>
-      )}
+      <div className="perfil-preview">
+        <h4>Foto do Perfil</h4>
+        <img
+          src={previewUrl || PLACEHOLDER}
+          alt="Foto do perfil"
+          className="perfil-foto"
+          onError={(e) => {
+            e.currentTarget.src = PLACEHOLDER;
+          }}
+        />
+      </div>
     </div>
   );
 }

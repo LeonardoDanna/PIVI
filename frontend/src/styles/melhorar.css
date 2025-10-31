@@ -1,0 +1,27 @@
+/* ===== Como Posso Melhorar ===== */
+
+.tab-melhorar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.melhorar-resultado {
+  margin-top: 14px;
+  background: var(--card);
+  color: var(--text);
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-soft);
+  line-height: 1.5;
+  font-weight: 500;
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .melhorar-resultado {
+    font-size: 0.95rem;
+    padding: 12px;
+  }
+}

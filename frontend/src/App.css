@@ -1,5 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap");
 
+/* =========================
+   VARIÁVEIS DO TEMA
+   ========================= */
 :root {
   --preto: #000;
   --cinza-claro: #f2f2f2;
@@ -8,41 +13,73 @@
   --branco: #fff;
   --azul-claro: #d5e8ff;
   --sombra: rgba(0, 0, 0, 0.1);
+  --radius: 12px;
 }
 
+/* =========================
+   RESET & BASE
+   ========================= */
 * {
   box-sizing: border-box;
   font-family: "Inter", sans-serif;
 }
 
 body {
-  background-color: var(--cinza-claro);
-  color: var(--cinza-escuro);
   margin: 0;
   padding: 0;
+  background-color: var(--cinza-claro);
+  color: var(--cinza-escuro);
 }
 
+/* =========================
+   HEADER
+   ========================= */
 header {
-  background-color: var(--preto);
-  color: var(--branco);
-  font-size: 1.8rem;
+  background: linear-gradient(135deg, #7C4DFF 0%, #9B6BFF 40%, #C49B0B 100%);
+  color: #fff;
+  font-family: "Poppins", sans-serif;
   font-weight: 600;
-  padding: 1.5rem;
+  font-size: 2.2rem;
+  letter-spacing: 0.5px;
   text-align: center;
-  border-radius: 0 0 10px 10px;
-  box-shadow: 0 2px 6px var(--sombra);
+  padding: 2.2rem 1rem;
+  border-radius: 0 0 18px 18px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  position: relative;
 }
 
+/* brilho sutil inferior */
+header::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 10%;
+  width: 80%;
+  height: 3px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.5), transparent, rgba(255,255,255,0.5));
+  opacity: 0.4;
+}
+
+/* =========================
+   CONTAINER PRINCIPAL
+   ========================= */
 .container {
   background-color: var(--branco);
-  margin: 2rem auto;
-  padding: 2rem;
-  border-radius: 12px;
+  border-radius: var(--radius);
   box-shadow: 0 4px 12px var(--sombra);
   max-width: 1000px;
+  margin: 2.5rem auto;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem; /* respiro entre seções internas */
 }
 
-/* Tabs (botões superiores) */
+/* =========================
+   TABS SUPERIORES
+   ========================= */
 .tabs {
   display: flex;
   flex-wrap: wrap;
@@ -75,25 +112,29 @@ header {
   box-shadow: 0 3px 8px var(--sombra);
 }
 
-/* Ícones das abas */
-.tab-icon {
-  font-size: 1.1rem;
-}
-
-/* Conteúdo das abas */
+/* =========================
+   CONTEÚDO DAS ABAS
+   ========================= */
 .tab-content {
-  text-align: left;
-  margin-top: 1rem;
+  background-color: var(--branco);
+  border-radius: var(--radius);
+  box-shadow: 0 2px 8px var(--sombra);
+  padding: 2rem 2rem 3rem;
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-/* Campos (select, input) */
+/* =========================
+   CAMPOS DE FORMULÁRIO
+   ========================= */
 .field {
   display: flex;
   flex-direction: column;
   margin-bottom: 1.5rem;
 }
 
-/* Labels dos campos */
 .field label {
   font-weight: 500;
   color: var(--branco);
@@ -104,7 +145,8 @@ header {
 }
 
 .field select,
-.field input {
+.field input,
+.field textarea {
   padding: 0.7rem 1rem;
   border: 1px solid var(--cinza);
   border-radius: 6px;
@@ -115,12 +157,15 @@ header {
 }
 
 .field select:focus,
-.field input:focus {
+.field input:focus,
+.field textarea:focus {
   border-color: var(--preto);
   background-color: var(--branco);
 }
 
-/* Botão principal */
+/* =========================
+   BOTÃO PRINCIPAL
+   ========================= */
 .btn-primary {
   background-color: var(--preto);
   color: var(--branco);
@@ -139,12 +184,9 @@ header {
   box-shadow: 0 3px 6px var(--sombra);
 }
 
-.btn-primary:active {
-  background-color: var(--azul-claro);
-  color: var(--cinza-escuro);
-}
-
-/* Resultado */
+/* =========================
+   RESULTADOS / IMAGENS
+   ========================= */
 .resultado {
   margin-top: 1rem;
   font-size: 1.1rem;
@@ -152,11 +194,13 @@ header {
   color: var(--cinza-escuro);
 }
 
-/* Resultado com imagem */
 .resultado-com-imagem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  background: var(--cinza-claro);
+  border-radius: var(--radius);
+  border: 1px solid var(--cinza);
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 2px 8px var(--sombra);
 }
 
 .imagens-container {
@@ -179,39 +223,22 @@ header {
   transform: scale(1.05);
 }
 
-/* Responsividade */
-@media (max-width: 768px) {
-  .tabs {
-    flex-direction: column;
-  }
-  .container {
-    padding: 1.5rem;
-  }
-}
-/* Meu Perfil: texto branco */
+/* =========================
+   PERFIL
+   ========================= */
 .perfil-container {
   color: var(--branco);
 }
 
 .perfil-container input,
 .perfil-container select {
-  color: #000; /* mantém o texto dos inputs legível */
+  color: #000;
   background-color: var(--cinza-claro);
 }
-.profile-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-}
 
-.profile-icon {
-  width: 32px;
-  height: 20px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-/* --- POPUP DE BOAS-VINDAS --- */
+/* =========================
+   POPUP DE BOAS-VINDAS
+   ========================= */
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -237,40 +264,9 @@ header {
   animation: slideUp 0.6s ease-in-out;
 }
 
-.popup-box h2 {
-  font-size: 1.5rem;
-  margin-bottom: 0.8rem;
-  color: #333;
-}
-
-.popup-box .highlight {
-  color: #b84aff;
-  font-weight: 700;
-}
-
-.popup-box p {
-  font-size: 1rem;
-  color: #555;
-  margin-bottom: 1.2rem;
-  line-height: 1.4;
-}
-
-.popup-box .btn-primary {
-  font-size: 1rem;
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
-  background-color: #151415;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.popup-box .btn-primary:hover {
-  background-color: #250746;
-}
-
-/* --- Animações suaves --- */
+/* =========================
+   ANIMAÇÕES
+   ========================= */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -279,4 +275,13 @@ header {
 @keyframes slideUp {
   from { transform: translateY(40px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
+}
+
+/* =========================
+   RESPONSIVIDADE
+   ========================= */
+@media (max-width: 768px) {
+  .tabs { flex-direction: column; }
+  .container { padding: 1.5rem; }
+  .tab-content { padding: 1.5rem; }
 }

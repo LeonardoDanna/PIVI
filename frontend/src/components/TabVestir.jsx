@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { FaUser, FaSun, FaUserFriends } from "react-icons/fa"; // ✅ importe os ícones
+import { FaUser, FaSun, FaUserFriends } from "react-icons/fa";
 
-/* --- ABA 1: COMO POSSO ME VESTIR HOJE? --- */
-export default function TabVestir({ Field, PrimaryButton }) {  // ✅ receba por props
+export default function TabVestir({ Field, PrimaryButton }) {
   const [genero, setGenero] = useState("");
   const [clima, setClima] = useState("");
   const [evento, setEvento] = useState("");
@@ -24,6 +23,7 @@ export default function TabVestir({ Field, PrimaryButton }) {  // ✅ receba por
       setImagensSugestao([]);
       return;
     }
+
     let look = "";
     let imgClima = "";
     let imgEvento = "";
@@ -55,7 +55,7 @@ export default function TabVestir({ Field, PrimaryButton }) {  // ✅ receba por
   };
 
   return (
-    <div>
+    <div className="tab-vestir">
       <Field label="Gênero" icon={FaUser}>
         <select value={genero} onChange={(e) => setGenero(e.target.value)}>
           <option value="">--Selecione--</option>
@@ -85,11 +85,11 @@ export default function TabVestir({ Field, PrimaryButton }) {  // ✅ receba por
       <PrimaryButton onClick={gerarSugestao}>Gerar Sugestão</PrimaryButton>
 
       {sugestao && (
-        <div className="resultado-com-imagem">
-          <p className="resultado">{sugestao}</p>
-          <div className="imagens-container">
+        <div className="vestir-resultado">
+          <p className="vestir-texto">{sugestao}</p>
+          <div className="vestir-imagens">
             {imagensSugestao.map((img, i) => (
-              <img key={i} src={img} alt="Sugestão de look" className="look-img" />
+              <img key={i} src={img} alt="Sugestão de look" className="vestir-img" />
             ))}
           </div>
         </div>

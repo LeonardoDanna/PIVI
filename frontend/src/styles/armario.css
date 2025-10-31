@@ -1,0 +1,109 @@
+/* ===== Guarda-Roupa Virtual ===== */
+
+.armario {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  padding: 2rem;
+  color: var(--text);
+}
+
+.armario-label {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.armario-form {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.armario-form input[type="file"] {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.armario-form input[type="file"]:hover {
+  border-color: var(--primary);
+}
+
+.armario-erro {
+  color: #c0392b;
+  margin-top: 1rem;
+  font-weight: 600;
+}
+
+.armario-resultado {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.armario-resultado h4 {
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.armario-resultado img {
+  max-width: 200px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+}
+
+.armario-divisor {
+  margin: 2rem 0;
+  border-color: var(--border);
+}
+
+.armario-titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.armario-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.armario-grid img {
+  width: 100px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.2s ease;
+}
+
+.armario-grid img:hover {
+  transform: scale(1.05);
+  border-color: var(--primary);
+}
+
+.armario-vazio {
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 1rem;
+}
+
+@media (max-width: 720px) {
+  .armario {
+    padding: 1.5rem;
+  }
+
+  .armario-resultado img {
+    max-width: 160px;
+  }
+
+  .armario-grid img {
+    width: 80px;
+  }
+}

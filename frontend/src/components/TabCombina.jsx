@@ -28,7 +28,7 @@ export default function TabCombina({ Field, PrimaryButton }) {
   };
 
   return (
-    <div>
+    <div className="tab-combina">
       <Field label="Cor preferida" icon={FaPalette}>
         <input
           type="text"
@@ -40,7 +40,7 @@ export default function TabCombina({ Field, PrimaryButton }) {
 
       <PrimaryButton onClick={analisar}>Analisar</PrimaryButton>
 
-      {resultado && <p className="resultado">{resultado}</p>}
+      {resultado && <p className="combina-resultado">{resultado}</p>}
     </div>
   );
 }

@@ -1,0 +1,36 @@
+/* -------- Tabs (pills) -------- */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 6px 0 18px;
+}
+
+.tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+  color: #494060;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  transition: all 0.18s ease;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+}
+
+.tabs button:hover {
+  transform: translateY(-1px);
+  border-color: #d6ccf2;
+  box-shadow: 0 6px 18px rgba(124,77,255,0.10);
+  color: #2b2440;
+}
+
+.tabs button.active {
+  color: #fff;
+  border-color: transparent;
+  background: linear-gradient(180deg, var(--primary-2), var(--primary));
+  box-shadow: 0 10px 20px rgba(124,77,255,0.22);
+}
