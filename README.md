@@ -1,27 +1,36 @@
-Today Fashion 👗🤖✨
+# 👗🤖 Today Fashion  
 
-Today Fashion é uma IA generativa que te ajuda a escolher roupas no dia a dia sem medo de mudar de estilo!
+**Today Fashion** é uma IA generativa que te ajuda a escolher roupas no dia a dia — sem medo de mudar de estilo!  
 
-📸 Como funciona:  
-	1.	Você envia uma foto sua.  
-	2.	Você envia uma foto da roupa que quer usar.  
-	3.	A IA gera uma imagem de você usando essa roupa, para você ver se combina ou se gosta do resultado.  
+---
 
-💡 Funcionalidades extras:  
-	•	🌤️ Sugestão de looks baseada no clima e no evento.  
-	•	🎨 Combinações personalizadas com base na sua cor favorita.  
-	•	📏 Ajuste ideal de caimento e formato de roupa com base na sua altura.  
-	•	🔄 Sugestões para mudar de estilo, levando em conta seu estilo atual.  
-	•	🏠 Armário virtual, um banco de dados para organizar todas as suas roupas.  
+## 📸 Como funciona  
 
-✅ Objetivo:  
-	•	Ajudar você a se sentir mais confiante.  
-	•	Experimentar estilos diferentes sem medo.  
-	•	Transformar a escolha de roupas em algo divertido e inspirador!  
+1. Você envia **uma foto sua**.  
+2. Você envia **uma foto da roupa** que quer usar.  
+3. A IA gera **uma imagem realista de você vestindo a roupa**, para você decidir se combina ou gosta do resultado.  
 
-🚀 Comece agora:
-Siga os passos abaixo para rodar o projeto no seu terminal e explorar combinações de looks!
+---
 
+## 💡 Funcionalidades Extras  
+
+- 🌤️ **Sugestão de looks** baseada no clima e no evento.  
+- 🎨 **Combinações personalizadas** com base na sua cor favorita.  
+- 📏 **Ajuste ideal de caimento** e formato de roupa conforme sua altura.  
+- 🔄 **Sugestões para mudar de estilo**, levando em conta seu estilo atual.  
+- 🏠 **Armário virtual**, um banco de dados para organizar todas as suas roupas.  
+
+---
+
+## 🎯 Objetivo  
+
+- Ajudar você a **se sentir mais confiante**.  
+- Permitir **experimentar estilos diferentes** sem medo.  
+- Tornar a escolha de roupas **divertida e inspiradora!**  
+
+---
+
+## 🚀 Como Rodar o Projeto  
 
 ### 1. Clonar o repositório
 
@@ -59,7 +68,6 @@ python manage.py runserver
 
 ```
 cd frontend
-npm install
 npm run dev
 *open the link given here*
 ```
