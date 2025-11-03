@@ -206,8 +206,11 @@ export default function TabCaimentoPro({ Field, PrimaryButton }) {
           </Field>
         )}
 
-        <Field label="Preferência de caimento">
-          <select value={prefCaimento} onChange={(e) => setPrefCaimento(e.target.value)}>
+        <Field label="Preferência de caimento" icon={FaRulerCombined}>
+          <select
+            value={prefCaimento}
+            onChange={(e) => setPrefCaimento(e.target.value)}
+          >
             <option value="">—</option>
             <option value="justo">Justo</option>
             <option value="slim">Slim</option>

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { FaTshirt, FaUserAlt, FaImage } from "react-icons/fa";
+import { FaTshirt, FaUserAlt, FaImage, FaStar } from "react-icons/fa";
 
 export default function TabTryOn({ backendUrl, Field, PrimaryButton }) {
   const [loading, setLoading] = useState(false);
@@ -222,7 +222,7 @@ export default function TabTryOn({ backendUrl, Field, PrimaryButton }) {
         </Field>
 
         {/* Tipo de roupa */}
-        <Field label="Tipo de Roupa">
+        <Field label="Tipo de Roupa" icon={FaTshirt}>
           <select
             value={clothingType}
             onChange={(e) => setClothingType(e.target.value)}
@@ -239,7 +239,7 @@ export default function TabTryOn({ backendUrl, Field, PrimaryButton }) {
         </Field>
 
         {/* Qualidade */}
-        <Field label="Qualidade">
+        <Field label="Qualidade" icon={FaStar}>
           <select
             value={quality}
             onChange={(e) => setQuality(e.target.value)}

@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { FaTshirt } from "react-icons/fa";
+import { FaTshirt, FaImage } from "react-icons/fa";
 
 export default function Armario() {
   // carrega com segurança
@@ -76,7 +76,9 @@ export default function Armario() {
   return (
     <div className="armario">
       <form onSubmit={handleUpload} className="armario-form">
-        <label className="armario-label">Envie a foto da sua roupa:</label>
+        <label className="armario-label">
+          <FaImage style={{ marginRight: "8px" }} /> Envie a foto da sua roupa:
+        </label>
         <input
           ref={fileRef}
           type="file"
