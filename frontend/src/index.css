@@ -1,201 +1,324 @@
-/* Reset + viewport cheia */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body, #root { height: 100%; width: 100%; }
-body { font-family: system-ui, sans-serif; background: #fff; color: #000; overflow: hidden; }
-
-/* Página: esquerda | divisor 1px | direita */
-.page{
-  display: grid;
-  grid-template-columns: minmax(0,0.7fr) 1px minmax(0,1.8fr);
-  width: calc(100vw - 2px);
-  height: calc(100vh - 2px);
-  border: 1px solid #000;   /* moldura externa */
+/* Página inteira sem rolagem */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
 }
 
-/* Linha central 1px perfeita */
-.divider{ background: #000; }
-
-/* Esquerda */
-.stage{ position: relative; }
-.side-thumbs{
-  list-style: none;
-  position: absolute;
-  right: 10px; top: 10px;
-  display: grid; gap: 8px;
-}
-.side-thumbs li{
-  width: 22px; height: 22px;
-  border: 0;
-  background: #ebebeb;
-}
-
-/* Direita */
-.panel{
-  position: relative;
+.tf-page {
+  height: 100vh;
+  width: 100vw;
   overflow: hidden;
-  display: grid;
-  grid-template-rows: 100px 1fr;
-  min-height: 0;
-  min-width: 0;
-}
-
-/* Fade sutil no rodapé */
-.panel::after{
-  content: "";
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: 140px;                          /* altura do fade */
-  pointer-events: none;
-  z-index: 2;
-  background: linear-gradient(
-    to top,
-    rgba(0,0,0,0.12) 0%,                  
-    rgba(0,0,0,0.08) 40%,
-    rgba(0,0,0,0.00) 100%
-  );
-}
-
-/* Header: título em cima, pills como menu distribuído */
-.panel-top{
-  height: 100px;
-  border-bottom: 1px solid #000;
-  padding: 10px 16px 0 16px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: stretch;
-  z-index: 3; /* título acima do fade */
-} 
-.panel-top h1{
-  font-size: 22px;
-  font-weight: 800;
-  margin: 0 auto 8px auto;
-  line-height: 1.2;
-  text-align: center;
+  background: #eff0df; /* fundo do corpo */
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #111;
 }
 
-/* Fade diagonal mais alto e forte */
-/* Fade vertical mais alto: de sutil no topo até sólido embaixo */
-.panel-fade {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 700px;  /* controla a altura do fade */
-  pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0) 0%,      /* topo transparente */
-    rgba(0, 0, 0, 0.05) 25%,  /* começa a aparecer */
-    rgba(0, 0, 0, 0.15) 60%,  /* mais forte */
-    rgba(0, 0, 0, 0.35) 100%  /* sólido no final */
-  );
-}
+/* HEADER */
 
-
-
-
-
-/* Barra de “menu” */
-.scroller{
-  flex: 1;
+.tf-header {
+  position: relative;
+  z-index: 2; /* header fica acima do menu */
+  height: 130px;
+  min-height: 13a0px;
+  background: #ffffff;
+  border-bottom: 1px solid #d0d0d0;
   display: flex;
-  align-items: flex-end;
-  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  box-sizing: border-box;
 }
 
-/* retângulo de menu */
-.pill{
-  flex: 1 1 0;
-  height: 80%;
-  background: #ebebeb;
+
+.tf-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.tf-logo {
+  height: 110px;
+  width: auto;
+  padding-left: 80px;
+  object-fit: contain;
+}
+
+/* botões de ícone à direita */
+
+.tf-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.tf-icon-button {
   border: none;
-  min-width: 80px;
-  border-radius: 16px 16px 0 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: #000;
+  background: #d3d3d3;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.tf-icon-button:hover {
+  background: #c2c2c2;
+}
+
+.tf-icon-button:active {
+  transform: scale(0.96);
+}
+
+.tf-icon {
+  width: 30px;
+  height: 30px;
+  fill: #444;
+  stroke: #444;
+  stroke-width: 1.2;
+}
+
+/* Botão meia-bola central para abrir/fechar menu */
+
+.tf-nav-toggle {
+  position: absolute;
+  left: 50%;
+  bottom: -18px; /* metade pra fora do header */
+  transform: translateX(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #b0b0b0;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s;
+}
+
+.tf-nav-toggle--open {
+  /* quando aberto, seta vira pra cima */
+}
+
+.tf-nav-toggle-arrow {
+  width: 30px;
+  height: 30px;
+  transition: transform 0.25s ease;
+  transform-origin: center center; /* GARANTE rotação no seu próprio eixo */
+}
+
+
+/* gira a seta quando o menu estiver aberto */
+/* seta gira quando abre */
+.tf-nav-toggle--open .tf-nav-toggle-arrow {
+  transform: rotate(180deg);
+}
+
+
+/* NAV BAR (abaixo do header) */
+
+.tf-nav-bar {
+  position: relative;
+  z-index: 0; /* menu agora fica atrás do header */
+  background: #ffffff;
+  border-bottom: 1px solid #d0d0d0;
+  overflow: hidden;
+  transition: transform 0.25s ease-out;
+}
+
+
+.tf-nav-bar--open {
+  transform: translateY(0);
+}
+
+.tf-nav-bar--closed {
+  transform: translateY(-100%);
+}
+
+.tf-nav-inner {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  padding: 20px 32px 16px;
+  box-sizing: border-box;
+}
+
+.tf-nav-item {
+  border: none;
+  background: transparent; /* sem cor, só o texto */
+  padding: 8px 14px;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  cursor: pointer;
+  position: relative;
+  color: #555;
+  transition: color 0.2s;
+}
+
+/* linha sutil embaixo ao hover pra lembrar das caixinhas */
+.tf-nav-item::after {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 2px;
+  height: 1px;
+  background: transparent;
+  transition: background 0.2s;
+}
+
+.tf-nav-item:hover {
+  color: #222;
+}
+
+.tf-nav-item:hover::after {
+  background: #c0c0c0;
+}
+
+/* CORPO */
+
+.tf-main {
+  flex: 1;
+  background: #eff0df;
+  position: relative;
+}
+
+/* FAB (botão azul no canto inferior direito) */
+
+/* Container fixo no canto */
+.tf-fab-container {
+  position: fixed;
+  right: 32px;
+  bottom: 32px;
+  pointer-events: none; /* só os botões internos recebem clique */
+}
+
+/* Wrapper relativo pro botão principal + opções */
+.tf-fab-inner {
+  position: relative;
+  pointer-events: auto;
+}
+
+/* Botão principal */
+.tf-fab-main {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #00a6ff;
+  border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.pill:hover{ background:#dcdcdc; }
-.pill.active { background:#d4d4d4; font-weight:700; }
-
-/* Seta */
-.arrow{
-  margin-bottom: 10px;
-  margin-left: 9px;
-  align-self: flex-end;
-  font-weight: 700;
-  font-size: 35px;
-  line-height: 1;
-  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s, box-shadow 0.15s;
 }
 
-/* Grid ocupa o restante — 4 colunas x 3 linhas */
-.grid{
-  --cols: 4;
-  --rows: 3;
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: repeat(var(--cols), 1fr);
-  grid-template-rows: repeat(var(--rows), 1fr);
-  height: 100%; 
-  width: 100%;
-  min-width: 0; 
-  min-height: 0;
-  place-items: center;
-  z-index: 1; /* conteúdo abaixo do fade */
+.tf-fab-main:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
 }
 
-/* Cards agora são dropzones */
-.card.dropzone {
-  position: relative;
-  width: 60%;
-  height: 60%;
-  background: #f5f5f5;
-  border: none;
-  border-radius: 6px;
-  overflow: hidden;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  transition: transform .08s ease, box-shadow .12s ease;
-}
-.card.dropzone:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-.card.dropzone input[type="file"] { display: none; }
-
-.card-hint {
-  display: grid;
-  place-items: center;
-  gap: 6px;
-  color: #555;
-  text-align: center;
-}
-.card-hint span { font-size: 28px; line-height: 1; }
-
-/* preview */
-.card.dropzone.has-image {
-  background-size: cover;
-  background-position: center;
+.tf-fab-main:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
 }
 
-/* remover */
-.remove-btn {
+.tf-fab-plus {
+  font-size: 32px;
+  font-weight: 600;
+  color: #000;
+}
+
+/* Container das opções, preso no MESMO ponto do botão */
+.tf-fab-options {
   position: absolute;
-  right: 8px; top: 8px;
-  padding: 4px 8px;
-  font-size: 12px;
-  background: #000; color: #fff;
-  border: 0; border-radius: 999px;
-  cursor: pointer;
-  opacity: .9;
+  bottom: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
 }
-.remove-btn:hover { opacity: 1; }
 
-/* >>> Se quiser 3 colunas x 4 linhas:
-.grid{ --cols: 3; --rows: 4; } */
+/* Botões menores */
+.tf-fab-option {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #00a6ff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  padding: 0;
+  opacity: 0;
+  transform: translate(0, 0) scale(0.5);
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+/* estado aberto: mostra e anima */
+.tf-fab-options--open .tf-fab-option {
+  opacity: 1;
+}
+
+/* ícones dentro das bolinhas */
+.tf-fab-icon {
+  width: 18px;
+  height: 18px;
+  fill: #000;
+  stroke: #000;
+  stroke-width: 1.3;
+}
+
+/* TRY ON VIRTUAL - diagonal para cima/esquerda */
+.tf-fab-option--tryon {
+  /* fechado fica em cima do botão, pequeno */
+}
+
+/* sobe mais */
+.tf-fab-options--open .tf-fab-option--tryon {
+  transform: translate(-70px, -100px) scale(1); 
+  /* antes: -70px, -70px */
+}
+
+.tf-fab-options--open .tf-fab-option--closet {
+  transform: translate(-40px, -45px) scale(1); 
+  /* antes: -100px, -25px */
+}
+
+
+.tf-fab-options--open .tf-fab-option--closet {
+  transform: translate(-100px, -25px) scale(1);
+}
+
+
+/* Responsivo simples: reduzir espaçamentos em telas menores */
+
+@media (max-width: 900px) {
+  .tf-header {
+    padding: 0 16px;
+  }
+
+  .tf-nav-inner {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .tf-nav-item {
+    font-size: 0.8rem;
+  }
+}

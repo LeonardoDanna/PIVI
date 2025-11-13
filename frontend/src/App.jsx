@@ -1,151 +1,153 @@
-import { useState, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './index.css'
+import { useState } from "react";
+import logoImg from "./assets/imagens/todays fashion logo.png";
+import "./index.css";
 
-export default function App() {
-  const [abaAtiva, setAbaAtiva] = useState("Meu armário")
-  // 12 slots: cada item guarda { url, name } ou null
-  const [slots, setSlots] = useState(Array(12).fill(null))
+export default function TodaysFashionLayout() {
+  const [navOpen, setNavOpen] = useState(false);;
+  const [fabOpen, setFabOpen] = useState(true);
 
-  // limpeza de ObjectURL ao desmontar
-  useEffect(() => {
-    return () => {
-      slots.forEach(s => s?.url && URL.revokeObjectURL(s.url))
-    }
-  }, [slots])
+  const navItems = [
+    "Como posso me vestir hoje?",
+    "O que combina comigo?",
+    "Qual seria o melhor caimento?",
+    "Como posso melhorar?",
+    "Try on virtual",
+  ];
 
-  const handleFiles = (files, idx) => {
-    if (!files || !files[0]) return
-    const file = files[0]
-    if (!file.type.startsWith('image/')) return
-    if (file.size > 5 * 1024 * 1024) { // 5MB
-      alert('Imagem muito grande (máx 5MB).')
-      return
-    }
-    const url = URL.createObjectURL(file)
-    setSlots(prev => {
-      // revoke antiga se existir
-      if (prev[idx]?.url) URL.revokeObjectURL(prev[idx].url)
-      const next = [...prev]
-      next[idx] = { url, name: file.name }
-      return next
-    })
-  }
+  const handleNavClick = (item) => {
+    console.log("Ir para:", item);
+    // aqui depois você integra com o router ou muda o estado da tela
+  };
 
-  const onDrop = (e, idx) => {
-    e.preventDefault()
-    handleFiles(e.dataTransfer.files, idx)
-  }
-
-  const onRemove = (idx) => {
-    setSlots(prev => {
-      const next = [...prev]
-      if (next[idx]?.url) URL.revokeObjectURL(next[idx].url)
-      next[idx] = null
-      return next
-    })
-  }
+  const handleFabClick = (item) => {
+    console.log("Atalho FAB:", item);
+    // idem: integrar com navegação / abas
+  };
 
   return (
-    <div className="page">
-      {/* Esquerda */}
-      <section className="stage">
-        <ul className="side-thumbs"><li/><li/><li/></ul>
-      </section>
+    <div className="tf-page">
+      {/* HEADER */}
+      <header className="tf-header">
+        <div className="tf-header-left">
+          <img src={logoImg} alt="Today's Fashion" className="tf-logo" />
+        </div>
 
-      <div className="divider" aria-hidden="true" />
-
-      {/* Direita */}
-      <aside className="panel">
-        <header className="panel-top">
-          <h1>Today's Fashion</h1>
-          <div className="scroller">
-            <button
-              className={`pill ${abaAtiva==="Meu armário"?"active":""}`}
-              onClick={()=>setAbaAtiva("Meu armário")}
+        <div className="tf-header-right">
+          <button
+            className="tf-icon-button"
+            type="button"
+            title="Perfil do usuário"
+          >
+            {/* ícone de usuário (SVG simples) */}
+            <svg
+              viewBox="0 0 24 24"
+              className="tf-icon"
+              aria-hidden="true"
             >
-              Meu armário
-            </button>
-            <button
-              className={`pill ${abaAtiva==="Como posso me vestir hoje?"?"active":""}`}
-              onClick={()=>setAbaAtiva("Como posso me vestir hoje?")}
+              <circle cx="12" cy="8" r="3.5" />
+              <path d="M5 19c1.5-3 4-4.5 7-4.5S17.5 16 19 19" />
+            </svg>
+          </button>
+
+          <button
+            className="tf-icon-button"
+            type="button"
+            title="Logout"
+          >
+            {/* ícone de logout (seta saindo de uma porta) */}
+            <svg
+              viewBox="0 0 24 24"
+              className="tf-icon"
+              aria-hidden="true"
             >
-              Como posso me vestir hoje?
-            </button>
+              <path d="M10 4H5v16h5" />
+              <path d="M14 8l4 4-4 4" />
+              <path d="M18 12H10" />
+            </svg>
+          </button>
+        </div>
+
+        {/* botão meia-bola com seta para abrir/fechar menu */}
+        <button
+          className={`tf-nav-toggle ${navOpen ? "tf-nav-toggle--open" : ""}`}
+          type="button"
+          onClick={() => setNavOpen((prev) => !prev)}
+          aria-label="Alternar menu"
+        >
+          <svg
+  className="tf-nav-toggle-arrow"
+  viewBox="0 0 24 24"
+  aria-hidden="true"
+>
+  <path d="M6 9l6 6 6-6" stroke="black" strokeWidth="2" fill="none" />
+</svg>
+
+        </button>
+      </header>
+
+      {/* MENU PRINCIPAL (abaixo do cabeçalho) */}
+      <nav
+        className={`tf-nav-bar ${navOpen ? "tf-nav-bar--open" : "tf-nav-bar--closed"}`}
+      >
+        <div className="tf-nav-inner">
+          {navItems.map((item) => (
             <button
-              className={`pill ${abaAtiva==="O que combina comigo?"?"active":""}`}
-              onClick={()=>setAbaAtiva("O que combina comigo?")}
+              key={item}
+              type="button"
+              className="tf-nav-item"
+              onClick={() => handleNavClick(item)}
             >
-              O que combina comigo?
+              {item}
             </button>
-            <button
-              className={`pill ${abaAtiva==="Qual seria o melhor caimento?"?"active":""}`}
-              onClick={()=>setAbaAtiva("Qual seria o melhor caimento?")}
-            >
-              Qual seria o melhor caimento?
-            </button>
-            <span className="arrow">›</span>
-          </div>
-        </header>
+          ))}
+        </div>
+      </nav>
 
-        {/* Slots de upload só na aba Meu armário */}
-        {abaAtiva === "Meu armário" && (
-          <div className="grid">
-            {Array.from({ length: 12 }).map((_, i) => {
-              const filled = !!slots[i];
-              const canShow = i === 0 || !!slots[i - 1]; // 1º sempre aparece; demais só se o anterior estiver preenchido
+      {/* CORPO */}
+      <main className="tf-main">
+        {/* aqui entra o conteúdo das abas depois */}
+      </main>
 
-              // Só renderiza o slot se já estiver preenchido OU se for o próximo liberado
-              if (!filled && !canShow) return null;
+      {/* FAB (botão azul com +) */}
+      <div className="tf-fab-container">
+  <div className="tf-fab-inner">
+    <button
+      type="button"
+      className="tf-fab-main"
+      onClick={() => setFabOpen((prev) => !prev)}
+      aria-label="Abrir menu rápido"
+    >
+      <span className="tf-fab-plus">+</span>
+    </button>
 
-              return (
-                <label
-                  key={i} 
-                  className={`card dropzone ${filled ? 'has-image' : ''}`}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => onDrop(e, i)}
-                  style={filled ? { backgroundImage: `url(${slots[i].url})` } : {}}
-                  title={filled ? (slots[i].name || 'Imagem enviada') : 'Clique ou arraste uma imagem'}
-                >
-                  {!filled && (
-                    <div className="card-hint">
-                      <span>+</span>
-                      <small>Adicionar foto</small>
-                    </div>
-                  )}
+    <div className={`tf-fab-options ${fabOpen ? "tf-fab-options--open" : ""}`}>
+      <button
+        type="button"
+        className="tf-fab-option tf-fab-option--tryon"
+        onClick={() => handleFabClick("try on virtual")}
+        title="Try on virtual"
+      >
+        <svg viewBox="0 0 24 24" className="tf-fab-icon" aria-hidden="true">
+          <rect x="4" y="7" width="16" height="10" rx="2" />
+          <circle cx="12" cy="12" r="2.5" />
+        </svg>
+      </button>
 
-                  {/* Só permite escolher arquivo se não estiver preenchido */}
-                  {!filled && (
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFiles(e.target.files, i)}
-                      aria-label={`Upload slot ${i + 1}`}
-                    />
-                  )}
-
-                  {filled && (
-                    <button
-                      type="button"
-                      className="remove-btn"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        onRemove(i);
-                      }}
-                    >
-                      X
-                    </button>
-                  )}
-                </label>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Overlay de fade no rodapé da direita */}
-        <div className="panel-fade" aria-hidden="true" />
-      </aside>
+      <button
+        type="button"
+        className="tf-fab-option tf-fab-option--closet"
+        onClick={() => handleFabClick("armário virtual")}
+        title="Armário virtual"
+      >
+        <svg viewBox="0 0 24 24" className="tf-fab-icon" aria-hidden="true">
+          <path d="M12 5a2 2 0 0 1 2 2c0 .8-.5 1.3-1.2 1.7L12 9" />
+          <path d="M4 18l8-6 8 6" />
+        </svg>
+      </button>
     </div>
-  )
+  </div>
+</div>
+
+    </div>
+  );
 }
