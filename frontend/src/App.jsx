@@ -1,6 +1,43 @@
 import { useState, useRef } from "react";
 import logoImg from "./assets/imagens/todays fashion logo.png";
+
+// componentes das abas
+import TabCaimento from "./assets/components/TabCaimento.jsx";
+import TabCombina from "./assets/components/TabCombina.jsx";
+import TabMelhorar from "./assets/components/TabMelhorar.jsx";
+import TabVestir from "./assets/components/TabVestir.jsx";
+
 import "./index.css";
+
+/* ------------------------------
+   Componentes base para as abas
+-------------------------------- */
+
+function TFField({ label, icon: Icon, children }) {
+  return (
+    <div className="tf-field">
+      {label && (
+        <label className="tf-field-label">
+          {Icon && <Icon className="tf-field-icon" />}
+          <span>{label}</span>
+        </label>
+      )}
+      <div className="tf-field-control">{children}</div>
+    </div>
+  );
+}
+
+function TFPrimaryButton({ children, type = "button", ...rest }) {
+  return (
+    <button className="tf-primary-button" type={type} {...rest}>
+      {children}
+    </button>
+  );
+}
+
+/* --------------------------------
+   Layout principal
+----------------------------------- */
 
 export default function TodaysFashionLayout() {
   const navItems = [
@@ -18,7 +55,7 @@ export default function TodaysFashionLayout() {
   const [closetFiles, setClosetFiles] = useState([]);
   const [avatarFile, setAvatarFile] = useState(null); // foto do usuário
 
-  const fileInputRef = useRef(null);   // input armário
+  const fileInputRef = useRef(null); // input armário
   const avatarInputRef = useRef(null); // input avatar
 
   // Toggle das abas
@@ -58,11 +95,7 @@ export default function TodaysFashionLayout() {
             </svg>
           </button>
 
-          <button
-            className="tf-icon-button"
-            type="button"
-            title="Logout"
-          >
+          <button className="tf-icon-button" type="button" title="Logout">
             <svg viewBox="0 0 24 24" className="tf-icon" aria-hidden="true">
               <path d="M10 4H5v16h5" />
               <path d="M14 8l4 4-4 4" />
@@ -104,38 +137,80 @@ export default function TodaysFashionLayout() {
 
       {/* MAIN */}
       <main className="tf-main">
+        {/* -----------------------------------
+            ABA: COMO POSSO ME VESTIR HOJE?
+        ------------------------------------ */}
         {activeTab === "Como posso me vestir hoje?" && (
           <div className="tf-tab-content">
             <div className="tf-tab-card">
               <h1 className="tf-tab-title">Como posso me vestir hoje?</h1>
+
+              <div className="tf-section-layout">
+                <div className="tf-section-col">
+                  <TabVestir Field={TFField} PrimaryButton={TFPrimaryButton} />
+                </div>
+              </div>
             </div>
           </div>
         )}
 
+        {/* -----------------------------------
+            ABA: O QUE COMBINA COMIGO?
+        ------------------------------------ */}
         {activeTab === "O que combina comigo?" && (
           <div className="tf-tab-content">
             <div className="tf-tab-card">
               <h1 className="tf-tab-title">O que combina comigo?</h1>
+
+              <div className="tf-section-layout">
+                <div className="tf-section-col">
+                  <TabCombina Field={TFField} PrimaryButton={TFPrimaryButton} />
+                </div>
+              </div>
             </div>
           </div>
         )}
 
+        {/* -----------------------------------
+            ABA: QUAL SERIA O MELHOR CAIMENTO?
+        ------------------------------------ */}
         {activeTab === "Qual seria o melhor caimento?" && (
           <div className="tf-tab-content">
             <div className="tf-tab-card">
               <h1 className="tf-tab-title">Qual seria o melhor caimento?</h1>
+
+              <div className="tf-section-layout">
+                <div className="tf-section-col">
+                  <TabCaimento Field={TFField} PrimaryButton={TFPrimaryButton} />
+                </div>
+              </div>
             </div>
           </div>
         )}
 
+        {/* -----------------------------------
+            ABA: COMO POSSO MELHORAR?
+        ------------------------------------ */}
         {activeTab === "Como posso melhorar?" && (
           <div className="tf-tab-content">
             <div className="tf-tab-card">
               <h1 className="tf-tab-title">Como posso melhorar?</h1>
+
+              <div className="tf-section-layout">
+                <div className="tf-section-col">
+                  <TabMelhorar
+                    Field={TFField}
+                    PrimaryButton={TFPrimaryButton}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}
 
+        {/* -----------------------------------
+            ABA: TRY ON VIRTUAL
+        ------------------------------------ */}
         {activeTab === "Try on virtual" && (
           <div className="tf-tab-content">
             <div className="tf-tab-card">
@@ -146,7 +221,6 @@ export default function TodaysFashionLayout() {
                 <section className="tf-tryon-left">
                   <h2 className="tf-tryon-subtitle">Avatar</h2>
 
-                  {/* Se não tiver avatar → mostra apenas a área de envio */}
                   {!avatarFile && (
                     <div
                       className="tf-dropzone tf-dropzone--tall"
@@ -169,7 +243,6 @@ export default function TodaysFashionLayout() {
                     </div>
                   )}
 
-                  {/* input escondido */}
                   <input
                     type="file"
                     accept="image/*"
@@ -178,7 +251,6 @@ export default function TodaysFashionLayout() {
                     onChange={(e) => handleAvatarFile(e.target.files)}
                   />
 
-                  {/* Se tiver avatar → mostra somente a foto */}
                   {avatarFile && (
                     <div className="tf-avatar-preview">
                       <img

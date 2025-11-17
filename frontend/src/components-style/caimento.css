@@ -1,0 +1,112 @@
+/* ===========================================
+   ABA: CAIMENTO — integrado ao layout TF
+   =========================================== */
+
+/* container principal da aba */
+.tab-caimento {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  color: #333;
+  font-family: inherit;
+}
+
+/* grid dos campos (inputs) */
+.caimento-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  padding: 4px 0;
+}
+
+/* inputs padrão seguindo estilo das abas */
+.tab-caimento input,
+.tab-caimento select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid #ccc;
+  background: #fafafa;
+  font-size: 15px;
+  transition: 0.2s border, 0.2s box-shadow;
+}
+
+.tab-caimento input:focus,
+.tab-caimento select:focus {
+  border-color: #8094ff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(128, 148, 255, 0.25);
+}
+
+/* botões de ação */
+.caimento-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.caimento-actions button {
+  padding: 10px 18px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  background: #4e63ff;
+  color: white;
+  transition: 0.2s;
+}
+
+.caimento-actions button:hover {
+  background: #3c4fdc;
+}
+
+/* mensagens de erro */
+.caimento-erros {
+  color: #d63b3b;
+  font-weight: 600;
+  margin-top: 4px;
+  font-size: 15px;
+}
+
+/* resultado em caixa branca seguindo padrão TF */
+.caimento-resultado {
+  background: #ffffff;
+  border-radius: 22px;
+  border: 1px solid #e0e0e0;
+  padding: 22px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  line-height: 1.55;
+  font-size: 15px;
+}
+
+.caimento-resultado p {
+  margin: 0 0 8px 0;
+}
+
+/* listas internas */
+.caimento-alertas,
+.caimento-detalhes {
+  margin-top: 12px;
+}
+
+.caimento-alertas ul,
+.caimento-detalhes ul {
+  margin-top: 6px;
+  padding-left: 22px;
+  line-height: 1.45;
+  color: #444;
+  font-size: 14px;
+}
+
+/* responsividade */
+@media (max-width: 720px) {
+  .caimento-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .caimento-resultado {
+    padding: 18px;
+  }
+}
