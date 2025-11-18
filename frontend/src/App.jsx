@@ -6,8 +6,13 @@ import TabCaimento from "./assets/components/TabCaimento.jsx";
 import TabCombina from "./assets/components/TabCombina.jsx";
 import TabMelhorar from "./assets/components/TabMelhorar.jsx";
 import TabVestir from "./assets/components/TabVestir.jsx";
+import TabTryOn from "./assets/components/TabTryOn.jsx";
+
 
 import "./index.css";
+import "./components-style/caimento.css";
+
+
 
 /* ------------------------------
    Componentes base para as abas

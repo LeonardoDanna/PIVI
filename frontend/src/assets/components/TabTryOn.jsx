@@ -259,7 +259,10 @@ export default function TabTryOn({ backendUrl, Field, PrimaryButton }) {
       {/* Barra de progresso */}
       {loading && (
         <div className="progress">
-          <div className="progress-bar" data-progress={progress}></div>
+          <div
+            className="progress-bar"
+            style={{ width: `${progress}%` }}
+          ></div>
         </div>
       )}
 
