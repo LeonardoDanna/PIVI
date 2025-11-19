@@ -1,5 +1,8 @@
 import { useState } from "react";
 import "./App.css";
+import logo from "./assets/images/todays-fashion-logo.png";
+import userIcon from "./assets/images/person-circle.svg";
+
 
 // 🧩 Importa todas as tabs
 import TabTryOn from "./components/TabTryOn";
@@ -139,15 +142,13 @@ export default function App() {
       {/* ================= HEADER NOVO ================= */}
       <header className="header-bar">
         <img
-          src="/src/assets/images/todays-fashion-logo.png"
+          src={logo} className="logo"
           alt="Today's Fashion Logo"
-          className="logo"
         />
 
         <img
-          src="/src/assets/images/person-circle.svg"
+          src={userIcon} className="profile-avatar"
           alt="Perfil"
-          className="profile-avatar"
           onClick={() => setActiveTab("perfil")}
         />
       </header>
