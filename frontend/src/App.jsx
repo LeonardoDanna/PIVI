@@ -25,11 +25,6 @@ import "./styles/melhorar.css";
 import "./styles/perfil.css";
 import "./styles/vestir.css";
 
-// Rotas
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-
 // Ícones
 import {
   FaTshirt,
@@ -91,12 +86,6 @@ export async function executarTryOn({
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("vestir");
-  const [showWelcome, setShowWelcome] = useState(true);
-
-  const handleClosePopup = () => {
-    setShowWelcome(false);
-  };
-
   const [userProfile, setUserProfile] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("userProfile")) || {
@@ -122,31 +111,7 @@ export default function App() {
 
   return (
     <>
-      {/* Rotas principais */}
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Routes>
-      </BrowserRouter>
-
-      {/* Popup de boas-vindas */}
-      {showWelcome && (
-        <div className="popup-overlay">
-          <div className="popup-box">
-            <h2>
-              👗 Bem-vindo(a) ao <span className="highlight">Today's Fashion</span>!
-            </h2>
-            <p>
-              A IA que te ajuda a descobrir o que vestir, combinar cores,
-              testar looks e organizar seu guarda-roupa de forma inteligente 💫
-            </p>
-            <PrimaryButton onClick={handleClosePopup}>Começar</PrimaryButton>
-          </div>
-        </div>
-      )}
-
-      {/* ================= HEADER NOVO ================= */}
+      {/* ================= HEADER ================= */}
       <header className="header-bar">
         <img
           src="/src/assets/images/todays-fashion-logo.png"
@@ -163,7 +128,7 @@ export default function App() {
       </header>
 
       {/* ================= CONTEÚDO DA PÁGINA ================= */}
-      <main className="container main-content">
+      <main className="container main-content" style={{ paddingTop: "40px" }}>
         <nav className="tabs">
           {tabs.map(({ id, title, icon: Icon }) => (
             <button
