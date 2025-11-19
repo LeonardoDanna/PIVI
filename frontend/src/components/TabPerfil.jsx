@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { FaUpload, FaUser, FaAlignLeft } from "react-icons/fa";
+import personCircle from "/src/assets/images/person-circle.svg";
 
-const PLACEHOLDER =
-  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"><rect width="160" height="160" rx="80" fill="%23EDE7FF"/><circle cx="80" cy="62" r="28" fill="%237C4DFF"/><path d="M30 132c8-24 28-36 50-36s42 12 50 36" fill="%237C4DFF"/></svg>';
+const PLACEHOLDER = personCircle;
 
 export default function TabPerfil({ userProfile, setUserProfile }) {
   const [name, setName] = useState(userProfile?.name || "");
