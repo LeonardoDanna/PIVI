@@ -5,6 +5,12 @@ Django settings for todayfashion project.
 import os
 from pathlib import Path
 
+# 🔥 IMPORTS para o PostgreSQL da Railway
+import dj_database_url
+from dotenv import load_dotenv
+
+load_dotenv()  # Carrega as variáveis do .env
+
 # ==============================
 # CAMINHOS
 # ==============================
@@ -27,7 +33,7 @@ REMOVE_BG_API_KEY = "UAb4wYmaY2rvN7TXdkTTdbnh"
 # ==============================
 SECRET_KEY = "django-insecure-)h45be994pz^ki+8-6_t#ta*)^by18vadjkh0qvi^)bi8xpqkg"
 DEBUG = True
-ALLOWED_HOSTS = ["*"]  # durante o desenvolvimento
+ALLOWED_HOSTS = ["*"]
 
 # ==============================
 # APLICAÇÕES
@@ -48,11 +54,10 @@ INSTALLED_APPS = [
 # MIDDLEWARE
 # ==============================
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",  # 🔥 deve vir antes de CommonMiddleware
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    # 👇 Mantemos CSRF ativo, mas rotas específicas são csrf_exempt
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -60,58 +65,27 @@ MIDDLEWARE = [
 ]
 
 # ==============================
-# CORS E CSRF (para conexão com React local)
+# CORS E CSRF
 # ==============================
-
-# 🔥 Opção segura e moderna: restrita aos domínios locais do React
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "https://localhost:5173",
     "http://127.0.0.1:5173",
     "https://127.0.0.1:5173",
+
     "http://localhost:3000",
     "https://localhost:3000",
     "http://127.0.0.1:3000",
     "https://127.0.0.1:3000",
 ]
 CORS_ALLOW_CREDENTIALS = True
-
-# 🔧 Permitir cabeçalhos usados pelo React
 CORS_ALLOW_HEADERS = [
-    "accept",
-    "accept-encoding",
-    "authorization",
-    "content-type",
-    "dnt",
-    "origin",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
+    "accept", "accept-encoding", "authorization", "content-type",
+    "dnt", "origin", "user-agent", "x-csrftoken", "x-requested-with",
 ]
+CORS_ALLOW_METHODS = ["DELETE", "GET", "OPTIONS", "PATCH", "POST", "PUT"]
 
-# Métodos aceitos
-CORS_ALLOW_METHODS = [
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-]
-
-# 🔐 Domínios confiáveis para CSRF (igual ao CORS)
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
-    "https://localhost:5173",
-    "http://127.0.0.1:5173",
-    "https://127.0.0.1:5173",
-    "http://localhost:3000",
-    "https://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://127.0.0.1:3000",
-]
-
-# ⚙️ Cookies e CSRF em ambiente local
+CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS.copy()
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False
@@ -141,13 +115,14 @@ TEMPLATES = [
 WSGI_APPLICATION = "todayfashion.wsgi.application"
 
 # ==============================
-# BANCO DE DADOS
+# BANCO DE DADOS (POSTGRES RAILWAY)
 # ==============================
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.parse(
+        os.getenv("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
 
 # ==============================

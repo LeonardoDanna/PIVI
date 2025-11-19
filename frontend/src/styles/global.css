@@ -1,0 +1,71 @@
+/* ===========================
+   RESET GLOBAL PROFISSIONAL
+   =========================== */
+
+/* Remove margens e paddings globais */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Fonte padrão */
+html, body {
+  height: 100%;
+  font-family: "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background-color: #f5f2f2;
+  color: #000;
+}
+
+/* Remove estilo padrão de listas */
+ul, li {
+  list-style: none;
+}
+
+/* Remove sublinhado e cor padrão de links */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Remove bordas padrões de inputs e botoes */
+input, button, textarea, select {
+  font-family: inherit;
+  border: none;
+  outline: none;
+  background: none;
+}
+
+/* Corrige botões */
+button {
+  cursor: pointer;
+}
+
+/* Remove comportamento feio do input no mobile */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+/* Remove highlight azul no mobile (Android/iOS) */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Deixa imagens responsivas */
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Remove default dos forms */
+form {
+  width: 100%;
+}
+
+/* Reset de tabelas (se usar futuramente) */
+table {
+  border-collapse: collapse;
+}
