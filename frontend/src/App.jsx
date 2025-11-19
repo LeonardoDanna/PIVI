@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import "./App.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 // 🧩 Importa todas as tabs
 import TabTryOn from "./components/TabTryOn";
@@ -124,6 +127,12 @@ export default function App() {
 
   return (
     <>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </BrowserRouter>
       {showWelcome && (
         <div className="popup-overlay">
           <div className="popup-box">
