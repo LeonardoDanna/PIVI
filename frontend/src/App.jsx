@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "./App.css";
 
 // 🧩 Importa todas as tabs
@@ -25,7 +25,12 @@ import "./styles/melhorar.css";
 import "./styles/perfil.css";
 import "./styles/vestir.css";
 
-// 🧠 Ícones
+// Rotas
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+
+// Ícones
 import {
   FaTshirt,
   FaPalette,
@@ -35,12 +40,10 @@ import {
   FaUserCircle,
 } from "react-icons/fa";
 
-// ✅ URL do backend
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-/* ==========================================================
-   COMPONENTES REUTILIZÁVEIS
-   ========================================================== */
+/* ============================================================== */
+
 const Field = ({ label, children, icon: Icon }) => (
   <div className="field">
     <label>
@@ -56,9 +59,6 @@ const PrimaryButton = ({ children, onClick, type = "button", disabled }) => (
   </button>
 );
 
-/* ==========================================================
-   FUNÇÃO DE TRY-ON (mantida externa, mas mais robusta)
-   ========================================================== */
 export async function executarTryOn({
   clothingFile,
   avatarFile,
@@ -68,8 +68,8 @@ export async function executarTryOn({
   avatarPrompt,
 }) {
   const formData = new FormData();
-
   const appendIf = (key, value) => value && formData.append(key, value);
+
   appendIf("clothing_image", clothingFile);
   appendIf("avatar_image", avatarFile);
   appendIf("clothing_image_url", clothingUrl);
@@ -78,6 +78,7 @@ export async function executarTryOn({
   appendIf("avatar_prompt", avatarPrompt);
 
   const resp = await fetch(backendUrl, { method: "POST", body: formData });
+
   if (!resp.ok) {
     const { error } = await resp.json().catch(() => ({}));
     throw new Error(error || "Erro no Try-On");
@@ -86,11 +87,16 @@ export async function executarTryOn({
   return URL.createObjectURL(await resp.blob());
 }
 
-/* ==========================================================
-   COMPONENTE PRINCIPAL
-   ========================================================== */
+/* ============================================================== */
+
 export default function App() {
   const [activeTab, setActiveTab] = useState("vestir");
+  const [showWelcome, setShowWelcome] = useState(true);
+
+  const handleClosePopup = () => {
+    setShowWelcome(false);
+  };
+
   const [userProfile, setUserProfile] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("userProfile")) || {
@@ -101,14 +107,6 @@ export default function App() {
       return { name: "Usuário", avatarUrl: null };
     }
   });
-  const [showWelcome, setShowWelcome] = useState(
-    !localStorage.getItem("welcomeSeen")
-  );
-
-  const handleClosePopup = () => {
-    setShowWelcome(false);
-    localStorage.setItem("welcomeSeen", "1");
-  };
 
   const tabs = [
     { id: "vestir", title: "Como posso me vestir hoje?", icon: FaTshirt, component: <TabVestir Field={Field} PrimaryButton={PrimaryButton} /> },
@@ -124,10 +122,21 @@ export default function App() {
 
   return (
     <>
+      {/* Rotas principais */}
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </BrowserRouter>
+
+      {/* Popup de boas-vindas */}
       {showWelcome && (
         <div className="popup-overlay">
           <div className="popup-box">
-            <h2>👗 Bem-vindo(a) ao <span className="highlight">Today's Fashion</span>!</h2>
+            <h2>
+              👗 Bem-vindo(a) ao <span className="highlight">Today's Fashion</span>!
+            </h2>
             <p>
               A IA que te ajuda a descobrir o que vestir, combinar cores,
               testar looks e organizar seu guarda-roupa de forma inteligente 💫
@@ -137,9 +146,24 @@ export default function App() {
         </div>
       )}
 
-      <header>Today's Fashion</header>
+      {/* ================= HEADER NOVO ================= */}
+      <header className="header-bar">
+        <img
+          src="/src/assets/images/todays-fashion-logo.png"
+          alt="Today's Fashion Logo"
+          className="logo"
+        />
 
-      <main className="container">
+        <img
+          src="/src/assets/images/person-circle.svg"
+          alt="Perfil"
+          className="profile-avatar"
+          onClick={() => setActiveTab("perfil")}
+        />
+      </header>
+
+      {/* ================= CONTEÚDO DA PÁGINA ================= */}
+      <main className="container main-content">
         <nav className="tabs">
           {tabs.map(({ id, title, icon: Icon }) => (
             <button

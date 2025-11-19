@@ -1,66 +1,17 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap");
-
 /* =========================
-   VARIÁVEIS DO TEMA
+   VARIÁVEIS (herda do index)
    ========================= */
 :root {
-  --preto: #000;
-  --cinza-claro: #f2f2f2;
-  --cinza: #e0e0e0;
-  --cinza-escuro: #333;
-  --branco: #fff;
-  --azul-claro: #d5e8ff;
+  --cinza-claro: #f7f3e9;
+  --cinza: #e8e0d1;
+  --cinza-escuro: #3a342b;
+  --branco: #ffffffd9;
   --sombra: rgba(0, 0, 0, 0.1);
-  --radius: 12px;
+  --radius: 14px;
 }
 
-/* =========================
-   RESET & BASE
-   ========================= */
-* {
-  box-sizing: border-box;
-  font-family: "Inter", sans-serif;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  background-color: var(--cinza-claro);
-  color: var(--cinza-escuro);
-}
-
-/* =========================
-   HEADER
-   ========================= */
-header {
-  background: linear-gradient(135deg, #7C4DFF 0%, #9B6BFF 40%, #C49B0B 100%);
-  color: #fff;
-  font-family: "Poppins", sans-serif;
-  font-weight: 600;
-  font-size: 2.2rem;
-  letter-spacing: 0.5px;
-  text-align: center;
-  padding: 2.2rem 1rem;
-  border-radius: 0 0 18px 18px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  position: relative;
-}
-
-/* brilho sutil inferior */
-header::after {
-  content: "";
-  position: absolute;
-  bottom: -2px;
-  left: 10%;
-  width: 80%;
-  height: 3px;
-  border-radius: 4px;
-  background: linear-gradient(90deg, rgba(255,255,255,0.5), transparent, rgba(255,255,255,0.5));
-  opacity: 0.4;
-}
+/* Reset */
+* { font-family: "Poppins", sans-serif; }
 
 /* =========================
    CONTAINER PRINCIPAL
@@ -68,13 +19,11 @@ header::after {
 .container {
   background-color: var(--branco);
   border-radius: var(--radius);
-  box-shadow: 0 4px 12px var(--sombra);
+  box-shadow: var(--shadow);
+  padding: 2.5rem;
   max-width: 1000px;
   margin: 2.5rem auto;
-  padding: 2.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem; /* respiro entre seções internas */
+  backdrop-filter: blur(6px);
 }
 
 /* =========================
@@ -89,26 +38,23 @@ header::after {
 }
 
 .tabs button {
-  background-color: var(--cinza);
+  background-color: #eae3d6;
   color: var(--cinza-escuro);
   border: none;
-  border-radius: 8px;
-  padding: 0.8rem 1.2rem;
+  border-radius: 10px;
+  padding: 0.8rem 1.3rem;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
   font-weight: 500;
   transition: all 0.2s ease;
 }
 
 .tabs button:hover {
-  background-color: var(--azul-claro);
+  background-color: #dfd7c8;
 }
 
 .tabs button.active {
-  background-color: var(--preto);
-  color: var(--branco);
+  background-color: var(--cinza-escuro);
+  color: #fff;
   box-shadow: 0 3px 8px var(--sombra);
 }
 
@@ -118,16 +64,13 @@ header::after {
 .tab-content {
   background-color: var(--branco);
   border-radius: var(--radius);
-  box-shadow: 0 2px 8px var(--sombra);
+  box-shadow: 0 2px 10px var(--sombra);
   padding: 2rem 2rem 3rem;
-  margin-top: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  backdrop-filter: blur(6px);
 }
 
 /* =========================
-   CAMPOS DE FORMULÁRIO
+   FORM FIELDS
    ========================= */
 .field {
   display: flex;
@@ -136,56 +79,52 @@ header::after {
 }
 
 .field label {
-  font-weight: 500;
-  color: var(--branco);
-  margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  font-weight: 600;
+  color: var(--cinza-escuro);
+  margin-bottom: 0.4rem;
 }
 
 .field select,
 .field input,
 .field textarea {
-  padding: 0.7rem 1rem;
+  padding: 0.75rem 1rem;
   border: 1px solid var(--cinza);
-  border-radius: 6px;
-  background-color: var(--cinza-claro);
+  border-radius: 8px;
+  background-color: #f4efe6;
   font-size: 1rem;
-  outline: none;
   transition: border 0.2s ease;
 }
 
-.field select:focus,
 .field input:focus,
+.field select:focus,
 .field textarea:focus {
-  border-color: var(--preto);
-  background-color: var(--branco);
+  border-color: var(--cinza-escuro);
+  background-color: #fff;
 }
 
 /* =========================
    BOTÃO PRINCIPAL
    ========================= */
 .btn-primary {
-  background-color: var(--preto);
-  color: var(--branco);
+  background-color: var(--cinza-escuro);
+  color: #fff;
   border: none;
-  padding: 0.8rem 1.5rem;
-  border-radius: 6px;
+  padding: 0.9rem 1.6rem;
+  border-radius: 8px;
   font-weight: 600;
-  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.25s ease;
+  font-size: 1rem;
+  transition: 0.25s ease;
 }
 
 .btn-primary:hover {
-  background-color: var(--cinza-escuro);
-  transform: translateY(-1px);
+  background-color: #2a251d;
+  transform: translateY(-2px);
   box-shadow: 0 3px 6px var(--sombra);
 }
 
 /* =========================
-   RESULTADOS / IMAGENS
+   RESULTADOS
    ========================= */
 .resultado {
   margin-top: 1rem;
@@ -195,7 +134,7 @@ header::after {
 }
 
 .resultado-com-imagem {
-  background: var(--cinza-claro);
+  background: #f4efe6;
   border-radius: var(--radius);
   border: 1px solid var(--cinza);
   padding: 1.5rem;
@@ -203,6 +142,7 @@ header::after {
   box-shadow: 0 2px 8px var(--sombra);
 }
 
+/* Imagens */
 .imagens-container {
   display: flex;
   justify-content: center;
@@ -214,26 +154,13 @@ header::after {
   width: 120px;
   height: 120px;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: 0 2px 6px var(--sombra);
-  transition: transform 0.2s ease;
+  transition: 0.2s ease;
 }
 
 .look-img:hover {
   transform: scale(1.05);
-}
-
-/* =========================
-   PERFIL
-   ========================= */
-.perfil-container {
-  color: var(--branco);
-}
-
-.perfil-container input,
-.perfil-container select {
-  color: #000;
-  background-color: var(--cinza-claro);
 }
 
 /* =========================
@@ -245,28 +172,24 @@ header::after {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(30, 30, 30, 0.6);
+  background: rgba(70, 60, 45, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 999;
-  animation: fadeIn 0.5s ease-in-out;
 }
 
 .popup-box {
-  background: #fff;
-  color: #333;
-  border-radius: 12px;
+  background: #ffffffed;
+  color: var(--cinza-escuro);
+  border-radius: 14px;
   padding: 2rem;
   max-width: 420px;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-  animation: slideUp 0.6s ease-in-out;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(6px);
 }
 
-/* =========================
-   ANIMAÇÕES
-   ========================= */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -284,4 +207,155 @@ header::after {
   .tabs { flex-direction: column; }
   .container { padding: 1.5rem; }
   .tab-content { padding: 1.5rem; }
+}
+
+/* =========================
+   BARRA SUPERIOR FINAL
+   ========================= */
+.header-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px; /* ALTURA IDEAL */
+  background: #ffffffee;
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 25px;
+  z-index: 999;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Logo arrumada */
+.header-bar .logo {
+  height: 42px;         /* TAMANHO ELEGANTE */
+  width: auto;
+  object-fit: contain;
+}
+
+/* Avatar arrumado */
+.profile-avatar {
+  height: 38px;
+  width: 38px;
+  border-radius: 50%;
+  cursor: pointer;
+  object-fit: cover;
+  transition: 0.2s;
+}
+
+.profile-avatar:hover {
+  transform: scale(1.05);
+}
+
+/* Dá espaço para o conteúdo não ficar atrás da barra */
+body {
+  padding-top: 80px;
+}
+/* =========================
+   BARRA SUPERIOR REFINADA
+   ========================= */
+/* variável para controlar a altura do header — ajuste uma vez aqui */
+:root {
+  --header-height: 85px; /* ajuste se quiser mais/menos */
+  --header-gap: 85px;    /* espaço extra entre header e tabs */
+}
+
+/* Header fixo (garante altura e alinhamento limpos) */
+.header-bar {
+  position: fixed;
+  inset: 0 0 auto 0;       /* top:0; left:0; right:0; */
+  height: var(--header-height);
+  background: rgb(255, 255, 255);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Logo e avatar dentro do header — tamanhos proporcionais */
+.header-bar .logo {
+  height: calc(var(--header-height) * 0.65); /* proporcional */
+  max-height: 64px;
+  width: auto;
+  object-fit: contain;
+}
+
+.profile-avatar {
+  height: calc(var(--header-height) * 0.52);
+  width: calc(var(--header-height) * 0.52);
+  max-height: 52px;
+  max-width: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform .12s ease;
+}
+.profile-avatar:hover { transform: scale(1.06); }
+
+/* Remove quaisquer regras antigas conflituosas (override seguro) */
+header .logo,
+header img.logo {
+  position: static !important;
+  left: auto !important;
+  height: auto !important;
+  max-height: 64px !important;
+}
+
+/* Garante que body NÃO esteja empurrando o conteúdo de forma errada */
+/* Se você tinha `body { padding-top: ... }` antes, preferimos usar o main-content */
+body {
+  padding-top: 0 !important;
+}
+
+/* Main content: desloca automaticamente com base na altura do header */
+/* Mantemos margin-top razoável (header + gap) */
+.main-content {
+  margin-top: calc(var(--header-height) + var(--header-gap)) !important;
+  transition: margin-top 0.12s ease;
+}
+
+/* Garanta que o container principal (card branco) esteja centralizado */
+.container {
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+/* Espaçamento específico para as tabs (centraliza e dá breathing) */
+.tabs {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center;
+  gap: 12px;
+  margin: 0 auto 18px auto; /* margin-top é controlado pelo .main-content */
+  flex-wrap: wrap;
+}
+
+/* Se seu "quadrado branco" é .tab-content, garantir largura e centralização */
+.tab-content {
+  margin: 0 auto;
+  max-width: 950px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Caso tenha regras antigas usando absolute/fixed dentro do .container, neutraliza */
+.container * {
+  position: static;
+}
+
+/* Responsivo: reduz deslocamento em telas pequenas */
+@media (max-width: 720px) {
+  :root { --header-height: 68px; --header-gap: 12px; }
+  .header-bar { padding: 0 14px; }
+  .header-bar .logo { max-height: 48px; }
+  .profile-avatar { max-height: 40px; max-width: 40px; }
+  .main-content { margin-top: calc(var(--header-height) + var(--header-gap)) !important; }
 }

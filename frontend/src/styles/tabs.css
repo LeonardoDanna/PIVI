@@ -31,6 +31,6 @@
 .tabs button.active {
   color: #fff;
   border-color: transparent;
-  background: linear-gradient(180deg, var(--primary-2), var(--primary));
-  box-shadow: 0 10px 20px rgba(124,77,255,0.22);
+  background: #000000;
+  box-shadow: #f7f3e9;
 }

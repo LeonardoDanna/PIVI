@@ -6,8 +6,8 @@
   --text: #111;
   --muted: #6b7280;
   --border: #e5e7eb;
-  --focus: 0 0 0 3px rgba(124, 58, 237, 0.15);
-  --accent: #7c3aed;
+  --focus: #f7f3e9;
+  --accent: #f7f3e9;
   --shadow-soft: 0 3px 10px rgba(0,0,0,0.08);
 }
 
