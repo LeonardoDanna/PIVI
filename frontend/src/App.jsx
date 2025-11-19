@@ -28,11 +28,6 @@ import "./styles/melhorar.css";
 import "./styles/perfil.css";
 import "./styles/vestir.css";
 
-// Rotas
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-
 // Ícones
 import {
   FaTshirt,
@@ -94,11 +89,6 @@ export async function executarTryOn({
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("vestir");
-  const [showWelcome, setShowWelcome] = useState(true);
-
-  const handleClosePopup = () => {
-    setShowWelcome(false);
-  };
 
   const [userProfile, setUserProfile] = useState(() => {
     try {
@@ -110,6 +100,16 @@ export default function App() {
       return { name: "Usuário", avatarUrl: null };
     }
   });
+
+  // ⭐ POPUP DE BOAS-VINDAS
+  const [showWelcome, setShowWelcome] = useState(
+    !localStorage.getItem("welcomeSeen")
+  );
+
+  const handleClosePopup = () => {
+    setShowWelcome(false);
+    localStorage.setItem("welcomeSeen", "1");
+  };
 
   const tabs = [
     { id: "vestir", title: "Como posso me vestir hoje?", icon: FaTshirt, component: <TabVestir Field={Field} PrimaryButton={PrimaryButton} /> },
@@ -125,15 +125,8 @@ export default function App() {
 
   return (
     <>
-      {/* Rotas principais */}
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Routes>
-      </BrowserRouter>
 
-      {/* Popup de boas-vindas */}
+      {/* ⭐ POPUP AQUI — EXATAMENTE COMO VOCÊ QUERIA */}
       {showWelcome && (
         <div className="popup-overlay">
           <div className="popup-box">
