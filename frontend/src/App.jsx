@@ -99,13 +99,10 @@ export default function App() {
   });
 
   // ⭐ POPUP DE BOAS-VINDAS
-  const [showWelcome, setShowWelcome] = useState(
-    !localStorage.getItem("welcomeSeen")
-  );
+  const [showWelcome, setShowWelcome] = useState(true);
 
   const handleClosePopup = () => {
     setShowWelcome(false);
-    localStorage.setItem("welcomeSeen", "1");
   };
 
   const tabs = [
