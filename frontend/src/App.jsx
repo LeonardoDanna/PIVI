@@ -1,8 +1,8 @@
 import { useState } from "react";
 import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+import logo from "./assets/images/todays-fashion-logo.png";
+import userIcon from "./assets/images/person-circle.svg";
+
 
 // 🧩 Importa todas as tabs
 import TabTryOn from "./components/TabTryOn";
@@ -102,13 +102,10 @@ export default function App() {
   });
 
   // ⭐ POPUP DE BOAS-VINDAS
-  const [showWelcome, setShowWelcome] = useState(
-    !localStorage.getItem("welcomeSeen")
-  );
+  const [showWelcome, setShowWelcome] = useState(true);
 
   const handleClosePopup = () => {
     setShowWelcome(false);
-    localStorage.setItem("welcomeSeen", "1");
   };
 
   const tabs = [
@@ -145,15 +142,13 @@ export default function App() {
       {/* ================= HEADER NOVO ================= */}
       <header className="header-bar">
         <img
-          src="/src/assets/images/todays-fashion-logo.png"
+          src={logo} className="logo"
           alt="Today's Fashion Logo"
-          className="logo"
         />
 
         <img
-          src="/src/assets/images/person-circle.svg"
+          src={userIcon} className="profile-avatar"
           alt="Perfil"
-          className="profile-avatar"
           onClick={() => setActiveTab("perfil")}
         />
       </header>

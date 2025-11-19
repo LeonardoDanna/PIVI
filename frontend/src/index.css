@@ -39,8 +39,7 @@ body {
   background-color: var(--bg);
 
   /* Imagem de jornal suavizada */
-  background-image: 
-    linear-gradient(rgba(247, 243, 233, 0.50), rgba(247, 243, 233, 0.50)), /*ultimo é a opacidade do jornal*/
+  background-image:
     url("/src/assets/images/pecas-jornal.jpg");
 
   background-size: cover;
@@ -48,6 +47,19 @@ body {
   background-repeat: no-repeat;
 
   overflow-x: hidden;
+}
+
+body {
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed; /* cobre a tela inteira SEMPRE */
+  inset: 0;
+  background: rgba(247, 243, 233, 0.50); /* ajuste a opacidade aqui */
+  pointer-events: none; /* não atrapalha cliques */
+  z-index: -1; /* fica atrás de todo o conteúdo */
 }
 
 /* Links */
