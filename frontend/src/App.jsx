@@ -86,6 +86,7 @@ export async function executarTryOn({
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("vestir");
+
   const [userProfile, setUserProfile] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("userProfile")) || {
@@ -96,6 +97,16 @@ export default function App() {
       return { name: "Usuário", avatarUrl: null };
     }
   });
+
+  // ⭐ POPUP DE BOAS-VINDAS
+  const [showWelcome, setShowWelcome] = useState(
+    !localStorage.getItem("welcomeSeen")
+  );
+
+  const handleClosePopup = () => {
+    setShowWelcome(false);
+    localStorage.setItem("welcomeSeen", "1");
+  };
 
   const tabs = [
     { id: "vestir", title: "Como posso me vestir hoje?", icon: FaTshirt, component: <TabVestir Field={Field} PrimaryButton={PrimaryButton} /> },
@@ -111,7 +122,24 @@ export default function App() {
 
   return (
     <>
-      {/* ================= HEADER ================= */}
+
+      {/* ⭐ POPUP AQUI — EXATAMENTE COMO VOCÊ QUERIA */}
+      {showWelcome && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h2>
+              👗 Bem-vindo(a) ao <span className="highlight">Today's Fashion</span>!
+            </h2>
+            <p>
+              A IA que te ajuda a descobrir o que vestir, combinar cores,
+              testar looks e organizar seu guarda-roupa de forma inteligente 💫
+            </p>
+            <PrimaryButton onClick={handleClosePopup}>Começar</PrimaryButton>
+          </div>
+        </div>
+      )}
+
+      {/* ================= HEADER NOVO ================= */}
       <header className="header-bar">
         <img
           src="/src/assets/images/todays-fashion-logo.png"
@@ -128,7 +156,7 @@ export default function App() {
       </header>
 
       {/* ================= CONTEÚDO DA PÁGINA ================= */}
-      <main className="container main-content" style={{ paddingTop: "40px" }}>
+      <main className="container main-content">
         <nav className="tabs">
           {tabs.map(({ id, title, icon: Icon }) => (
             <button
@@ -147,4 +175,3 @@ export default function App() {
     </>
   );
 }
-
