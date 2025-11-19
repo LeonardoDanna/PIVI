@@ -1,9 +1,12 @@
 import { useState } from "react";
 import loginbg from "../assets/images/Register - Background.png";
-import { Link } from "react-router-dom";
-import "../styles/login.css"
+import { Link, useNavigate } from "react-router-dom";
+import api from "../services/api";
+import "../styles/login.css";
 
 export default function Login() {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -15,28 +18,40 @@ export default function Login() {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
+    setError("");
 
-    // Validação simples
     if (!form.email || !form.password) {
       setError("Preencha todos os campos.");
       return;
     }
 
-    setError("");
-    console.log("Login enviado:", form);
+    try {
+      const response = await api.post("/login/", {
+        username: form.email, // Django usa USERNAME, não email!
+        password: form.password,
+      });
+
+      console.log("Login OK:", response.data);
+
+      // Redirecionar para o dashboard ou home logada
+      navigate("/dashboard");
+
+    } catch (err) {
+      console.log(err);
+      setError(err.response?.data?.error || "Erro ao fazer login.");
+    }
   }
 
   return (
     <div className="container">
-      {/* Imagem lateral */}
+
       <div
         className="side-image"
         style={{ backgroundImage: `url(${loginbg})` }}
       ></div>
 
-      {/* Formulário */}
       <div className="login">
         <h2>Login</h2>
 
