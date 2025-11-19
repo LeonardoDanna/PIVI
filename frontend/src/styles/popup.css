@@ -1,0 +1,25 @@
+/* -------- Popup Welcome -------- */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(70, 55, 120, .08);
+  backdrop-filter: blur(2px);
+  z-index: 40;
+}
+
+.popup-box {
+  width: min(560px, 92vw);
+  background:
+    linear-gradient(180deg, #FFFFFF, #FBFAFF) padding-box,
+    linear-gradient(120deg, rgba(200,156,29,.5), rgba(124,77,255,.55)) border-box;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  padding: 22px;
+  text-align: center;
+  color: #2b2440;
+  box-shadow: var(--shadow);
+}
+
+.popup-box .highlight { color: var(--primary); }

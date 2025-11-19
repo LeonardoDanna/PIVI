@@ -1,0 +1,70 @@
+/* =========================
+   Tema Today Fashion — Roxo & Dourado (DAY MODE)
+   ========================= */
+
+:root {
+  --bg: #fdfbff;
+  --bg-elev: #ffffff;
+  --card: #faf7ff;
+  --primary: #7C4DFF; /* roxo moderno */
+  --primary-2: #9B6BFF;
+  --gold: #C49B0B;
+  --text: #2A2047;
+  --muted: #6C63A5;
+  --border: #e2daf7;
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(10, 2, 25, 0.1);
+  --shadow-soft: 0 6px 18px rgba(10, 2, 25, 0.08);
+  color-scheme: light;
+}
+
+
+/* ===== Base ===== */
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  color: var(--text);
+  background:
+    radial-gradient(1000px 800px at 10% -10%, rgba(124,77,255,0.1), transparent 60%),
+    radial-gradient(800px 600px at 90% 10%, rgba(200,156,29,0.1), transparent 60%),
+    linear-gradient(180deg, #FFFFFF, var(--bg));
+}
+
+/* Links */
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+a:hover { color: var(--primary-2); }
+
+/* Container base */
+.container {
+  max-width: 1100px;
+  margin: 26px auto 60px;
+  padding: 0 20px;
+}
+
+/* Header */
+header {
+  width: 100%;
+  padding: 20px 28px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--primary);
+  background: linear-gradient(180deg, #FDFBFF, #F5F1FF);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  box-shadow: var(--shadow-soft);
+}
+
+/* Responsivo global mínimo */
+@media (max-width: 720px) {
+  .container { padding: 0 16px; }
+}
