@@ -1,36 +1,36 @@
-# 👗🤖 Today Fashion  
+# 👗🤖 Today Fashion
 
-**Today Fashion** é uma IA generativa que te ajuda a escolher roupas no dia a dia — sem medo de mudar de estilo!  
-
----
-
-## 📸 Como funciona  
-
-1. Você envia **uma foto sua**.  
-2. Você envia **uma foto da roupa** que quer usar.  
-3. A IA gera **uma imagem realista de você vestindo a roupa**, para você decidir se combina ou gosta do resultado.  
+**Today Fashion** é uma IA generativa que te ajuda a escolher roupas no dia a dia — sem medo de mudar de estilo!
 
 ---
 
-## 💡 Funcionalidades Extras  
+## 📸 Como funciona
 
-- 🌤️ **Sugestão de looks** baseada no clima e no evento.  
-- 🎨 **Combinações personalizadas** com base na sua cor favorita.  
-- 📏 **Ajuste ideal de caimento** e formato de roupa conforme sua altura.  
-- 🔄 **Sugestões para mudar de estilo**, levando em conta seu estilo atual.  
-- 🏠 **Armário virtual**, um banco de dados para organizar todas as suas roupas.  
+1. Você envia **uma foto sua**.
+2. Você envia **uma foto da roupa** que quer usar.
+3. A IA gera **uma imagem realista de você vestindo a roupa**, para você decidir se combina ou gosta do resultado.
 
 ---
 
-## 🎯 Objetivo  
+## 💡 Funcionalidades Extras
 
-- Ajudar você a **se sentir mais confiante**.  
-- Permitir **experimentar estilos diferentes** sem medo.  
-- Tornar a escolha de roupas **divertida e inspiradora!**  
+- 🌤️ **Sugestão de looks** baseada no clima e no evento.
+- 🎨 **Combinações personalizadas** com base na sua cor favorita.
+- 📏 **Ajuste ideal de caimento** e formato de roupa conforme sua altura.
+- 🔄 **Sugestões para mudar de estilo**, levando em conta seu estilo atual.
+- 🏠 **Armário virtual**, um banco de dados para organizar todas as suas roupas.
 
 ---
 
-## 🚀 Como Rodar o Projeto  
+## 🎯 Objetivo
+
+- Ajudar você a **se sentir mais confiante**.
+- Permitir **experimentar estilos diferentes** sem medo.
+- Tornar a escolha de roupas **divertida e inspiradora!**
+
+---
+
+## 🚀 Como Rodar o Projeto
 
 ### 1. Clonar o repositório
 

@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { FaRulerCombined, FaWeightHanging, FaTape, FaTshirt } from "react-icons/fa";
+import {
+  FaRulerCombined,
+  FaWeightHanging,
+  FaTape,
+  FaTshirt,
+} from "react-icons/fa";
 
 export default function TabCaimentoPro({ Field, PrimaryButton }) {
   const [altura, setAltura] = useState("");
@@ -28,11 +33,15 @@ export default function TabCaimentoPro({ Field, PrimaryButton }) {
     const ep = entrepernas ? parseNum(entrepernas) : null;
 
     const e = [];
-    if (!a || a < 140 || a > 230) e.push("Altura deve estar entre 140 e 230 cm.");
+    if (!a || a < 140 || a > 230)
+      e.push("Altura deve estar entre 140 e 230 cm.");
     if (!p || p < 35 || p > 250) e.push("Peso deve estar entre 35 e 250 kg.");
-    if (!pt || pt < 70 || pt > 140) e.push("Peito deve estar entre 70 e 140 cm.");
-    if (!ct || ct < 60 || ct > 140) e.push("Cintura deve estar entre 60 e 140 cm.");
-    if (!qd || qd < 70 || qd > 150) e.push("Quadril deve estar entre 70 e 150 cm.");
+    if (!pt || pt < 70 || pt > 140)
+      e.push("Peito deve estar entre 70 e 140 cm.");
+    if (!ct || ct < 60 || ct > 140)
+      e.push("Cintura deve estar entre 60 e 140 cm.");
+    if (!qd || qd < 70 || qd > 150)
+      e.push("Quadril deve estar entre 70 e 150 cm.");
     if (categoria === "calca" && ep !== null && (ep < 65 || ep > 100))
       e.push("Entrepernas (inseam) esperado entre 65 e 100 cm.");
     setErros(e);
@@ -60,11 +69,16 @@ export default function TabCaimentoPro({ Field, PrimaryButton }) {
 
   const easeTopByFit = (fit) => {
     switch (fit) {
-      case "justo": return { torax: "0–2 cm", ombro: "0 cm", manga: "0–1 cm" };
-      case "slim": return { torax: "2–4 cm", ombro: "0–0,5 cm", manga: "1–2 cm" };
-      case "regular": return { torax: "4–8 cm", ombro: "0,5–1 cm", manga: "2–3 cm" };
-      case "relaxado": return { torax: "8–12 cm", ombro: "1–1,5 cm", manga: "3–4 cm" };
-      default: return { torax: "3–5 cm", ombro: "0–1 cm", manga: "1–2 cm" };
+      case "justo":
+        return { torax: "0–2 cm", ombro: "0 cm", manga: "0–1 cm" };
+      case "slim":
+        return { torax: "2–4 cm", ombro: "0–0,5 cm", manga: "1–2 cm" };
+      case "regular":
+        return { torax: "4–8 cm", ombro: "0,5–1 cm", manga: "2–3 cm" };
+      case "relaxado":
+        return { torax: "8–12 cm", ombro: "1–1,5 cm", manga: "3–4 cm" };
+      default:
+        return { torax: "3–5 cm", ombro: "0–1 cm", manga: "1–2 cm" };
     }
   };
 
@@ -82,12 +96,21 @@ export default function TabCaimentoPro({ Field, PrimaryButton }) {
       const clamp = (i) => Math.max(0, Math.min(ordem.length - 1, i));
       const iBase = ordem.indexOf(base);
       const iPref = ordem.indexOf(pref);
-      if (iPref !== -1) base = ordem[clamp(Math.round((iBase * 2 + iPref * 3) / 5))];
+      if (iPref !== -1)
+        base = ordem[clamp(Math.round((iBase * 2 + iPref * 3) / 5))];
     }
     return base;
   };
 
-  const detalhesPorCategoria = ({ categoria, altura, peito, cintura, quadril, entrepernas, fit }) => {
+  const detalhesPorCategoria = ({
+    categoria,
+    altura,
+    peito,
+    cintura,
+    quadril,
+    entrepernas,
+    fit,
+  }) => {
     const out = { pontos: [], tamanhos: {} };
 
     if (["camiseta", "camisa", "jaqueta", "blazer"].includes(categoria)) {
@@ -97,19 +120,31 @@ export default function TabCaimentoPro({ Field, PrimaryButton }) {
 
       out.pontos.push(`Comprimento total ~ ${comprimento} cm.`);
       out.pontos.push(`Comprimento de manga ~ ${manga} cm.`);
-      out.pontos.push(`Folga no tórax: ${ease.torax}; ombros: ${ease.ombro}; mangas: ${ease.manga}.`);
+      out.pontos.push(
+        `Folga no tórax: ${ease.torax}; ombros: ${ease.ombro}; mangas: ${ease.manga}.`
+      );
       if (fit === "slim") out.pontos.push("Modelagem levemente acinturada.");
-      if (fit === "regular") out.pontos.push("Corte reto, confortável para uso diário.");
-      if (fit === "relaxado") out.pontos.push("Queda de ombro discreta e volume controlado.");
+      if (fit === "regular")
+        out.pontos.push("Corte reto, confortável para uso diário.");
+      if (fit === "relaxado")
+        out.pontos.push("Queda de ombro discreta e volume controlado.");
       out.tamanhos.sugerido = estimarTamanhoTop(peito);
     }
 
     if (categoria === "calca") {
-      const inseam = entrepernas ? Math.round(entrepernas) : Math.round(altura * 0.45);
+      const inseam = entrepernas
+        ? Math.round(entrepernas)
+        : Math.round(altura * 0.45);
       const aberturaBarra =
-        fit === "justo" || fit === "slim" ? "16–18 cm" : fit === "regular" ? "18–20 cm" : "20–22 cm";
+        fit === "justo" || fit === "slim"
+          ? "16–18 cm"
+          : fit === "regular"
+          ? "18–20 cm"
+          : "20–22 cm";
       const stretch =
-        quadril - cintura > 8 ? "2–3% elastano" : "1–2% elastano ou tecido rígido";
+        quadril - cintura > 8
+          ? "2–3% elastano"
+          : "1–2% elastano ou tecido rígido";
       const rise = cintura < quadril ? "médio/alto" : "médio";
 
       out.pontos.push(`Inseam (entrepernas) ~ ${inseam} cm.`);
@@ -148,8 +183,22 @@ export default function TabCaimentoPro({ Field, PrimaryButton }) {
     const qd = parseNum(quadril);
     const ep = entrepernas ? parseNum(entrepernas) : null;
 
-    const fit = sugerirFitBase({ altura: a, peito: pt, cintura: ct, quadril: qd, pref: prefCaimento });
-    const det = detalhesPorCategoria({ categoria, altura: a, peito: pt, cintura: ct, quadril: qd, entrepernas: ep, fit });
+    const fit = sugerirFitBase({
+      altura: a,
+      peito: pt,
+      cintura: ct,
+      quadril: qd,
+      pref: prefCaimento,
+    });
+    const det = detalhesPorCategoria({
+      categoria,
+      altura: a,
+      peito: pt,
+      cintura: ct,
+      quadril: qd,
+      entrepernas: ep,
+      fit,
+    });
 
     let confianca = 0.6;
     if (categoria === "calca" && ep) confianca += 0.15;
@@ -159,7 +208,8 @@ export default function TabCaimentoPro({ Field, PrimaryButton }) {
     setResultado({
       categoria,
       fitRecomendado: fit,
-      folgasPrincipais: categoria === "calca" ? "Ajuste por perna" : easeTopByFit(fit).torax,
+      folgasPrincipais:
+        categoria === "calca" ? "Ajuste por perna" : easeTopByFit(fit).torax,
       detalhes: det.pontos,
       tamanhoSugerido: det.tamanhos.sugerido,
       confianca,
@@ -171,27 +221,55 @@ export default function TabCaimentoPro({ Field, PrimaryButton }) {
     <div className="tab-caimento">
       <div className="caimento-grid">
         <Field label="Altura (cm)" icon={FaRulerCombined}>
-          <input type="number" placeholder="Ex.: 175" value={altura} onChange={(e) => setAltura(e.target.value)} />
+          <input
+            type="number"
+            placeholder="Ex.: 175"
+            value={altura}
+            onChange={(e) => setAltura(e.target.value)}
+          />
         </Field>
 
         <Field label="Peso (kg)" icon={FaWeightHanging}>
-          <input type="number" placeholder="Ex.: 72" value={peso} onChange={(e) => setPeso(e.target.value)} />
+          <input
+            type="number"
+            placeholder="Ex.: 72"
+            value={peso}
+            onChange={(e) => setPeso(e.target.value)}
+          />
         </Field>
 
         <Field label="Peito/Tórax (cm)" icon={FaTape}>
-          <input type="number" placeholder="Ex.: 98" value={peito} onChange={(e) => setPeito(e.target.value)} />
+          <input
+            type="number"
+            placeholder="Ex.: 98"
+            value={peito}
+            onChange={(e) => setPeito(e.target.value)}
+          />
         </Field>
 
         <Field label="Cintura (cm)" icon={FaTape}>
-          <input type="number" placeholder="Ex.: 82" value={cintura} onChange={(e) => setCintura(e.target.value)} />
+          <input
+            type="number"
+            placeholder="Ex.: 82"
+            value={cintura}
+            onChange={(e) => setCintura(e.target.value)}
+          />
         </Field>
 
         <Field label="Quadril (cm)" icon={FaTape}>
-          <input type="number" placeholder="Ex.: 98" value={quadril} onChange={(e) => setQuadril(e.target.value)} />
+          <input
+            type="number"
+            placeholder="Ex.: 98"
+            value={quadril}
+            onChange={(e) => setQuadril(e.target.value)}
+          />
         </Field>
 
         <Field label="Categoria" icon={FaTshirt}>
-          <select value={categoria} onChange={(e) => setCategoria(e.target.value)}>
+          <select
+            value={categoria}
+            onChange={(e) => setCategoria(e.target.value)}
+          >
             <option value="camiseta">Camiseta</option>
             <option value="camisa">Camisa</option>
             <option value="jaqueta">Jaqueta</option>
@@ -202,7 +280,12 @@ export default function TabCaimentoPro({ Field, PrimaryButton }) {
 
         {categoria === "calca" && (
           <Field label="Entrepernas (cm)" icon={FaTape}>
-            <input type="number" placeholder="Ex.: 80" value={entrepernas} onChange={(e) => setEntrepernas(e.target.value)} />
+            <input
+              type="number"
+              placeholder="Ex.: 80"
+              value={entrepernas}
+              onChange={(e) => setEntrepernas(e.target.value)}
+            />
           </Field>
         )}
 
@@ -234,22 +317,39 @@ export default function TabCaimentoPro({ Field, PrimaryButton }) {
 
       {resultado && (
         <div className="caimento-resultado">
-          <p><strong>Caimento recomendado:</strong> {resultado.fitRecomendado}</p>
-          <p><strong>Tamanho sugerido:</strong> {resultado.tamanhoSugerido}</p>
-          <p><strong>Folga principal:</strong> {resultado.folgasPrincipais}</p>
-          <p><strong>Confiança:</strong> {(resultado.confianca * 100).toFixed(0)}%</p>
+          <p>
+            <strong>Caimento recomendado:</strong> {resultado.fitRecomendado}
+          </p>
+          <p>
+            <strong>Tamanho sugerido:</strong> {resultado.tamanhoSugerido}
+          </p>
+          <p>
+            <strong>Folga principal:</strong> {resultado.folgasPrincipais}
+          </p>
+          <p>
+            <strong>Confiança:</strong> {(resultado.confianca * 100).toFixed(0)}
+            %
+          </p>
 
           {resultado.alertas?.length > 0 && (
             <div className="caimento-alertas">
               <strong>Alertas:</strong>
-              <ul>{resultado.alertas.map((a, i) => <li key={i}>{a}</li>)}</ul>
+              <ul>
+                {resultado.alertas.map((a, i) => (
+                  <li key={i}>{a}</li>
+                ))}
+              </ul>
             </div>
           )}
 
           {resultado.detalhes?.length > 0 && (
             <div className="caimento-detalhes">
               <strong>Detalhes:</strong>
-              <ul>{resultado.detalhes.map((d, i) => <li key={i}>{d}</li>)}</ul>
+              <ul>
+                {resultado.detalhes.map((d, i) => (
+                  <li key={i}>{d}</li>
+                ))}
+              </ul>
             </div>
           )}
         </div>
