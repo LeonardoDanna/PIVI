@@ -1,116 +1,32 @@
-/* =========================
-   TEMA BASE — Estilo Editorial Bege
-   ========================= */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --bg: #f7f3e9;                /* bege editorial */
-  --bg-elev: #ffffffd9;         /* branco translúcido elegante */
-  --card: #ffffffcc;
-
-  --text: #3a342b;              /* marrom escuro sofisticado */
-  --muted: #6f6658;
-
-  --primary: #000000;           /* roxo detalhe */
-  --primary-2: #000000;
-  --gold: #C49B0B;              /* dourado detalhe */
-
-  --radius: 14px;
-  --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  --shadow-soft: 0 6px 18px rgba(0, 0, 0, 0.08);
-
-  color-scheme: light;
-}
-
-/* Fonte moderna */
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
-
-* { box-sizing: border-box; }
-
-html, body, #root { height: 100%; margin: 0; }
-
-/* =========================
-   FUNDO — Bege + Jornal Suave
-   ========================= */
-
+/* --- Configurações Globais --- */
 body {
-  font-family: "Poppins", sans-serif;
-  color: var(--text);
-
-  background-color: var(--bg);
-
-  /* Imagem de jornal suavizada */
-  background-image:
-    url("/src/assets/images/pecas-jornal.jpg");
-
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-
-  overflow-x: hidden;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f8fafc; /* Fundo cinza bem clarinho para não cansar a vista */
 }
 
-body {
-  position: relative;
+/* --- Animações Personalizadas --- */
+/* Isso faz o conteúdo subir suavemente quando troca de aba */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px); /* Começa um pouco mais embaixo */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0); /* Termina na posição original */
+  }
 }
 
-body::before {
-  content: "";
-  position: fixed; /* cobre a tela inteira SEMPRE */
-  inset: 0;
-  background: rgba(247, 243, 233, 0.50); /* ajuste a opacidade aqui */
-  pointer-events: none; /* não atrapalha cliques */
-  z-index: -1; /* fica atrás de todo o conteúdo */
-}
-
-/* Links */
-a {
-  color: var(--primary);
-  text-decoration: none;
-  transition: 0.2s ease;
-}
-a:hover { color: var(--primary-2); }
-
-/* Container */
-.container {
-  max-width: 1100px;
-  margin: 30px auto 60px;
-  padding: 0 22px;
-}
-
-/* Header — com logo */
-header {
-  width: 100%;
-  padding: 28px 28px;
-  font-weight: 600;
-  font-size: 1.9rem;
-  color: var(--text);
-
-  background: var(--bg-elev);
-  backdrop-filter: blur(8px);
-
-  border-bottom: 1px solid #ddd3bd;
-  box-shadow: var(--shadow-soft);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  text-align: center;
-  position: sticky;
-  top: 0;
-  z-index: 20;
-
-  border-radius: 0 0 18px 18px;
-}
-
-/* Imagem da logo dentro do header */
-header img.logo {
-  height: 75px;
-  object-fit: contain;
-}
-
-/* Responsivo global */
-@media (max-width: 720px) {
-  .container { padding: 0 16px; }
-  header { font-size: 1.4rem; padding: 20px; }
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
 }
