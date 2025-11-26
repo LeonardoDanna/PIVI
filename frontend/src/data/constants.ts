@@ -1,6 +1,6 @@
 // src/data/constants.ts
 
-// --- TIPOS E INTERFACES (Adicione 'export' em tudo) ---
+// --- TIPOS E INTERFACES ---
 
 export interface Palette {
   label: string;
@@ -31,7 +31,7 @@ export interface ClosetItem {
   image: string;
 }
 
-// --- DADOS (Adicione 'export' em tudo) ---
+// --- DADOS ---
 
 export const colorPalettes: Record<SkinToneKey, Palette> = {
   very_light: {
@@ -39,133 +39,139 @@ export const colorPalettes: Record<SkinToneKey, Palette> = {
     hex: "#FAE7D0",
     season: "Inverno Frio",
     description:
-      "Pele com subtom frio. Cores puras, gélidas e contrastantes realçam sua beleza natural.",
+      "Combina melhor com tons limpos, frios e contrastantes. Neutros intensos e azuis profundos equilibram a pele.",
     colors: [
-      "bg-blue-500",
-      "bg-pink-600",
-      "bg-emerald-500",
-      "bg-purple-700",
-      "bg-gray-900",
-      "bg-slate-200",
+      "bg-gray-900",     // preto carvão
+      "bg-slate-700",    // cinza grafite
+      "bg-blue-900",     // azul marinho
+      "bg-gray-300",     // cinza claro
+      "bg-white",        // branco off
+      "bg-sky-950",      // azul petróleo
     ],
     styles: [
       "Minimalista",
       "Dramático",
       "Alfaiataria",
-      "Gótico Suave",
       "Moderno",
-      "Futurista",
+      "Clean",
+      "Contemporâneo",
     ],
   },
+
   light: {
     label: "Clara",
     hex: "#E3C1A0",
-    season: "Verão Suave",
+    season: "Outono Claro",
     description:
-      "Contraste delicado. Tons pastéis, lavanda e azul bebê harmonizam perfeitamente.",
+      "Fica bem com tons suaves, terrosos e neutros. Bege e oliva criam harmonia natural.",
     colors: [
-      "bg-sky-200",
-      "bg-rose-300",
-      "bg-indigo-300",
-      "bg-teal-200",
-      "bg-purple-300",
-      "bg-slate-400",
+      "bg-stone-200",   // bege
+      "bg-stone-400",   // areia
+      "bg-green-700",   // oliva escuro
+      "bg-blue-800",    // azul marinho suave
+      "bg-stone-600",   // cáqui
+      "bg-gray-500",    // cinza médio
     ],
     styles: [
-      "Romântico",
-      "Lady Like",
-      "Provençal",
+      "Romântico Natural",
       "Clássico",
-      "Vintage",
-      "Cottagecore",
+      "Soft Casual",
+      "Vintage Clean",
+      "Cottagecore Neutro",
+      "Casual Chic",
     ],
   },
+
   medium: {
     label: "Média",
     hex: "#CFA880",
-    season: "Primavera Quente",
+    season: "Terra Neutra",
     description:
-      "Pele dourada e vibrante. Cores alegres como coral, turquesa e dourado são ideais.",
+      "Peles médias brilham com tons quentes moderados como terracota, marrom claro e verde musgo.",
     colors: [
-      "bg-orange-400",
-      "bg-lime-500",
-      "bg-yellow-400",
-      "bg-cyan-500",
-      "bg-red-500",
-      "bg-amber-300",
+      "bg-amber-700",   // caramelo
+      "bg-orange-900",  // terracota
+      "bg-yellow-900",  // mostarda queimado
+      "bg-green-800",   // musgo
+      "bg-stone-700",   // café
+      "bg-blue-900",    // marinho profundo
     ],
     styles: [
-      "Criativo",
-      "Tropical",
-      "Esportivo",
-      "Color Block",
-      "Casual Chic",
-      "Preppy",
+      "Casual Natural",
+      "Esportivo Clássico",
+      "Urbano Clean",
+      "Safari Moderno",
+      "Terroso",
+      "Preppy Neutro",
     ],
   },
+
   tan: {
     label: "Bronzeada",
     hex: "#A67B51",
     season: "Outono Profundo",
     description:
-      "Tons terrosos, mostarda e verde militar complementam seu bronzeado natural.",
+      "Combina muito com tons terrosos, vinho, oliva e marrom intenso.",
     colors: [
-      "bg-orange-800",
-      "bg-green-800",
-      "bg-yellow-700",
-      "bg-red-900",
-      "bg-stone-700",
-      "bg-amber-700",
+      "bg-green-900",   // oliva profundo
+      "bg-red-900",     // bordô
+      "bg-orange-800",  // ferrugem
+      "bg-stone-800",   // marrom amargo
+      "bg-amber-800",   // dourado queimado
+      "bg-gray-700",    // grafite suave
     ],
-    styles: ["Boho Chic", "Natural", "Folk", "Safari", "Militar", "Rústico"],
+    styles: ["Boho Chic", "Natural Urbano", "Militar", "Rústico Moderno", "Chic Terroso", "Folk"],
   },
+
   dark: {
     label: "Escura",
     hex: "#7A4B28",
     season: "Outono Escuro",
     description:
-      "Pele rica e quente. Tons de especiarias, vinhos profundos e azul marinho ficam elegantes.",
+      "Marinho, vinho, oliva escuro e especiarias criam profundidade elegante.",
     colors: [
-      "bg-rose-900",
-      "bg-blue-900",
-      "bg-emerald-900",
-      "bg-yellow-600",
-      "bg-purple-900",
-      "bg-orange-900",
+      "bg-slate-900",   // quase preto
+      "bg-indigo-900",  // marinho profundo
+      "bg-emerald-900", // verde esmeralda escuro
+      "bg-red-800",     // vinho queimado
+      "bg-yellow-700",  // dourado terroso
+      "bg-stone-900",   // marrom escuro
     ],
     styles: [
       "Sofisticado",
-      "Glamour",
-      "Urbano",
       "Executivo",
-      "Retrô",
-      "Barroco",
+      "Urbano Premium",
+      "Clássico Forte",
+      "Minimalista Escuro",
+      "Moderno",
     ],
   },
+
   deep: {
     label: "Retinta",
     hex: "#422618",
-    season: "Inverno Brilhante",
+    season: "Inverno Profundo",
     description:
-      "Alto contraste e profundidade. Cores neon, branco puro e cores primárias vibrantes.",
+      "Contraste elevado combina com preto, vinho, azul noite, oliva escuro e branco gelo.",
     colors: [
-      "bg-fuchsia-600",
-      "bg-blue-600",
-      "bg-yellow-300",
-      "bg-white",
-      "bg-red-600",
-      "bg-violet-600",
+      "bg-black",       // preto puro
+      "bg-white",       // branco gelo
+      "bg-blue-950",    // azul noite
+      "bg-purple-900",  // ameixa
+      "bg-green-900",   // oliva escuro
+      "bg-red-900",     // vinho profundo
     ],
     styles: [
-      "Streetwear",
+      "Streetwear Premium",
       "High Fashion",
-      "Vibrante",
-      "Geométrico",
-      "Esportivo Deluxe",
-      "Pop Art",
+      "Clássico Impactante",
+      "Moderno Forte",
+      "Minimalista Contrastado",
+      "Urbano Elegante",
     ],
   },
 };
+
 
 export const initialClosetData: Record<string, ClosetItem[]> = {
   head: [

@@ -29,7 +29,7 @@ const MainLayout = () => {
           <div className="flex items-center gap-4">
             <button className="p-2 text-slate-400 hover:text-slate-600 transition relative">
               <Bell size={20} />
-              <span className="absolute top-1.5 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+              <span className="absolute top-1.5 right-2 w-2 h-2 bg-red-600 rounded-full"></span>
             </button>
 
             <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
