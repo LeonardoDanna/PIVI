@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { 
   Calculator, 
-  Check, 
-  Info, 
-  AlertCircle, 
   Ruler, 
   RotateCcw, 
   Copy, 
   CheckCircle2,
-  Shirt,     // Ícone para parte superior
-  Scissors   // Ícone alternativo para alfaiataria/calça (ou usar texto)
+  Shirt, 
+  AlertCircle,
+  Check,
+  Info
 } from "lucide-react";
 
-// Ícone customizado de Calça (usando SVG simples já que Lucide pode não ter um específico perfeito em todas as versões)
+// Ícone customizado de Calça
 const PantsIcon = ({ size = 24, className = "" }) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
@@ -31,20 +30,7 @@ const PantsIcon = ({ size = 24, className = "" }) => (
   </svg>
 );
 
-// --- Type Definitions ---
-interface FitMetrics {
-  height: number;
-  weight: number;
-  preference: "tight" | "regular" | "loose";
-}
-
-interface CalculatedResult {
-  top: string;
-  bottom: string; // Numérica (38, 40...) ou Letra
-  confidence: number;
-}
-
-// Dados da tabela de referência para exibição (Atualizado com Calças)
+// Dados da tabela de referência
 const REFERENCE_TABLE = [
   { size: "PP / 36", height: "150-165", weight: "40-55" },
   { size: "P / 38", height: "160-170", weight: "55-65" },
@@ -58,26 +44,17 @@ const REFERENCE_TABLE = [
 ];
 
 const FitGuide = () => {
-  // Estado para controlar a visualização (Calculadora ou Tabela)
-  const [activeView, setActiveView] = useState<"calculator" | "table">("calculator");
-  // Estado para controlar qual resultado mostrar no card (Top ou Bottom)
-  const [resultType, setResultType] = useState<"top" | "bottom">("top");
-  
+  const [activeView, setActiveView] = useState("calculator");
+  const [resultType, setResultType] = useState("top");
   const [copied, setCopied] = useState(false);
 
-  // Persistência com tipagem segura
-  const [fitMetrics, setFitMetrics] = useState<FitMetrics>(() => {
-    if (typeof window === "undefined") {
-      return { height: 175, weight: 75, preference: "regular" };
-    }
-    
+  // Persistência
+  const [fitMetrics, setFitMetrics] = useState(() => {
+    if (typeof window === "undefined") return { height: 175, weight: 75, preference: "regular" };
     try {
       const saved = localStorage.getItem("userFitMetrics");
-      return saved
-        ? JSON.parse(saved)
-        : { height: 175, weight: 75, preference: "regular" };
+      return saved ? JSON.parse(saved) : { height: 175, weight: 75, preference: "regular" };
     } catch (e) {
-      console.error("Erro ao carregar preferências", e);
       return { height: 175, weight: 75, preference: "regular" };
     }
   });
@@ -86,11 +63,11 @@ const FitGuide = () => {
     localStorage.setItem("userFitMetrics", JSON.stringify(fitMetrics));
   }, [fitMetrics]);
 
-  const calculatedSize = useMemo<CalculatedResult>(() => {
+  const calculatedSize = useMemo(() => {
     const { height, weight, preference } = fitMetrics;
     const ratio = weight / height;
     
-    // --- Lógica Top (Camisetas) ---
+    // Lógica Top
     let topSize = "M";
     if (ratio < 0.35) topSize = "PP";
     else if (ratio < 0.4) topSize = "P";
@@ -102,11 +79,8 @@ const FitGuide = () => {
     else if (ratio < 0.83) topSize = "G3";
     else topSize = "G4";
 
-    // --- Lógica Bottom (Calças - Baseado em numeração BR) ---
-    // Calças dependem mais do peso absoluto e distribuição, mas o ratio ajuda
-    // Estimativa baseada em IMC aproximado para cintura
+    // Lógica Bottom
     let bottomSize = "40";
-    // Faixas de peso aproximadas para numeração masculina padrão BR
     if (weight < 55) bottomSize = "36";
     else if (weight < 62) bottomSize = "38";
     else if (weight < 72) bottomSize = "40";
@@ -118,9 +92,8 @@ const FitGuide = () => {
     else if (weight < 130) bottomSize = "52";
     else bottomSize = "54";
 
-    // Ajuste de preferência para AMBOS
+    // Ajuste de preferência
     if (preference === "loose") {
-      // Top Upgrade
       if (topSize === "P") topSize = "M";
       else if (topSize === "M") topSize = "G";
       else if (topSize === "G") topSize = "GG";
@@ -129,180 +102,157 @@ const FitGuide = () => {
       else if (topSize === "G2") topSize = "G3";
       else if (topSize === "G3") topSize = "G4";
       
-      // Bottom Upgrade (pula um número par)
       const numericBottom = parseInt(bottomSize);
       if (!isNaN(numericBottom) && numericBottom < 54) {
         bottomSize = (numericBottom + 2).toString();
       }
-    } else if (preference === "tight") {
-        // Lógica opcional para 'tight'
     }
 
     let confidence = 92;
-    // Simulação de variação de confiança
     if (preference !== "regular") confidence -= 5;
-    // Calças são mais difíceis de prever só com peso/altura
     if (resultType === "bottom") confidence -= 4; 
 
     return { top: topSize, bottom: bottomSize, confidence };
-  }, [fitMetrics, resultType]); // Adicionado resultType para atualizar a confiança visualmente se necessário
+  }, [fitMetrics, resultType]);
 
   const handleReset = () => {
     setFitMetrics({ height: 175, weight: 75, preference: "regular" });
   };
 
   const handleCopy = () => {
-    // Copy formatado conforme solicitado (Removido Compatibilidade)
     const text = `Meus tamanhos recomendados são ${calculatedSize.top} (Superior) e ${calculatedSize.bottom} (Inferior).`;
-    navigator.clipboard.writeText(text);
+    document.execCommand('copy'); // Fallback mais seguro para iframes
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div className="animate-fade-in grid grid-cols-1 lg:grid-cols-12 gap-8">
-      {/* Coluna de Controles / Tabela */}
+    <div className="animate-fade-in grid grid-cols-1 lg:grid-cols-12 gap-8 font-sans text-slate-900">
+      
+      {/* --- COLUNA ESQUERDA: Controles --- */}
       <div className="col-span-1 lg:col-span-5 bg-white p-6 lg:p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col h-full">
         
-        {/* Header com Abas */}
-        <div className="flex items-center justify-between mb-8">
+        {/* Header Responsivo */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-3">
-             {/* Ícone dinâmico baseado na aba */}
             <div className={`p-3 rounded-xl transition-colors ${activeView === 'calculator' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700'}`}>
               {activeView === 'calculator' ? <Calculator size={24} /> : <Ruler size={24} />}
             </div>
-            <h3 className="text-xl font-bold text-slate-800">
-              {activeView === 'calculator' ? 'Calculadora' : 'Tabela Oficial'}
-            </h3>
+            <div>
+              <h3 className="text-xl font-bold text-slate-800 leading-tight">
+                {activeView === 'calculator' ? 'Calculadora' : 'Tabela Oficial'}
+              </h3>
+              <p className="text-xs text-slate-500">Descubra seu tamanho ideal</p>
+            </div>
           </div>
           
-          {/* Toggle de Visualização */}
-          <div className="flex bg-slate-100 p-1 rounded-lg">
+          {/* Toggle View (Aba de visualização) */}
+          <div className="flex bg-slate-100 p-1 rounded-lg w-full sm:w-auto">
             <button
               onClick={() => setActiveView("calculator")}
-              className={`p-2 rounded-md transition-all ${activeView === "calculator" ? "bg-white shadow text-slate-800" : "text-slate-400 hover:text-slate-600"}`}
-              title="Calculadora Interativa"
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${activeView === "calculator" ? "bg-white shadow-sm text-slate-800" : "text-slate-500 hover:text-slate-700"}`}
             >
-              <Calculator size={18} />
+              <Calculator size={16} />
+              <span className="sm:hidden md:inline">Calc</span>
             </button>
             <button
               onClick={() => setActiveView("table")}
-              className={`p-2 rounded-md transition-all ${activeView === "table" ? "bg-white shadow text-slate-800" : "text-slate-400 hover:text-slate-600"}`}
-              title="Tabela de Medidas"
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${activeView === "table" ? "bg-white shadow-sm text-slate-800" : "text-slate-500 hover:text-slate-700"}`}
             >
-              <Ruler size={18} />
+              <Ruler size={16} />
+              <span className="sm:hidden md:inline">Tabela</span>
             </button>
           </div>
         </div>
 
-        {/* Conteúdo Dinâmico */}
+        {/* Conteúdo Principal da Esquerda */}
         <div className="flex-1">
           {activeView === "calculator" ? (
             <div className="space-y-8 animate-in fade-in slide-in-from-left-4 duration-300">
-              {/* Altura Slider */}
+              {/* Slider Altura */}
               <div>
                 <div className="flex justify-between mb-2">
-                  <label className="text-sm font-bold text-slate-700">
-                    Sua Altura
-                  </label>
-                  <span className="text-sm font-bold text-blue-600">
-                    {fitMetrics.height} cm
-                  </span>
+                  <label className="text-sm font-bold text-slate-700">Altura</label>
+                  <span className="text-sm font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">{fitMetrics.height} cm</span>
                 </div>
                 <input
                   type="range"
                   min="150"
                   max="210"
                   value={fitMetrics.height}
-                  onChange={(e) =>
-                    setFitMetrics({ ...fitMetrics, height: Number(e.target.value) })
-                  }
-                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                  onChange={(e) => setFitMetrics({ ...fitMetrics, height: Number(e.target.value) })}
+                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600 hover:accent-blue-500 transition-all"
                 />
+                <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-medium">
+                  <span>1.50m</span>
+                  <span>2.10m</span>
+                </div>
               </div>
 
-              {/* Peso Slider */}
+              {/* Slider Peso */}
               <div>
                 <div className="flex justify-between mb-2">
-                  <label className="text-sm font-bold text-slate-700">
-                    Seu Peso
-                  </label>
-                  <span className="text-sm font-bold text-blue-600">
-                    {fitMetrics.weight} kg
-                  </span>
+                  <label className="text-sm font-bold text-slate-700">Peso</label>
+                  <span className="text-sm font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">{fitMetrics.weight} kg</span>
                 </div>
                 <input
                   type="range"
                   min="40"
                   max="200"
                   value={fitMetrics.weight}
-                  onChange={(e) =>
-                    setFitMetrics({ ...fitMetrics, weight: Number(e.target.value) })
-                  }
-                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                  onChange={(e) => setFitMetrics({ ...fitMetrics, weight: Number(e.target.value) })}
+                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600 hover:accent-blue-500 transition-all"
                 />
+                <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-medium">
+                  <span>40kg</span>
+                  <span>200kg</span>
+                </div>
               </div>
 
               {/* Preferência Toggle */}
               <div>
-                <label className="text-sm font-bold text-slate-700 mb-3 block">
-                  Preferência de Ajuste
-                </label>
+                <label className="text-sm font-bold text-slate-700 mb-3 block">Preferência de Ajuste</label>
                 <div className="grid grid-cols-3 gap-2">
-                  {(["tight", "regular", "loose"] as const).map((pref) => (
+                  {["tight", "regular", "loose"].map((pref) => (
                     <button
                       key={pref}
-                      onClick={() =>
-                        setFitMetrics({ ...fitMetrics, preference: pref })
-                      }
-                      className={`py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      onClick={() => setFitMetrics({ ...fitMetrics, preference: pref })}
+                      className={`py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border ${
                         fitMetrics.preference === pref
-                          ? "bg-slate-900 text-white shadow-md scale-105"
-                          : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                          ? "bg-slate-900 border-slate-900 text-white shadow-md scale-[1.02]"
+                          : "bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50"
                       }`}
                     >
-                      {pref === "tight"
-                        ? "Justo"
-                        : pref === "regular"
-                        ? "Regular"
-                        : "Largo"}
+                      {pref === "tight" ? "Justo" : pref === "regular" ? "Padrão" : "Largo"}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Botão Reset */}
               <div className="pt-4 border-t border-slate-100 flex justify-end">
-                <button 
-                  onClick={handleReset}
-                  className="text-xs font-bold text-slate-400 hover:text-red-500 flex items-center gap-1 transition-colors"
-                >
-                  <RotateCcw size={12} />
-                  Resetar padrões
+                <button onClick={handleReset} className="text-xs font-bold text-slate-400 hover:text-red-500 flex items-center gap-1 transition-colors px-2 py-1 rounded hover:bg-red-50">
+                  <RotateCcw size={12} /> Resetar
                 </button>
               </div>
             </div>
           ) : (
             <div className="animate-in fade-in slide-in-from-right-4 duration-300 h-full overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-xs sticky top-0">
+              <table className="w-full text-sm text-left border-collapse">
+                <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-xs sticky top-0 z-10">
                   <tr>
-                    <th className="px-4 py-3 rounded-tl-lg">Tam / Calça</th>
-                    <th className="px-4 py-3">Altura (cm)</th>
-                    <th className="px-4 py-3 rounded-tr-lg">Peso (kg)</th>
+                    <th className="px-4 py-3 rounded-tl-lg border-b border-slate-200">Tam</th>
+                    <th className="px-4 py-3 border-b border-slate-200">Altura</th>
+                    <th className="px-4 py-3 rounded-tr-lg border-b border-slate-200">Peso</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {REFERENCE_TABLE.map((row) => {
                     const isActive = calculatedSize.top === row.size.split(' / ')[0] || calculatedSize.bottom === row.size.split(' / ')[1];
                     return (
-                    <tr 
-                      key={row.size} 
-                      className={`hover:bg-slate-50 transition-colors ${isActive ? "bg-blue-50/60" : ""}`}
-                    >
+                    <tr key={row.size} className={`hover:bg-slate-50 transition-colors ${isActive ? "bg-blue-50/60" : ""}`}>
                       <td className="px-4 py-3 font-bold text-slate-800">
                         {row.size}
-                        {isActive && <span className="ml-2 text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full">SEU</span>}
+                        {isActive && <span className="ml-2 text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full align-middle">SEU</span>}
                       </td>
                       <td className="px-4 py-3 text-slate-600">{row.height}</td>
                       <td className="px-4 py-3 text-slate-600">{row.weight}</td>
@@ -310,122 +260,110 @@ const FitGuide = () => {
                   )})}
                 </tbody>
               </table>
-              <p className="text-xs text-slate-400 mt-4 px-2">
-                * Medidas aproximadas. Calças seguem padrão numérico BR (38, 40...).
-              </p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Coluna de Resultado */}
+      {/* --- COLUNA DIREITA: Resultado --- */}
       <div className="col-span-1 lg:col-span-7 flex flex-col gap-6">
-        <div className="bg-slate-900 rounded-3xl p-8 text-white relative flex-1 flex flex-col justify-center items-center text-center shadow-xl min-h-[300px] group/card transition-all duration-500">
+        <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 text-white relative flex-1 flex flex-col items-center text-center shadow-xl min-h-[360px] group/card overflow-hidden">
           
-          {/* Container isolado para os efeitos de fundo */}
-          <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
-            {/* Efeitos mudam de cor levemente baseados na seleção */}
-            <div className={`absolute top-0 right-0 p-24 rounded-full blur-[100px] opacity-30 -mr-20 -mt-20 transition-colors duration-500 ${resultType === 'top' ? 'bg-blue-500' : 'bg-indigo-500'}`}></div>
-            <div className={`absolute bottom-0 left-0 p-24 rounded-full blur-[100px] opacity-30 -ml-20 -mb-20 transition-colors duration-500 ${resultType === 'top' ? 'bg-purple-500' : 'bg-teal-500'}`}></div>
+          {/* Efeitos de Fundo */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-[80px] opacity-40 -mr-20 -mt-20 transition-colors duration-500 ${resultType === 'top' ? 'bg-blue-600' : 'bg-indigo-600'}`}></div>
+            <div className={`absolute bottom-0 left-0 w-64 h-64 rounded-full blur-[80px] opacity-40 -ml-20 -mb-20 transition-colors duration-500 ${resultType === 'top' ? 'bg-purple-600' : 'bg-teal-600'}`}></div>
           </div>
           
-          {/* Botão de Copiar */}
+          {/* Botão Copy (Absoluto) */}
           <button 
             onClick={handleCopy}
-            className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-all opacity-0 group-hover/card:opacity-100 z-20"
-            title="Copiar ambos os tamanhos"
+            className="absolute top-6 right-6 p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-all backdrop-blur-sm z-30"
+            title="Copiar resultado"
           >
             {copied ? <CheckCircle2 size={20} className="text-green-400" /> : <Copy size={20} />}
           </button>
 
-          {/* Toggle Superior / Inferior no Card */}
-          <div className="relative z-20 bg-white/10 p-1 rounded-xl flex gap-1 mb-8 backdrop-blur-md border border-white/5">
-            <button
-              onClick={() => setResultType("top")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                resultType === "top"
-                  ? "bg-white text-slate-900 shadow-lg"
-                  : "text-slate-300 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              <Shirt size={16} />
-              Superior
-            </button>
-            <button
-              onClick={() => setResultType("bottom")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                resultType === "bottom"
-                  ? "bg-white text-slate-900 shadow-lg"
-                  : "text-slate-300 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              <PantsIcon size={16} />
-              Inferior
-            </button>
+          {/* --- ABA CORRIGIDA (Superior/Inferior) --- */}
+          {/* Agora posicionada no topo do fluxo, não flutuando aleatoriamente */}
+          <div className="relative z-20 w-full flex justify-center mb-6">
+            <div className="bg-slate-800/50 p-1.5 rounded-2xl flex gap-1 backdrop-blur-md border border-white/10 shadow-lg">
+              <button
+                onClick={() => setResultType("top")}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
+                  resultType === "top"
+                    ? "bg-white text-slate-900 shadow-sm scale-100"
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <Shirt size={18} className={resultType === "top" ? "text-blue-600" : ""} />
+                Superior
+              </button>
+              <button
+                onClick={() => setResultType("bottom")}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
+                  resultType === "bottom"
+                    ? "bg-white text-slate-900 shadow-sm scale-100"
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <PantsIcon size={18} className={resultType === "bottom" ? "text-indigo-600" : ""} />
+                Inferior
+              </button>
+            </div>
           </div>
 
-          <div className="relative z-10 flex flex-col items-center animate-in zoom-in-95 duration-300 key={resultType}">
-            <p className="text-slate-400 font-medium mb-2 uppercase tracking-widest text-sm">
-              Tamanho Recomendado ({resultType === "top" ? "Camiseta" : "Calça"})
+          {/* Conteúdo Central */}
+          <div className="relative z-10 flex flex-col items-center justify-center flex-1 w-full animate-in zoom-in-95 duration-300 key={resultType}">
+            
+            <p className="text-slate-400 font-bold mb-2 uppercase tracking-widest text-xs">
+              Tamanho Ideal ({resultType === "top" ? "Camiseta" : "Calça"})
             </p>
             
-            <div className="text-[6rem] sm:text-[8rem] font-black leading-none tracking-tighter mb-6 bg-gradient-to-b from-white to-slate-400 text-transparent bg-clip-text drop-shadow-sm transition-all hover:scale-105 cursor-default">
+            <div className="text-[7rem] sm:text-[9rem] font-black leading-none tracking-tighter mb-4 bg-gradient-to-b from-white to-slate-400 text-transparent bg-clip-text drop-shadow-sm select-none">
               {resultType === "top" ? calculatedSize.top : calculatedSize.bottom}
             </div>
             
-            <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/10">
+            {/* Tag de Confiança */}
+            <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/10 hover:bg-white/15 transition-colors cursor-default">
               {calculatedSize.confidence < 92 ? (
-                // Tooltip Group Wrapper
                 <div className="group relative flex items-center">
-                  <AlertCircle size={16} className="text-yellow-400 cursor-help" />
-                  
-                  {/* Tooltip Content */}
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 p-4 bg-slate-800 text-left rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform group-hover:-translate-y-1 z-50 pointer-events-none border border-slate-700/50">
-                    <div className="flex items-center gap-2 mb-2 pb-2 border-b border-slate-700">
-                       <AlertCircle size={14} className="text-yellow-400" />
-                       <span className="font-bold text-yellow-400 text-xs uppercase tracking-wide">Sobre a Compatibilidade</span>
-                    </div>
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      {resultType === "bottom" 
-                        ? "Calças podem variar mais dependendo da cintura e coxa. Considere provar se estiver entre números."
-                        : "A pontuação é reduzida ao escolher preferências específicas, pois a percepção de ajuste varia entre tipos de corpo."}
-                    </p>
+                  <AlertCircle size={16} className="text-yellow-400" />
+                  {/* Tooltip */}
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-56 p-3 bg-slate-800 text-xs text-slate-300 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none border border-slate-700">
+                    Ajuste pode variar conforme estilo da peça.
                     <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-slate-800"></div>
                   </div>
                 </div>
               ) : (
                 <Check size={16} className="text-green-400" />
               )}
-              <span className="text-sm font-medium">
-                {calculatedSize.confidence}% de compatibilidade
+              <span className="text-sm font-medium text-slate-200">
+                {calculatedSize.confidence}% de precisão
               </span>
             </div>
           </div>
         </div>
 
+        {/* Card Explicativo */}
         <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
           <div className="flex items-start gap-4">
-            <div className="p-2 bg-yellow-50 text-yellow-600 rounded-lg shrink-0">
-              <Info size={20} />
+            <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl shrink-0 mt-1">
+              <Info size={22} />
             </div>
             <div>
-              <h4 className="font-bold text-slate-800">
-                Por que este tamanho?
-              </h4>
+              <h4 className="font-bold text-slate-800 text-lg">Resumo da Recomendação</h4>
               <p className="text-sm text-slate-500 mt-1 leading-relaxed">
-                Baseado em seus <strong className="text-slate-700">{fitMetrics.weight}kg</strong> e altura
-                de <strong className="text-slate-700">{fitMetrics.height}cm</strong>, sugerimos:
+                Para um corpo de <strong className="text-slate-900">{fitMetrics.weight}kg</strong> e <strong className="text-slate-900">{fitMetrics.height}cm</strong> com preferência <strong className="text-slate-900">{fitMetrics.preference === 'tight' ? 'justa' : fitMetrics.preference === 'loose' ? 'larga' : 'padrão'}</strong>:
               </p>
-              <ul className="mt-2 space-y-1 text-sm text-slate-600">
-                <li className="flex items-center gap-2">
-                  <Shirt size={14} className="text-blue-500"/>
-                  Camiseta: <strong>{calculatedSize.top}</strong> (Ajuste {fitMetrics.preference === 'regular' ? 'Padrão' : fitMetrics.preference === 'tight' ? 'Justo' : 'Largo'})
-                </li>
-                <li className="flex items-center gap-2">
-                  <PantsIcon size={14} className="text-indigo-500"/>
-                  Calça: <strong>{calculatedSize.bottom}</strong> (Numeração BR)
-                </li>
-              </ul>
+              <div className="mt-3 flex flex-wrap gap-3">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 text-xs font-bold border border-blue-100">
+                  <Shirt size={14} /> Superior: {calculatedSize.top}
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-100">
+                  <PantsIcon size={14} /> Inferior: {calculatedSize.bottom}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -437,8 +375,9 @@ const FitGuide = () => {
 // --- App Container for Preview ---
 const App = () => {
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex items-center justify-center font-sans">
-      <div className="w-full max-w-5xl mx-auto">
+    // Alterado: items-center para items-start, e largura máxima expandida para 1600px
+    <div className="min-h-screen bg-slate-50 p-4 md:p-6 lg:p-8 flex items-start justify-center font-sans">
+      <div className="w-full max-w-[1600px] mx-auto">
         <FitGuide />
       </div>
     </div>
