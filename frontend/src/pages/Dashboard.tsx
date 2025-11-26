@@ -2,12 +2,15 @@
 import { Sun, ArrowRight } from "lucide-react";
 
 const Dashboard = () => {
+  const user = JSON.parse(localStorage.getItem("loggedUser") || "{}");
+  const firstName = user?.name?.split(" ")[0] || "Usuário";
+
   return (
     <div className="animate-fade-in space-y-8">
       <div className="flex justify-between items-end border-b border-slate-200 pb-6">
         <div>
           <h2 className="text-3xl font-bold text-slate-900">
-            Bom dia, Leonardo!
+            Bom dia, {firstName}!
           </h2>
           <p className="text-slate-500 mt-1">
             Aqui estão as recomendações para sua sexta-feira.
@@ -20,7 +23,10 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
       <div className="grid grid-cols-12 gap-8">
+        
+        {/* Coluna da Dica do Dia */}
         <div className="col-span-4 bg-blue-50 rounded-3xl p-8 flex flex-col justify-between h-[450px]">
           <div>
             <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
@@ -34,11 +40,16 @@ const Dashboard = () => {
               para maior conforto térmico.
             </p>
           </div>
+
           <button className="bg-blue-600 text-white w-full py-3 rounded-xl font-medium hover:bg-blue-700 transition shadow-lg shadow-blue-200">
             Ver Detalhes do Clima
           </button>
         </div>
+
+        {/* Coluna dos Looks */}
         <div className="col-span-8 grid grid-cols-2 gap-6 h-[450px]">
+          
+          {/* Card 1 */}
           <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col">
             <div className="flex-1 rounded-2xl mb-4 overflow-hidden relative">
               <img
@@ -67,6 +78,8 @@ const Dashboard = () => {
               </button>
             </div>
           </div>
+
+          {/* Card 2 */}
           <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col">
             <div className="flex-1 rounded-2xl mb-4 overflow-hidden relative">
               <img
@@ -95,6 +108,7 @@ const Dashboard = () => {
               </button>
             </div>
           </div>
+
         </div>
       </div>
     </div>
