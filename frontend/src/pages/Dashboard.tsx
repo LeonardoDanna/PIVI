@@ -1,8 +1,11 @@
 // src/pages/Dashboard.tsx
 import { useEffect, useState } from "react";
 import { Sun, CloudRain, Cloudy, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
   const user = JSON.parse(localStorage.getItem("loggedUser") || "{}");
   const firstName = user?.name?.split(" ")[0] || "Usuário";
 
@@ -12,7 +15,6 @@ const Dashboard = () => {
     icon: <Sun size={16} className="text-yellow-500" />,
   });
 
-  // 📅 Dia da semana dinâmico
   const weekdays = [
     "domingo",
     "segunda-feira",
@@ -24,56 +26,54 @@ const Dashboard = () => {
   ];
   const today = weekdays[new Date().getDay()];
 
-  // 🌤️ Clima em Campinas usando Open-Meteo
-useEffect(() => {
-  const fetchWeather = async () => {
-    try {
-      const res = await fetch(
-        "https://api.open-meteo.com/v1/forecast?latitude=-22.9056&longitude=-47.0608&current_weather=true"
-      );
-      const data = await res.json();
-      const w = data.current_weather;
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        const res = await fetch(
+          "https://api.open-meteo.com/v1/forecast?latitude=-22.9056&longitude=-47.0608&current_weather=true"
+        );
+        const data = await res.json();
+        const w = data.current_weather;
 
-      // 💡 Map de weather codes → condição + ícone
-      const weatherMap: Record<number, { condition: string; icon: JSX.Element }> = {
-        0: { condition: "Ensolarado", icon: <Sun size={16} className="text-yellow-500" /> },
-        1: { condition: "Majoritariamente limpo", icon: <Sun size={16} className="text-yellow-500" /> },
-        2: { condition: "Parcialmente nublado", icon: <Cloudy size={16} className="text-slate-500" /> },
-        3: { condition: "Nublado", icon: <Cloudy size={16} className="text-slate-500" /> },
-        45: { condition: "Neblina", icon: <Cloudy size={16} className="text-slate-500" /> },
-        48: { condition: "Neblina", icon: <Cloudy size={16} className="text-slate-500" /> },
-        51: { condition: "Garoa", icon: <CloudRain size={16} /> },
-        53: { condition: "Garoa", icon: <CloudRain size={16} /> },
-        55: { condition: "Garoa forte", icon: <CloudRain size={16} /> },
-        61: { condition: "Chuva leve", icon: <CloudRain size={16} /> },
-        63: { condition: "Chuva", icon: <CloudRain size={16} /> },
-        65: { condition: "Chuva forte", icon: <CloudRain size={16} /> },
-        80: { condition: "Pancadas isoladas", icon: <CloudRain size={16} /> },
-        81: { condition: "Pancadas", icon: <CloudRain size={16} /> },
-        82: { condition: "Pancadas fortes", icon: <CloudRain size={16} /> },
-      };
+        const weatherMap: Record<
+          number,
+          { condition: string; icon: JSX.Element }
+        > = {
+          0: { condition: "Ensolarado", icon: <Sun size={16} className="text-yellow-500" /> },
+          1: { condition: "Majoritariamente limpo", icon: <Sun size={16} className="text-yellow-500" /> },
+          2: { condition: "Parcialmente nublado", icon: <Cloudy size={16} className="text-slate-500" /> },
+          3: { condition: "Nublado", icon: <Cloudy size={16} className="text-slate-500" /> },
+          45: { condition: "Neblina", icon: <Cloudy size={16} className="text-slate-500" /> },
+          48: { condition: "Neblina", icon: <Cloudy size={16} className="text-slate-500" /> },
+          51: { condition: "Garoa", icon: <CloudRain size={16} /> },
+          53: { condition: "Garoa", icon: <CloudRain size={16} /> },
+          55: { condition: "Garoa forte", icon: <CloudRain size={16} /> },
+          61: { condition: "Chuva leve", icon: <CloudRain size={16} /> },
+          63: { condition: "Chuva", icon: <CloudRain size={16} /> },
+          65: { condition: "Chuva forte", icon: <CloudRain size={16} /> },
+          80: { condition: "Pancadas isoladas", icon: <CloudRain size={16} /> },
+          81: { condition: "Pancadas", icon: <CloudRain size={16} /> },
+          82: { condition: "Pancadas fortes", icon: <CloudRain size={16} /> },
+        };
 
-      const code: number = Number(w.weathercode);
+        const code: number = Number(w.weathercode);
+        const selected =
+          weatherMap[code] ??
+          { condition: "Desconhecido", icon: <Cloudy size={16} /> };
 
-      const selected =
-        weatherMap[code] ??
-        { condition: "Desconhecido", icon: <Cloudy size={16} /> };
+        setWeather({
+          temp: w.temperature,
+          condition: selected.condition,
+          icon: selected.icon,
+        });
+      } catch (err) {
+        console.error("Erro ao buscar clima", err);
+      }
+    };
 
-      setWeather({
-        temp: w.temperature,
-        condition: selected.condition,
-        icon: selected.icon,
-      });
-    } catch (err) {
-      console.error("Erro ao buscar clima", err);
-    }
-  };
+    fetchWeather();
+  }, []);
 
-  fetchWeather();
-}, []);
-
-
-  // 💡 Dica automática baseada no clima real
   const generateTip = () => {
     if (weather.condition === "Chuva") {
       return "Leve uma jaqueta impermeável e evite tecidos sensíveis à água.";
@@ -107,7 +107,6 @@ useEffect(() => {
           </p>
         </div>
 
-        {/* 🔹 Clima */}
         <div className="text-right">
           <div className="text-2xl font-bold text-slate-800">
             {weather.temp}°C
@@ -127,12 +126,10 @@ useEffect(() => {
               Dica do Dia
             </span>
 
-            {/* 🌤️ Cabeçalho único — corrigido */}
             <h3 className="text-2xl font-bold text-slate-800 mt-4 leading-tight">
               {weather.condition} hoje em Campinas
             </h3>
 
-            {/* 💡 Dica sem duplicação */}
             <p className="text-slate-600 mt-4">
               {generateTip()}
             </p>
@@ -152,8 +149,11 @@ useEffect(() => {
         {/* 🔹 Cards de looks */}
         <div className="col-span-8 grid grid-cols-2 gap-6 h-[450px]">
 
-          {/* CARD 1 */}
-          <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col">
+          {/* CARD 1 — CASUAL CHIC */}
+          <div
+            onClick={() => navigate("/matches")} // ✅ NAVEGA PARA A ABA
+            className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col"
+          >
             <div className="flex-1 rounded-2xl mb-4 overflow-hidden relative">
               <img
                 src="https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?q=80&w=800&auto=format&fit=crop"
@@ -167,6 +167,7 @@ useEffect(() => {
                 </span>
               </div>
             </div>
+
             <div className="flex justify-between items-center px-2">
               <div>
                 <span className="font-bold text-slate-800 block text-lg">
@@ -182,8 +183,11 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* CARD 2 */}
-          <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col">
+          {/* CARD 2 — TRABALHO LEVE */}
+          <div
+            onClick={() => navigate("/matches")} // ✅ MESMO DESTINO
+            className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col"
+          >
             <div className="flex-1 rounded-2xl mb-4 overflow-hidden relative">
               <img
                 src="https://images.unsplash.com/photo-1548142813-c348350df52b?q=80&w=800&auto=format&fit=crop"
@@ -197,6 +201,7 @@ useEffect(() => {
                 </span>
               </div>
             </div>
+
             <div className="flex justify-between items-center px-2">
               <div>
                 <span className="font-bold text-slate-800 block text-lg">
