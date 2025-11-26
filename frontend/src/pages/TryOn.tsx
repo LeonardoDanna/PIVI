@@ -236,9 +236,9 @@ const TryOn = () => {
                   }`}
                 >
                   {cat === "upper_body"
-                    ? "Cima"
+                    ? "Parte de Cima"
                     : cat === "lower_body"
-                    ? "Baixo"
+                    ? "Parte de Baixo"
                     : "Vestido"}
                 </button>
               ))}

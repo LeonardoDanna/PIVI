@@ -37,16 +37,16 @@ export const colorPalettes: Record<SkinToneKey, Palette> = {
   very_light: {
     label: "Muito Clara",
     hex: "#FAE7D0",
-    season: "Inverno Frio",
+    season: "Inverno",
     description:
       "Combina melhor com tons limpos, frios e contrastantes. Neutros intensos e azuis profundos equilibram a pele.",
     colors: [
-      "bg-gray-900",     // preto carvão
-      "bg-slate-700",    // cinza grafite
       "bg-blue-900",     // azul marinho
-      "bg-gray-300",     // cinza claro
-      "bg-white",        // branco off
-      "bg-sky-950",      // azul petróleo
+      "bg-slate-800",    // cinza azulado escuro
+      "bg-gray-500",     // cinza claro
+      "bg-red-950",  // vinho intenso
+      "bg-indigo-950",      // preto azulado
+      "bg-sky-950",        // branco gelo intenso
     ],
     styles: [
       "Minimalista",
@@ -61,16 +61,16 @@ export const colorPalettes: Record<SkinToneKey, Palette> = {
   light: {
     label: "Clara",
     hex: "#E3C1A0",
-    season: "Outono Claro",
+    season: "Inverno",
     description:
-      "Fica bem com tons suaves, terrosos e neutros. Bege e oliva criam harmonia natural.",
+      "Fica bem com tons suaves, frios e neutros claros. Azul profundo e bege criam harmonia delicada.",
     colors: [
-      "bg-stone-200",   // bege
-      "bg-stone-400",   // areia
-      "bg-green-700",   // oliva escuro
-      "bg-blue-800",    // azul marinho suave
-      "bg-stone-600",   // cáqui
-      "bg-gray-500",    // cinza médio
+      "bg-blue-700",       // azul profundo
+      "bg-gray-300",       // cinza frio claro
+      "bg-neutral-600",    // cinza neutro médio
+      "bg-stone-700",      // marrom terroso escuro
+      "bg-emerald-800",    // verde fechado
+      "bg-purple-900",     // roxo profundo
     ],
     styles: [
       "Romântico Natural",
@@ -85,14 +85,14 @@ export const colorPalettes: Record<SkinToneKey, Palette> = {
   medium: {
     label: "Média",
     hex: "#CFA880",
-    season: "Terra Neutra",
+    season: "Primavera",
     description:
-      "Peles médias brilham com tons quentes moderados como terracota, marrom claro e verde musgo.",
+      "Peles médias brilham com tons quentes moderados como terracota, caramelo, marrons claros e verdes musgo.",
     colors: [
       "bg-amber-700",   // caramelo
       "bg-orange-900",  // terracota
       "bg-yellow-900",  // mostarda queimado
-      "bg-green-800",   // musgo
+      "bg-green-800",   // musgo médio
       "bg-stone-700",   // café
       "bg-blue-900",    // marinho profundo
     ],
@@ -109,33 +109,40 @@ export const colorPalettes: Record<SkinToneKey, Palette> = {
   tan: {
     label: "Bronzeada",
     hex: "#A67B51",
-    season: "Outono Profundo",
+    season: "Primavera",
     description:
-      "Combina muito com tons terrosos, vinho, oliva e marrom intenso.",
+      "Combina muito com tons terrosos, vinho, oliva e dourado médio.",
     colors: [
       "bg-green-900",   // oliva profundo
-      "bg-red-900",     // bordô
-      "bg-orange-800",  // ferrugem
+      "bg-red-900",     // bordô/vinho profundo
+      "bg-yellow-800",  // dourado médio
       "bg-stone-800",   // marrom amargo
       "bg-amber-800",   // dourado queimado
       "bg-gray-700",    // grafite suave
     ],
-    styles: ["Boho Chic", "Natural Urbano", "Militar", "Rústico Moderno", "Chic Terroso", "Folk"],
+    styles: [
+      "Boho Chic",
+      "Natural Urbano",
+      "Militar",
+      "Rústico Moderno",
+      "Chic Terroso",
+      "Folk",
+    ],
   },
 
   dark: {
     label: "Escura",
     hex: "#7A4B28",
-    season: "Outono Escuro",
+    season: "Verão",
     description:
-      "Marinho, vinho, oliva escuro e especiarias criam profundidade elegante.",
+      "Marinho, vinho, oliva escuro e especiarias criam profundidade vibrante e elegante.",
     colors: [
-      "bg-slate-900",   // quase preto
-      "bg-indigo-900",  // marinho profundo
-      "bg-emerald-900", // verde esmeralda escuro
-      "bg-red-800",     // vinho queimado
-      "bg-yellow-700",  // dourado terroso
-      "bg-stone-900",   // marrom escuro
+      "bg-blue-600",   // azul marinho
+      "bg-indigo-900",  // índigo profundo
+      "bg-fuchsia-400", // rosa pastel
+      "bg-red-800",     // vinho escuro
+      "bg-yellow-200",  // amarelo claro
+      "bg-emerald-400",   // verde whatsapp
     ],
     styles: [
       "Sofisticado",
@@ -150,14 +157,14 @@ export const colorPalettes: Record<SkinToneKey, Palette> = {
   deep: {
     label: "Retinta",
     hex: "#422618",
-    season: "Inverno Profundo",
+    season: "Verão",
     description:
       "Contraste elevado combina com preto, vinho, azul noite, oliva escuro e branco gelo.",
     colors: [
       "bg-black",       // preto puro
-      "bg-white",       // branco gelo
+      "bg-sky-50",       // branco gelo
       "bg-blue-950",    // azul noite
-      "bg-purple-900",  // ameixa
+      "bg-purple-950",  // ameixa
       "bg-green-900",   // oliva escuro
       "bg-red-900",     // vinho profundo
     ],
