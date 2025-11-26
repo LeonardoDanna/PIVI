@@ -5,7 +5,6 @@ import Dashboard from "./pages/Dashboard";
 import Closet from "./pages/Closet";
 import Matches from "./pages/Matches";
 import FitGuide from "./pages/FitGuide";
-import StylistAI from "./pages/StylistAI";
 import TryOn from "./pages/TryOn";
 
 import Login from "./pages/Login";
@@ -41,7 +40,6 @@ function App() {
           <Route path="closet" element={<Closet />} />
           <Route path="matches" element={<Matches />} />
           <Route path="fit" element={<FitGuide />} />
-          <Route path="stylist" element={<StylistAI />} />
           <Route path="tryon" element={<TryOn />} />
 
           {/* Rota Coringa */}

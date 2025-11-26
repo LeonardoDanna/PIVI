@@ -210,7 +210,7 @@ export const initialClosetData: Record<string, ClosetItem[]> = {
 
 // --- STYLE IMAGES ---
 
-export const style_images_data: Record<string, string> = {
+export const styleImagesData: Record<string, string> = {
   minimalista: "https://images.unsplash.com/photo-1733209589780-99d3a8a3b3e4?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   dramatico: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop",
   alfaiataria: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?q=80&w=600&auto=format&fit=crop",
