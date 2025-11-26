@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from .models import ClothingItem
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -20,3 +21,9 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop("confirm_password")
         return User.objects.create_user(**validated_data)
+
+class ClothingItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClothingItem
+        fields = ['id', 'name', 'category', 'size', 'color', 'image']
+        read_only_fields = ['id']

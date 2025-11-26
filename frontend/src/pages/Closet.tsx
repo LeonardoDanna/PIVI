@@ -17,16 +17,18 @@ import {
   Sun,
   Sparkles,
 } from "lucide-react";
+import { getCookie } from "../utils/cookie";
 
 // --- Interfaces TypeScript ---
 type CategoryKey = "head" | "top" | "bottom" | "feet";
 
 interface ClosetItem {
-  id: string;
+  id: string | number;
   name: string;
   size?: string;
   color?: string;
   image: string;
+  category?: CategoryKey;
 }
 
 interface ClosetData {
@@ -58,150 +60,11 @@ interface Outfit {
 }
 
 interface ClosetSelection {
-  head: string | null;
-  top: string | null;
-  bottom: string | null;
-  feet: string | null;
+  head: string | number | null;
+  top: string | number | null;
+  bottom: string | number | null;
+  feet: string | number | null;
 }
-
-// --- Mock Data ---
-const initialClosetData: ClosetData = {
-  head: [
-    {
-      id: "h1",
-      name: "Boné Azul Marinho",
-      size: "U",
-      color: "#1a196eff",
-      image:
-        "https://www.hm.com.br/_next/image?url=https%3A%2F%2Fhmbrasil.vtexassets.com%2Farquivos%2Fids%2F2041869%2F1249899003-1.jpg%3Fv%3D638926411963070000&w=1440&q=80",
-    },
-    {
-      id: "h2",
-      name: "Boné Amarelo-Claro",
-      size: "U",
-      color: "#d1d17bff",
-      image:
-        "https://www.hm.com.br/_next/image?url=https%3A%2F%2Fhmbrasil.vtexassets.com%2Farquivos%2Fids%2F3586567%2F1236944005-1.jpg%3Fv%3D638941084984270000&w=1440&q=80",
-    },
-    {
-      id: "h3",
-      name: "Boné Branco",
-      size: "U",
-      color: "#eeeeeeff",
-      image:
-        "https://www.hm.com.br/_next/image?url=https%3A%2F%2Fhmbrasil.vtexassets.com%2Farquivos%2Fids%2F6117048%2F1285208001-1.jpg%3Fv%3D638984062160100000&w=1440&q=80",
-    },
-    {
-      id: "h4",
-      name: "Boné Verde",
-      size: "U",
-      color: "#129423ff",
-      image:
-        "https://www.hm.com.br/_next/image?url=https%3A%2F%2Fhmbrasil.vtexassets.com%2Farquivos%2Fids%2F3322191%2F1272463001-1.jpg%3Fv%3D638937662938200000&w=1440&q=80",
-    },
-  ],
-  top: [
-    {
-      id: "t1",
-      name: "Camiseta Preta",
-      size: "M",
-      color: "#000000ff",
-      image:
-        "https://acdn-us.mitiendanube.com/stores/001/115/376/products/02-50-0015-preto-costas-7fca515945ca665e0617301422228749-1024-1024.jpg",
-    },
-    {
-      id: "t2",
-      name: "Camiseta Branca",
-      size: "G",
-      color: "#ffffffff",
-      image:
-        "https://acdn-us.mitiendanube.com/stores/001/115/376/products/plano-c-shield1-df4b9862af9308f16c17255639552326-1024-1024.png",
-    },
-    {
-      id: "t3",
-      name: "Moletom Preto",
-      size: "GG",
-      color: "#000000",
-      image:
-        "https://consuladodorock.com.br/cdn/shop/files/LISAS-Moletom-Fechado-preto.webp?v=1740445169",
-    },
-    {
-      id: "t4",
-      name: "Camiseta Verde",
-      size: "M",
-      color: "#135f00ff",
-      image:
-        "https://images.tcdn.com.br/img/img_prod/1268754/camiseta_stone_plano_c_verde_musgo_173_1_aa9af70253357faf9a13942251aa422d.jpeg",
-    },
-  ],
-  bottom: [
-    {
-      id: "b1",
-      name: "Calça Marrom",
-      size: "40",
-      color: "#c47744ff",
-      image:
-        "https://cdn.shoppub.io/cdn-cgi/image/w=1000,h=1000,q=80,f=auto/hipskateshop/media/uploads/produtos/foto/bnsawint/file.jpg",
-    },
-    {
-      id: "b2",
-      name: "Calça Jeans",
-      size: "42",
-      color: "#647b7eff",
-      image:
-        "https://acdn-us.mitiendanube.com/stores/001/115/376/products/plano-c1-7f3d00105b82f57e5c17268667880302-480-0.webp",
-    },
-    {
-      id: "b3",
-      name: "Shorts Azul",
-      size: "38",
-      color: "#4ff9ffff",
-      image:
-        "https://static.rockcity.com.br/public/rockcity/imagens/produtos/bermuda-plano-c-shorts-cargo-ripstop-logo-azul-66e48e9f48e4a.jpg",
-    },
-    {
-      id: "b4",
-      name: "Bermuda Preta",
-      size: "40",
-      color: "#000000",
-      image:
-        "https://cdn.awsli.com.br/300x300/2550/2550456/produto/308435479/02-50-0024-1-2ros36apwr.jpg",
-    },
-  ],
-  feet: [
-    {
-      id: "f1",
-      name: "Tênis Branco",
-      size: "40",
-      color: "#FFFFFF",
-      image:
-        "https://artwalk.vtexassets.com/arquivos/ids/260733/Tenis-Nike-Air-Force-1-PLTAFORM-Feminino-Branco-1.jpg?v=637922217232400000",
-    },
-    {
-      id: "f2",
-      name: "Tênis Preto",
-      size: "41",
-      color: "#000000ff",
-      image:
-        "https://authenticfeet.vtexassets.com/arquivos/ids/240037-800-800?v=637469217012700000&width=800&height=800&aspect=true",
-    },
-    {
-      id: "f3",
-      name: "Tenis Preto",
-      size: "40",
-      color: "#000000ff",
-      image: "https://imgnike-a.akamaihd.net/360x360/017075IDA10.jpg",
-    },
-    {
-      id: "f4",
-      name: "Tênis Preto",
-      size: "39",
-      color: "#000000",
-      image:
-        "https://images.tcdn.com.br/img/img_prod/770541/tenis_nike_air_max_nuaxis_masculino_66296_1_5103fe3332db0f49eb202595449c2965.jpg",
-    },
-  ],
-};
 
 const categoryLabels: Record<CategoryKey, string> = {
   head: "Cabeça / Acessórios",
@@ -210,9 +73,9 @@ const categoryLabels: Record<CategoryKey, string> = {
   feet: "Pés",
 };
 
-// --- Funções Auxiliares de Cor e Clima ---
-
+// --- Funções Auxiliares ---
 const getLuminance = (hex: string) => {
+  if (!hex || !hex.startsWith("#")) return 128;
   const c = hex.substring(1);
   const rgb = parseInt(c, 16);
   const r = (rgb >> 24) & 0xff;
@@ -228,7 +91,14 @@ const isNeutral = (hex: string | undefined) => {
 };
 
 const Closet = () => {
-  const [closetItems, setClosetItems] = useState<ClosetData>(initialClosetData);
+  // Estado inicial VAZIO (será preenchido pela API)
+  const [closetItems, setClosetItems] = useState<ClosetData>({
+    head: [],
+    top: [],
+    bottom: [],
+    feet: [],
+  });
+  const [isLoadingItems, setIsLoadingItems] = useState(true);
 
   const [weather, setWeather] = useState<WeatherState>({
     temp: 28,
@@ -236,15 +106,14 @@ const Closet = () => {
     label: "Ensolarado",
   });
 
-  const [closetSelection, setClosetSelection] = useState<ClosetSelection>(
-    () => {
-      const saved = localStorage.getItem("userClosetSelection");
-      return saved
-        ? JSON.parse(saved)
-        : { head: "h1", top: "t1", bottom: "b1", feet: "f1" };
-    }
-  );
+  const [closetSelection, setClosetSelection] = useState<ClosetSelection>({
+    head: null,
+    top: null,
+    bottom: null,
+    feet: null,
+  });
 
+  // Histórico (LocalStorage)
   const [savedOutfits, setSavedOutfits] = useState<Outfit[]>(() => {
     const saved = localStorage.getItem("userSavedOutfits");
     return saved ? JSON.parse(saved) : [];
@@ -255,107 +124,119 @@ const Closet = () => {
   const [isSavingOutfit, setIsSavingOutfit] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
 
+  // Upload States
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadCategory, setUploadCategory] = useState<CategoryKey | null>(
     null
   );
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [pendingImage, setPendingImage] = useState<string | null>(null);
+  const [pendingImagePreview, setPendingImagePreview] = useState<string | null>(
+    null
+  );
+  const [pendingFile, setPendingFile] = useState<File | null>(null); // Arquivo real
+  const [isUploading, setIsUploading] = useState(false);
+
   const [newItemMetadata, setNewItemMetadata] = useState({
     name: "",
-    size: "",
+    size: "M",
     color: "#000000",
   });
 
+  // --- 1. CARREGAR ROUPAS DA API ---
   useEffect(() => {
-    localStorage.setItem(
-      "userClosetSelection",
-      JSON.stringify(closetSelection)
-    );
-  }, [closetSelection]);
+    fetchClosetItems();
+  }, []);
+
+  const fetchClosetItems = async () => {
+    setIsLoadingItems(true);
+    try {
+      const response = await fetch("/api/closet/");
+      if (response.ok) {
+        const data: ClosetItem[] = await response.json();
+        const organized: ClosetData = {
+          head: [],
+          top: [],
+          bottom: [],
+          feet: [],
+        };
+
+        data.forEach((item) => {
+          if (item.category && organized[item.category]) {
+            organized[item.category].push(item);
+          }
+        });
+        setClosetItems(organized);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar roupas:", error);
+    } finally {
+      setIsLoadingItems(false);
+    }
+  };
 
   useEffect(() => {
     localStorage.setItem("userSavedOutfits", JSON.stringify(savedOutfits));
   }, [savedOutfits]);
 
-  const getSafeImage = (category: CategoryKey, id: string | null) => {
+  const getSafeImage = (category: CategoryKey, id: string | number | null) => {
     if (!id) return null;
     const item = closetItems[category].find((i) => i.id === id);
     return item ? item.image : null;
   };
 
+  // --- Sugestão Inteligente ---
   const handleSmartSuggestion = () => {
-    let suggestedHead: ClosetItem | undefined = undefined;
-    let suggestedTop: ClosetItem | undefined = undefined;
-    let suggestedBottom: ClosetItem | undefined = undefined;
-    let suggestedFeet: ClosetItem | undefined = undefined;
+    const hasTops = closetItems.top.length > 0;
+    const hasBottoms = closetItems.bottom.length > 0;
 
-    const isHot = weather.temp >= 25;
-    const isCold = weather.temp <= 18;
-    const isRainy = weather.condition === "rainy";
-
-    const bottoms = closetItems.bottom;
-    const suitableBottoms = bottoms.filter((item) => {
-      const lowerName = item.name.toLowerCase();
-      if (isHot)
-        return lowerName.includes("shorts") || lowerName.includes("bermuda");
-      if (isCold || isRainy)
-        return lowerName.includes("calça") || lowerName.includes("jeans");
-      return true;
-    });
-    const poolBottom = suitableBottoms.length > 0 ? suitableBottoms : bottoms;
-    suggestedBottom = poolBottom[Math.floor(Math.random() * poolBottom.length)];
-
-    const tops = closetItems.top;
-    const suitableTops = tops.filter((item) => {
-      const lowerName = item.name.toLowerCase();
-      if (isHot)
-        return !lowerName.includes("moletom") && !lowerName.includes("casaco");
-      if (isCold)
-        return (
-          lowerName.includes("moletom") || lowerName.includes("manga longa")
-        );
-      return true;
-    });
-    const poolTops = suitableTops.length > 0 ? suitableTops : tops;
-
-    const bottomLum = getLuminance(suggestedBottom.color || "#000000");
-    const isBottomDark = bottomLum < 100;
-
-    const harmonizedTops = poolTops.filter((top) => {
-      const topLum = getLuminance(top.color || "#000000");
-      const isTopDark = topLum < 100;
-      if (!isNeutral(suggestedBottom!.color)) return isNeutral(top.color);
-      return isBottomDark !== isTopDark || isNeutral(top.color);
-    });
-
-    suggestedTop =
-      harmonizedTops.length > 0
-        ? harmonizedTops[Math.floor(Math.random() * harmonizedTops.length)]
-        : poolTops[Math.floor(Math.random() * poolTops.length)];
-
-    if ((isHot && weather.condition === "sunny") || isRainy) {
-      const heads = closetItems.head;
-      suggestedHead = heads[Math.floor(Math.random() * heads.length)];
+    if (!hasTops || !hasBottoms) {
+      alert("Adicione peças ao armário primeiro (pelo menos Tronco e Pernas)!");
+      return;
     }
 
-    const feet = closetItems.feet;
-    const suitableFeet = isRainy
-      ? feet.filter((f) => getLuminance(f.color || "#000000") < 150)
-      : feet;
-    const poolFeet = suitableFeet.length > 0 ? suitableFeet : feet;
-    suggestedFeet = poolFeet[Math.floor(Math.random() * poolFeet.length)];
+    const isHot = weather.temp >= 25;
+    const suitableBottoms = closetItems.bottom.filter((item) => {
+      const name = item.name.toLowerCase();
+      if (isHot) return name.includes("shorts") || name.includes("bermuda");
+      return !name.includes("shorts") && !name.includes("bermuda");
+    });
+    const poolBottom =
+      suitableBottoms.length > 0 ? suitableBottoms : closetItems.bottom;
+    const selectedBottom =
+      poolBottom[Math.floor(Math.random() * poolBottom.length)];
+
+    let poolTops = closetItems.top;
+    if (selectedBottom.color && !isNeutral(selectedBottom.color)) {
+      const neutralTops = closetItems.top.filter((top) => isNeutral(top.color));
+      if (neutralTops.length > 0) poolTops = neutralTops;
+    }
+    const selectedTop = poolTops[Math.floor(Math.random() * poolTops.length)];
+
+    const selectedHead =
+      closetItems.head.length > 0 && Math.random() > 0.5
+        ? closetItems.head[Math.floor(Math.random() * closetItems.head.length)]
+        : null;
+
+    const selectedFeet =
+      closetItems.feet.length > 0
+        ? closetItems.feet[Math.floor(Math.random() * closetItems.feet.length)]
+        : null;
 
     setClosetSelection({
-      head: suggestedHead ? suggestedHead.id : null,
-      top: suggestedTop.id,
-      bottom: suggestedBottom.id,
-      feet: suggestedFeet.id,
+      head: selectedHead ? selectedHead.id : null,
+      top: selectedTop.id,
+      bottom: selectedBottom.id,
+      feet: selectedFeet ? selectedFeet.id : null,
     });
   };
 
   const handleSaveOutfit = (asFavorite = false) => {
     if (isOutfitSaved || isLiking) return;
+    if (!closetSelection.top || !closetSelection.bottom) {
+      alert("Selecione pelo menos uma parte de cima e uma de baixo.");
+      return;
+    }
+
     if (asFavorite) setIsLiking(true);
     else setIsSavingOutfit(true);
 
@@ -389,35 +270,11 @@ const Closet = () => {
     }, 800);
   };
 
-  const handleShuffle = () => {
-    const randomSelection = {
-      head:
-        Math.random() > 0.3
-          ? closetItems.head[
-              Math.floor(Math.random() * closetItems.head.length)
-            ].id
-          : null,
-      top: closetItems.top[Math.floor(Math.random() * closetItems.top.length)]
-        .id,
-      bottom:
-        closetItems.bottom[
-          Math.floor(Math.random() * closetItems.bottom.length)
-        ].id,
-      feet:
-        Math.random() > 0.1
-          ? closetItems.feet[
-              Math.floor(Math.random() * closetItems.feet.length)
-            ].id
-          : null,
-    };
-    setClosetSelection(randomSelection);
-  };
-
+  const handleShuffle = () => handleSmartSuggestion();
   const handleClearAll = () =>
     setClosetSelection({ head: null, top: null, bottom: null, feet: null });
   const handleDeleteHistoryItem = (id: number) =>
     setSavedOutfits((prev) => prev.filter((outfit) => outfit.id !== id));
-
   const handleToggleFavoriteHistory = (id: number) => {
     setSavedOutfits((prev) =>
       prev.map((outfit) =>
@@ -428,6 +285,7 @@ const Closet = () => {
     );
   };
 
+  // --- 2. UPLOAD DE ROUPA (POST API) ---
   const handleAddClick = (category: CategoryKey) => {
     setUploadCategory(category);
     fileInputRef.current?.click();
@@ -436,10 +294,11 @@ const Closet = () => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && uploadCategory) {
+      setPendingFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         if (e.target?.result) {
-          setPendingImage(e.target.result as string);
+          setPendingImagePreview(e.target.result as string);
           setNewItemMetadata({
             name: file.name.split(".")[0].substring(0, 20),
             size: "M",
@@ -453,34 +312,53 @@ const Closet = () => {
     if (event.target) event.target.value = "";
   };
 
-  const handleConfirmUpload = () => {
-    if (!pendingImage || !uploadCategory) return;
-    const newId = `${uploadCategory}_custom_${Date.now()}`;
-    const newItem: ClosetItem = {
-      id: newId,
-      name: newItemMetadata.name || "Item Personalizado",
-      image: pendingImage,
-      size: newItemMetadata.size,
-      color: newItemMetadata.color,
-    };
-    setClosetItems((prev) => ({
-      ...prev,
-      [uploadCategory]: [newItem, ...prev[uploadCategory]],
-    }));
-    setClosetSelection((prev) => ({ ...prev, [uploadCategory]: newId }));
-    setShowUploadModal(false);
-    setPendingImage(null);
+  const handleConfirmUpload = async () => {
+    if (!pendingFile || !uploadCategory) return;
+    setIsUploading(true);
+
+    try {
+      await fetch("/api/csrf/");
+      const csrftoken = getCookie("csrftoken");
+
+      const formData = new FormData();
+      formData.append("name", newItemMetadata.name || "Item Sem Nome");
+      formData.append("category", uploadCategory);
+      formData.append("size", newItemMetadata.size);
+      formData.append("color", newItemMetadata.color);
+      formData.append("image", pendingFile);
+
+      const response = await fetch("/api/closet/", {
+        method: "POST",
+        headers: { "X-CSRFToken": csrftoken || "" },
+        body: formData,
+      });
+
+      if (response.ok) {
+        await fetchClosetItems();
+        setShowUploadModal(false);
+        setPendingImagePreview(null);
+        setPendingFile(null);
+      } else {
+        const err = await response.json();
+        alert("Erro ao salvar: " + JSON.stringify(err));
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Erro de conexão.");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleCancelUpload = () => {
     setShowUploadModal(false);
-    setPendingImage(null);
+    setPendingImagePreview(null);
+    setPendingFile(null);
   };
 
   const handlePickColor = async () => {
-    // Casting 'window' to any because EyeDropper is experimental
     if (!(window as any).EyeDropper) {
-      alert("Seu navegador não suporta a ferramenta de conta-gotas.");
+      alert("Seu navegador não suporta conta-gotas.");
       return;
     }
     try {
@@ -490,28 +368,43 @@ const Closet = () => {
     } catch (e) {}
   };
 
-  const handleDeleteItem = (
+  // --- 3. DELETAR ROUPA (DELETE API) ---
+  const handleDeleteItem = async (
     category: CategoryKey,
-    itemId: string,
+    itemId: string | number,
     e: React.MouseEvent
   ) => {
     e.stopPropagation();
-    if (closetItems[category].length <= 1) {
-      alert("Mantenha ao menos um item.");
-      return;
-    }
-    const newItems = closetItems[category].filter((item) => item.id !== itemId);
-    setClosetItems((prev) => ({ ...prev, [category]: newItems }));
-    if (closetSelection[category] === itemId) {
-      setClosetSelection((prev) => ({
-        ...prev,
-        [category]:
-          category === "head" || category === "feet" ? null : newItems[0].id,
-      }));
+
+    if (!confirm("Tem certeza que deseja excluir esta peça?")) return;
+
+    try {
+      await fetch("/api/csrf/");
+      const csrftoken = getCookie("csrftoken");
+
+      const response = await fetch(`/api/closet/${itemId}/`, {
+        method: "DELETE",
+        headers: { "X-CSRFToken": csrftoken || "" },
+      });
+
+      if (response.ok) {
+        const newItems = closetItems[category].filter(
+          (item) => item.id !== itemId
+        );
+        setClosetItems((prev) => ({ ...prev, [category]: newItems }));
+
+        if (closetSelection[category] === itemId) {
+          setClosetSelection((prev) => ({ ...prev, [category]: null }));
+        }
+      } else {
+        alert("Erro ao excluir item.");
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  const handleSelectItem = (category: CategoryKey, id: string) => {
+  const handleSelectItem = (category: CategoryKey, id: string | number) => {
     setClosetSelection((prev) => {
       if (
         (category === "head" || category === "feet") &&
@@ -561,7 +454,6 @@ const Closet = () => {
   return (
     <div className="animate-fade-in flex flex-col gap-8 w-full max-w-7xl mx-auto p-4 relative">
       <div className="flex flex-col lg:flex-row gap-8 w-full">
-        {/* Input Oculto e Modais */}
         <input
           type="file"
           ref={fileInputRef}
@@ -569,14 +461,16 @@ const Closet = () => {
           className="hidden"
           accept="image/*"
         />
+
+        {/* MODAL DE UPLOAD */}
         {showUploadModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
             <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh] border border-slate-200">
               <div className="w-full md:w-1/2 bg-slate-50 p-6 flex items-center justify-center border-b md:border-b-0 md:border-r border-slate-200">
                 <div className="relative w-full aspect-square rounded-2xl overflow-hidden shadow-sm border-2 border-white bg-white">
-                  {pendingImage && (
+                  {pendingImagePreview && (
                     <img
-                      src={pendingImage}
+                      src={pendingImagePreview}
                       alt="Preview"
                       className="w-full h-full object-contain"
                     />
@@ -662,15 +556,22 @@ const Closet = () => {
                 <div className="mt-8 flex gap-3">
                   <button
                     onClick={handleCancelUpload}
+                    disabled={isUploading}
                     className="flex-1 py-3 px-4 rounded-xl font-bold text-slate-500 bg-slate-100 hover:bg-slate-200"
                   >
                     Cancelar
                   </button>
                   <button
                     onClick={handleConfirmUpload}
+                    disabled={isUploading}
                     className="flex-[2] py-3 px-4 rounded-xl font-bold text-white bg-purple-600 hover:bg-purple-500 flex items-center justify-center gap-2"
                   >
-                    <Check size={18} /> Confirmar
+                    {isUploading ? (
+                      <Loader2 className="animate-spin" size={18} />
+                    ) : (
+                      <Check size={18} />
+                    )}
+                    {isUploading ? "Enviando..." : "Confirmar"}
                   </button>
                 </div>
               </div>
@@ -680,9 +581,8 @@ const Closet = () => {
 
         <style>{`.custom-scrollbar::-webkit-scrollbar { height: 8px; width: 6px; } .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; } @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } } .animate-fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }`}</style>
 
-        {/* --- COLUNA ESQUERDA --- */}
+        {/* --- COLUNA ESQUERDA (CLOSET) --- */}
         <div className="flex-1 space-y-6 min-w-0">
-          {/* Header com Widget de Clima */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-2">
             <div>
               <h1 className="text-3xl font-bold text-slate-800">
@@ -703,15 +603,12 @@ const Closet = () => {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {/* Botão SUGESTÃO INTELIGENTE */}
               <button
                 onClick={handleSmartSuggestion}
                 className="p-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all flex items-center gap-2 text-xs font-bold"
-                title="Sugestão baseada em Clima e Cor"
               >
                 <Sparkles size={16} /> Sugerir Look
               </button>
-
               <button
                 onClick={handleShuffle}
                 className="p-2 bg-purple-100 text-purple-600 rounded-xl hover:bg-purple-200 transition flex items-center gap-2 text-xs font-bold"
@@ -727,137 +624,151 @@ const Closet = () => {
             </div>
           </div>
 
-          {/* Listas de Roupas */}
-          {categories.map((category) => (
-            <div
-              key={category}
-              className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-300"
-            >
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 px-1 flex items-center gap-2 justify-between">
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      category === "head"
-                        ? "bg-purple-400"
-                        : category === "top"
-                        ? "bg-blue-400"
-                        : category === "bottom"
-                        ? "bg-emerald-400"
-                        : "bg-orange-400"
-                    }`}
-                  ></span>
-                  {categoryLabels[category]}
-                </div>
-                {(category === "head" || category === "feet") && (
-                  <button
-                    onClick={() => handleClearSelection(category)}
-                    className="text-[10px] text-slate-400 hover:text-red-500 hover:underline flex items-center gap-1"
-                  >
-                    {closetSelection[category] ? (
-                      <>
-                        <X size={10} /> Remover seleção
-                      </>
-                    ) : (
-                      <span className="opacity-50 cursor-default">
-                        Nenhum selecionado
-                      </span>
-                    )}
-                  </button>
-                )}
-              </h3>
-
-              <div className="flex gap-4">
-                <button
-                  onClick={() => handleAddClick(category)}
-                  className={`w-32 rounded-2xl bg-slate-50 flex-shrink-0 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 hover:bg-slate-100 transition group ${
-                    category === "head"
-                      ? "h-32"
-                      : category === "top"
-                      ? "h-40"
-                      : category === "bottom"
-                      ? "h-48"
-                      : "h-32"
-                  }`}
-                >
-                  <Upload
-                    className="text-slate-400 mb-1 group-hover:text-inherit"
-                    size={24}
-                  />
-                  <span className="text-xs font-bold text-slate-400 group-hover:text-inherit">
-                    Upload
-                  </span>
-                </button>
-
-                <div className="flex gap-4 overflow-x-auto pb-4 snap-x px-1 custom-scrollbar flex-1">
-                  {closetItems[category].map((item) => (
-                    <div
-                      key={item.id}
-                      onClick={() => handleSelectItem(category, item.id)}
-                      className={`group rounded-2xl flex-shrink-0 cursor-pointer overflow-hidden border-2 transition-all duration-300 relative snap-center w-32 md:w-40 ${
+          {/* LOADING STATE */}
+          {isLoadingItems ? (
+            <div className="p-12 text-center text-slate-400 flex flex-col items-center">
+              <Loader2 size={32} className="animate-spin mb-2" />
+              <p>Carregando seu armário...</p>
+            </div>
+          ) : (
+            categories.map((category) => (
+              <div
+                key={category}
+                className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-300"
+              >
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 px-1 flex items-center gap-2 justify-between">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`w-2 h-2 rounded-full ${
                         category === "head"
-                          ? "h-32"
+                          ? "bg-purple-400"
                           : category === "top"
-                          ? "h-40"
+                          ? "bg-blue-400"
                           : category === "bottom"
-                          ? "h-48"
-                          : "h-32"
-                      } ${
-                        closetSelection[category] === item.id
-                          ? "border-purple-600 ring-4 ring-purple-100 scale-105 shadow-lg"
-                          : "border-transparent hover:border-slate-200"
+                          ? "bg-emerald-400"
+                          : "bg-orange-400"
                       }`}
+                    ></span>
+                    {categoryLabels[category]}
+                  </div>
+                  {(category === "head" || category === "feet") && (
+                    <button
+                      onClick={() => handleClearSelection(category)}
+                      className="text-[10px] text-slate-400 hover:text-red-500 hover:underline flex items-center gap-1"
                     >
-                      <img
-                        src={item.image}
-                        className="w-full h-full object-cover"
-                        alt={item.name}
-                      />
-                      {item.size && (
-                        <div className="absolute bottom-2 right-2 bg-white/80 backdrop-blur-sm text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm z-10 border border-white/20">
-                          {item.size}
-                        </div>
+                      {closetSelection[category] ? (
+                        <>
+                          <X size={10} /> Remover seleção
+                        </>
+                      ) : (
+                        <span className="opacity-50 cursor-default">
+                          Nenhum selecionado
+                        </span>
                       )}
-                      <button
-                        onClick={(e) => handleDeleteItem(category, item.id, e)}
-                        className="absolute top-1 left-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-md z-20"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end p-2 pointer-events-none">
-                        <div className="w-full">
-                          <span className="text-[10px] text-white font-medium truncate block">
-                            {item.name}
-                          </span>
-                          {item.color && (
-                            <div className="flex items-center gap-1 mt-0.5">
-                              <div
-                                className="w-2 h-2 rounded-full border border-white/50"
-                                style={{ backgroundColor: item.color }}
-                              ></div>
-                              <span className="text-[8px] text-slate-200">
-                                {item.color}
+                    </button>
+                  )}
+                </h3>
+
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => handleAddClick(category)}
+                    className={`w-32 rounded-2xl bg-slate-50 flex-shrink-0 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 hover:bg-slate-100 transition group ${
+                      category === "head"
+                        ? "h-32"
+                        : category === "top"
+                        ? "h-40"
+                        : category === "bottom"
+                        ? "h-48"
+                        : "h-32"
+                    }`}
+                  >
+                    <Upload
+                      className="text-slate-400 mb-1 group-hover:text-inherit"
+                      size={24}
+                    />
+                    <span className="text-xs font-bold text-slate-400 group-hover:text-inherit">
+                      Upload
+                    </span>
+                  </button>
+
+                  <div className="flex gap-4 overflow-x-auto pb-4 snap-x px-1 custom-scrollbar flex-1">
+                    {closetItems[category].length === 0 ? (
+                      <div className="flex items-center justify-center w-full text-slate-400 text-xs italic">
+                        Vazio
+                      </div>
+                    ) : (
+                      closetItems[category].map((item) => (
+                        <div
+                          key={item.id}
+                          onClick={() => handleSelectItem(category, item.id)}
+                          className={`group rounded-2xl flex-shrink-0 cursor-pointer overflow-hidden border-2 transition-all duration-300 relative snap-center w-32 md:w-40 ${
+                            category === "head"
+                              ? "h-32"
+                              : category === "top"
+                              ? "h-40"
+                              : category === "bottom"
+                              ? "h-48"
+                              : "h-32"
+                          } ${
+                            closetSelection[category] === item.id
+                              ? "border-purple-600 ring-4 ring-purple-100 scale-105 shadow-lg"
+                              : "border-transparent hover:border-slate-200"
+                          }`}
+                        >
+                          <img
+                            src={item.image}
+                            className="w-full h-full object-cover"
+                            alt={item.name}
+                          />
+                          {item.size && (
+                            <div className="absolute bottom-2 right-2 bg-white/80 backdrop-blur-sm text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm z-10 border border-white/20">
+                              {item.size}
+                            </div>
+                          )}
+                          <button
+                            onClick={(e) =>
+                              handleDeleteItem(category, item.id, e)
+                            }
+                            className="absolute top-1 left-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-md z-20"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end p-2 pointer-events-none">
+                            <div className="w-full">
+                              <span className="text-[10px] text-white font-medium truncate block">
+                                {item.name}
                               </span>
+                              {item.color && (
+                                <div className="flex items-center gap-1 mt-0.5">
+                                  <div
+                                    className="w-2 h-2 rounded-full border border-white/50"
+                                    style={{ backgroundColor: item.color }}
+                                  ></div>
+                                  <span className="text-[8px] text-slate-200">
+                                    {item.color}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          {closetSelection[category] === item.id && (
+                            <div className="absolute top-1 right-1 bg-purple-600 w-5 h-5 rounded-full flex items-center justify-center shadow-sm z-10">
+                              <Check size={12} className="text-white" />
                             </div>
                           )}
                         </div>
-                      </div>
-                      {closetSelection[category] === item.id && (
-                        <div className="absolute top-1 right-1 bg-purple-600 w-5 h-5 rounded-full flex items-center justify-center shadow-sm z-10">
-                          <Check size={12} className="text-white" />
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                      ))
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
         {/* --- COLUNA DIREITA (PREVIEW) --- */}
         <div className="w-full lg:w-96 flex flex-col gap-4">
           <div className="bg-slate-900 text-white rounded-[2rem] p-6 flex flex-col min-h-[600px] sticky top-8 shadow-2xl ring-1 ring-white/10">
-            {/* Controle de Clima para Teste */}
             <div className="mb-4">
               <p className="text-[10px] text-slate-500 uppercase font-bold mb-2 tracking-wider">
                 Simular Clima
@@ -982,7 +893,7 @@ const Closet = () => {
         </div>
       </div>
 
-      {/* --- HISTÓRICO --- */}
+      {/* --- HISTÓRICO (Visualização apenas, dados ainda no LocalStorage) --- */}
       {savedOutfits.length > 0 && (
         <div className="mt-8 pt-8 border-t border-slate-200">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -1110,7 +1021,6 @@ const Closet = () => {
                       </div>
                     )}
                   </div>
-                  {/* Mostra ícone do clima salvo */}
                   {outfit.weatherAtTime && (
                     <div className="absolute bottom-2 right-2 bg-slate-100/80 backdrop-blur-sm p-1 rounded-md text-slate-500">
                       {outfit.weatherAtTime.condition === "sunny" ? (
@@ -1132,12 +1042,4 @@ const Closet = () => {
   );
 };
 
-const App = () => {
-  return (
-    <div className="min-h-screen bg-slate-50 flex justify-center items-start pt-8 pb-16">
-      <Closet />
-    </div>
-  );
-};
-
-export default App;
+export default Closet;
