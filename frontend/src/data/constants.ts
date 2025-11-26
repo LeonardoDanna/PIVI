@@ -1,4 +1,41 @@
-// src/data/constants.ts
+// 📂 Imports das imagens locais
+import alfaiataria from "../assets/images/alfaiataria.jpg";
+import barroco from "../assets/images/barroco.jpg";
+import boho_chic from "../assets/images/boho_chic.png";
+import casual_chic from "../assets/images/casual_chic.jpg";
+import classico from "../assets/images/classico.jpg";
+import color_block from "../assets/images/color_block.jpg";
+import cottagecore from "../assets/images/cottagecore.jpg";
+import criativo from "../assets/images/criativo.jpg";
+import esportivo_deluxe from "../assets/images/esportivo_deluxe.jpg";
+import esportivo from "../assets/images/esportivo.jpg";
+import executivo from "../assets/images/executivo.jpg";
+import folk from "../assets/images/folk.jpg";
+import futurista from "../assets/images/futurista.jpg";
+import geometrico from "../assets/images/geometrico.jpg";
+import glamour from "../assets/images/glamour.jpg";
+import gotico from "../assets/images/gotico.jpg";
+import high_fashion from "../assets/images/high_fashion.jpg";
+import dramatico from "../assets/images/dramatico.jpg";
+import lady_like from "../assets/images/lady_like.jpg";
+import militar from "../assets/images/militar.png";
+import minimalista from "../assets/images/minimalista.png";
+import moderno from "../assets/images/moderno.jpg";
+import natural from "../assets/images/natural.jpg";
+import pop_art from "../assets/images/pop_art.jpg";
+import preppy from "../assets/images/preppy.jpg";
+import provençal from "../assets/images/provençal.jpg";
+import retro from "../assets/images/retro.png";
+import romantico from "../assets/images/romantico.png";
+import rustico from "../assets/images/rustico.jpg";
+import safari from "../assets/images/safari.jpg";
+import sofisticado from "../assets/images/sofisticado.png";
+import streetwear from "../assets/images/streetwear.jpg";
+import tropical from "../assets/images/tropical.jpg";
+import urbano from "../assets/images/urbano.png";
+import vibrante from "../assets/images/vibrante.jpg";
+import vintage from "../assets/images/vintage.jpg";
+
 
 // --- TIPOS E INTERFACES ---
 
@@ -41,20 +78,20 @@ export const colorPalettes: Record<SkinToneKey, Palette> = {
     description:
       "Combina melhor com tons limpos, frios e contrastantes. Neutros intensos e azuis profundos equilibram a pele.",
     colors: [
-      "bg-blue-900",     // azul marinho
-      "bg-slate-800",    // cinza azulado escuro
-      "bg-gray-500",     // cinza claro
-      "bg-red-950",  // vinho intenso
-      "bg-indigo-950",      // preto azulado
-      "bg-sky-950",        // branco gelo intenso
+      "bg-blue-900",
+      "bg-slate-800",
+      "bg-gray-500",
+      "bg-red-950",
+      "bg-indigo-950",
+      "bg-sky-950",
     ],
     styles: [
       "minimalista",
       "dramatico",
       "alfaiataria",
       "moderno",
-      "clean",
-      "contemporaneo",
+      "classico",
+      "sofisticado",
     ],
   },
 
@@ -65,20 +102,20 @@ export const colorPalettes: Record<SkinToneKey, Palette> = {
     description:
       "Fica bem com tons suaves, frios e neutros claros. Azul profundo e bege criam harmonia delicada.",
     colors: [
-      "bg-blue-700",       // azul profundo
-      "bg-gray-300",       // cinza frio claro
-      "bg-neutral-600",    // cinza neutro médio
-      "bg-stone-700",      // marrom terroso escuro
-      "bg-emerald-800",    // verde fechado
-      "bg-purple-900",     // roxo profundo
+      "bg-blue-700",
+      "bg-gray-300",
+      "bg-neutral-600",
+      "bg-stone-700",
+      "bg-emerald-800",
+      "bg-purple-900",
     ],
     styles: [
-      "romantico_natural",
+      "romantico",
       "classico",
-      "soft_casual",
-      "vintage_clean",
-      "cottagecore_neutro",
       "casual_chic",
+      "vintage",
+      "cottagecore",
+      "lady_like",
     ],
   },
 
@@ -89,20 +126,20 @@ export const colorPalettes: Record<SkinToneKey, Palette> = {
     description:
       "Peles médias brilham com tons quentes moderados como terracota, caramelo, marrons claros e verdes musgo.",
     colors: [
-      "bg-amber-700",   // caramelo
-      "bg-orange-900",  // terracota
-      "bg-yellow-900",  // mostarda queimado
-      "bg-green-800",   // musgo médio
-      "bg-stone-700",   // café
-      "bg-blue-900",    // marinho profundo
+      "bg-amber-700",
+      "bg-orange-900",
+      "bg-yellow-900",
+      "bg-green-800",
+      "bg-stone-700",
+      "bg-blue-900",
     ],
     styles: [
-      "casual_natural",
-      "esportivo_classico",
-      "urbano_clean",
-      "safari_moderno",
-      "terroso",
-      "preppy_neutro",
+      "natural",
+      "esportivo",
+      "urbano",
+      "safari",
+      "folk",
+      "preppy",
     ],
   },
 
@@ -113,19 +150,19 @@ export const colorPalettes: Record<SkinToneKey, Palette> = {
     description:
       "Combina muito com tons terrosos, vinho, oliva e dourado médio.",
     colors: [
-      "bg-green-900",   // oliva profundo
-      "bg-red-900",     // bordô/vinho profundo
-      "bg-yellow-800",  // dourado médio
-      "bg-stone-800",   // marrom amargo
-      "bg-amber-800",   // dourado queimado
-      "bg-gray-700",    // grafite suave
+      "bg-green-900",
+      "bg-red-900",
+      "bg-yellow-800",
+      "bg-stone-800",
+      "bg-amber-800",
+      "bg-gray-700",
     ],
     styles: [
       "boho_chic",
-      "natural_urbano",
+      "natural",
       "militar",
-      "rustico_moderno",
-      "chic_terroso",
+      "rustico",
+      "glamour",
       "folk",
     ],
   },
@@ -135,22 +172,22 @@ export const colorPalettes: Record<SkinToneKey, Palette> = {
     hex: "#7A4B28",
     season: "Verão",
     description:
-      "Marinho, vinho, oliva escuro e especiarias criam profundidade vibrante e elegante.",
+      "Tons ricos e profundos como azul marinho, roxo, vermelho escuro e verde esmeralda realçam a pele.",
     colors: [
-      "bg-blue-600",   // azul marinho
-      "bg-indigo-900",  // índigo profundo
-      "bg-fuchsia-400", // rosa pastel
-      "bg-red-800",     // vinho escuro
-      "bg-yellow-200",  // amarelo claro
-      "bg-emerald-400",   // verde whatsapp
+      "bg-blue-600",
+      "bg-indigo-900",
+      "bg-fuchsia-400",
+      "bg-red-800",
+      "bg-yellow-200",
+      "bg-emerald-400",
     ],
     styles: [
       "sofisticado",
       "executivo",
-      "urbano_premium",
-      "classico_forte",
-      "minimalista_escuro",
+      "urbano",
+      "high_fashion",
       "moderno",
+      "vibrante",
     ],
   },
 
@@ -161,23 +198,24 @@ export const colorPalettes: Record<SkinToneKey, Palette> = {
     description:
       "Contraste elevado combina com preto, vinho, azul noite, oliva escuro e branco gelo.",
     colors: [
-      "bg-black",       // preto puro
-      "bg-sky-50",       // branco gelo
-      "bg-blue-950",    // azul noite
-      "bg-purple-950",  // ameixa
-      "bg-green-900",   // oliva escuro
-      "bg-red-900",     // vinho profundo
+      "bg-black",
+      "bg-sky-50",
+      "bg-blue-950",
+      "bg-purple-950",
+      "bg-green-900",
+      "bg-red-900",
     ],
     styles: [
-      "streetwear_premium",
+      "streetwear",
       "high_fashion",
-      "classico_impactante",
-      "moderno_forte",
-      "minimalista_contrastado",
-      "urbano_elegante",
+      "classico",
+      "moderno",
+      "minimalista",
+      "urbano",
     ],
   },
 };
+
 
 // --- CLOSET ---
 
@@ -211,40 +249,41 @@ export const initialClosetData: Record<string, ClosetItem[]> = {
 // --- STYLE IMAGES ---
 
 export const styleImagesData: Record<string, string> = {
-  minimalista: "https://images.unsplash.com/photo-1733209589780-99d3a8a3b3e4?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  dramatico: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop",
-  alfaiataria: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?q=80&w=600&auto=format&fit=crop",
-  gotico_suave: "https://images.unsplash.com/photo-1536243297275-48b4d1b82405?q=80&w=600&auto=format&fit=crop",
-  moderno: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=600&auto=format&fit=crop",
-  futurista: "https://images.unsplash.com/photo-1529139574466-a302c2d3e739?q=80&w=600&auto=format&fit=crop",
-  romantico: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?q=80&w=600&auto=format&fit=crop",
-  lady_like: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=600&auto=format&fit=crop",
-  provencal: "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?q=80&w=600&auto=format&fit=crop",
-  classico: "https://images.unsplash.com/photo-1548142813-c348350df52b?q=80&w=600&auto=format&fit=crop",
-  vintage: "https://images.unsplash.com/photo-1550614000-4b9519e02a15?q=80&w=600&auto=format&fit=crop",
-  cottagecore: "https://images.unsplash.com/photo-1502163140606-888448ae8cfe?q=80&w=600&auto=format&fit=crop",
-  criativo: "https://images.unsplash.com/photo-1496747611176-843222e1e57?q=80&w=600&auto=format&fit=crop",
-  tropical: "https://images.unsplash.com/photo-1527016021513-b09758b777d5?q=80&w=600&auto=format&fit=crop",
-  esportivo: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&auto=format&fit=crop",
-  color_block: "https://images.unsplash.com/photo-1509631179647-b84917147c2a?q=80&w=600&auto=format&fit=crop",
-  casual_chic: "https://images.unsplash.com/photo-1704775991663-c8e2892c11c3?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  preppy: "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?q=80&w=600&auto=format&fit=crop",
-  boho_chic: "https://images.unsplash.com/photo-1519725946194-c7da41215570?q=80&w=600&auto=format&fit=crop",
-  natural: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=600&auto=format&fit=crop",
-  folk: "https://images.unsplash.com/photo-1520006403909-838d6b92c22e?q=80&w=600&auto=format&fit=crop",
-  safari: "https://images.unsplash.com/photo-1545291730-faff8ca1d4b0?q=80&w=600&auto=format&fit=crop",
-  militar: "https://images.unsplash.com/photo-1588117260148-447885143a6d?q=80&w=600&auto=format&fit=crop",
-  rustico: "https://images.unsplash.com/photo-1485230946086-1d99d529a730?q=80&w=600&auto=format&fit=crop",
-  sofisticado: "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?q=80&w=600&auto=format&fit=crop",
-  glamour: "https://images.unsplash.com/photo-1566737236500-c8ac43014a67?q=80&w=600&auto=format&fit=crop",
-  urbano: "https://images.unsplash.com/photo-1550928431-ee0ec6db30d3?q=80&w=600&auto=format&fit=crop",
-  executivo: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=600&auto=format&fit=crop",
-  retro: "https://images.unsplash.com/photo-1550614000-4b9519e02a15?q=80&w=600&auto=format&fit=crop",
-  barroco: "https://images.unsplash.com/photo-1550928431-ee0ec6db30d3?q=80&w=600&auto=format&fit=crop",
-  streetwear: "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?q=80&w=600&auto=format&fit=crop",
-  high_fashion: "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?q=80&w=600&auto=format&fit=crop",
-  vibrante: "https://images.unsplash.com/photo-1496747611176-843222e1e57?q=80&w=600&auto=format&fit=crop",
-  geometrico: "https://images.unsplash.com/photo-1462002596489-4d6cb6007421?q=80&w=600&auto=format&fit=crop",
-  esportivo_deluxe: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&auto=format&fit=crop",
-  pop_art: "https://images.unsplash.com/photo-1616892790299-44520b2996a1?q=80&w=600&auto=format&fit=crop",
+  minimalista: minimalista,
+  dramatico: dramatico,
+  alfaiataria: alfaiataria,
+  gotico_suave: gotico,
+  moderno: moderno,
+  futurista: futurista,
+  romantico: romantico,
+  lady_like: lady_like,
+  provencal: provençal,
+  classico: classico,
+  vintage: vintage,
+  cottagecore: cottagecore,
+  criativo: criativo,
+  tropical: tropical,
+  esportivo: esportivo,
+  color_block: color_block,
+  casual_chic: casual_chic,
+  preppy: preppy,
+  boho_chic: boho_chic,
+  natural: natural,
+  folk: folk,
+  safari: safari,
+  militar: militar,
+  rustico: rustico,
+  sofisticado: sofisticado,
+  glamour: glamour,
+  urbano: urbano,
+  executivo: executivo,
+  retro: retro,
+  barroco: barroco,
+  streetwear: streetwear,
+  high_fashion: high_fashion,
+  vibrante: vibrante,
+  geometrico: geometrico,
+  esportivo_deluxe: esportivo_deluxe,
+  pop_art: pop_art,
 };
+
