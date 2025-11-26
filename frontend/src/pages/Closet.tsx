@@ -91,7 +91,6 @@ const isNeutral = (hex: string | undefined) => {
 };
 
 const Closet = () => {
-  // Estado inicial VAZIO (será preenchido pela API)
   const [closetItems, setClosetItems] = useState<ClosetData>({
     head: [],
     top: [],
@@ -113,7 +112,6 @@ const Closet = () => {
     feet: null,
   });
 
-  // Histórico (LocalStorage)
   const [savedOutfits, setSavedOutfits] = useState<Outfit[]>(() => {
     const saved = localStorage.getItem("userSavedOutfits");
     return saved ? JSON.parse(saved) : [];
@@ -124,7 +122,6 @@ const Closet = () => {
   const [isSavingOutfit, setIsSavingOutfit] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
 
-  // Upload States
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadCategory, setUploadCategory] = useState<CategoryKey | null>(
     null
@@ -133,16 +130,18 @@ const Closet = () => {
   const [pendingImagePreview, setPendingImagePreview] = useState<string | null>(
     null
   );
-  const [pendingFile, setPendingFile] = useState<File | null>(null); // Arquivo real
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   const [newItemMetadata, setNewItemMetadata] = useState({
     name: "",
-    size: "M",
+    size: "",
     color: "#000000",
   });
 
-  // --- 1. CARREGAR ROUPAS DA API ---
+  const categories: CategoryKey[] = ["head", "top", "bottom", "feet"];
+
+  // --- CARREGAR ROUPAS DA API ---
   useEffect(() => {
     fetchClosetItems();
   }, []);
@@ -184,7 +183,6 @@ const Closet = () => {
     return item ? item.image : null;
   };
 
-  // --- Sugestão Inteligente ---
   const handleSmartSuggestion = () => {
     const hasTops = closetItems.top.length > 0;
     const hasBottoms = closetItems.bottom.length > 0;
@@ -195,6 +193,7 @@ const Closet = () => {
     }
 
     const isHot = weather.temp >= 25;
+
     const suitableBottoms = closetItems.bottom.filter((item) => {
       const name = item.name.toLowerCase();
       if (isHot) return name.includes("shorts") || name.includes("bermuda");
@@ -285,7 +284,6 @@ const Closet = () => {
     );
   };
 
-  // --- 2. UPLOAD DE ROUPA (POST API) ---
   const handleAddClick = (category: CategoryKey) => {
     setUploadCategory(category);
     fileInputRef.current?.click();
@@ -299,9 +297,16 @@ const Closet = () => {
       reader.onload = (e) => {
         if (e.target?.result) {
           setPendingImagePreview(e.target.result as string);
+
+          // Define tamanho padrão baseado na categoria
+          let defaultSize = "M";
+          if (uploadCategory === "feet") defaultSize = "38";
+          if (uploadCategory === "bottom") defaultSize = "40";
+          if (uploadCategory === "head") defaultSize = "U";
+
           setNewItemMetadata({
             name: file.name.split(".")[0].substring(0, 20),
-            size: "M",
+            size: defaultSize,
             color: "#000000",
           });
           setShowUploadModal(true);
@@ -368,7 +373,6 @@ const Closet = () => {
     } catch (e) {}
   };
 
-  // --- 3. DELETAR ROUPA (DELETE API) ---
   const handleDeleteItem = async (
     category: CategoryKey,
     itemId: string | number,
@@ -449,8 +453,6 @@ const Closet = () => {
     </div>
   );
 
-  const categories: CategoryKey[] = ["head", "top", "bottom", "feet"];
-
   return (
     <div className="animate-fade-in flex flex-col gap-8 w-full max-w-7xl mx-auto p-4 relative">
       <div className="flex flex-col lg:flex-row gap-8 w-full">
@@ -462,7 +464,7 @@ const Closet = () => {
           accept="image/*"
         />
 
-        {/* MODAL DE UPLOAD */}
+        {/* MODAL DE UPLOAD DINÂMICO */}
         {showUploadModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
             <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh] border border-slate-200">
@@ -508,25 +510,72 @@ const Closet = () => {
                     />
                   </div>
                   <div className="flex gap-4">
-                    <div className="w-24">
+                    {/* SELEÇÃO DE TAMANHO DINÂMICA */}
+                    <div className="w-28">
                       <label className="text-xs font-bold text-slate-400 uppercase">
                         Tamanho
                       </label>
-                      <select
-                        value={newItemMetadata.size}
-                        onChange={(e) =>
-                          setNewItemMetadata({
-                            ...newItemMetadata,
-                            size: e.target.value,
-                          })
-                        }
-                        className="w-full p-3 border-2 border-slate-200 rounded-xl"
-                      >
-                        <option value="M">M</option>
-                        <option value="G">G</option>
-                        <option value="40">40</option>
-                      </select>
+                      {uploadCategory === "feet" ? (
+                        <select
+                          value={newItemMetadata.size}
+                          onChange={(e) =>
+                            setNewItemMetadata({
+                              ...newItemMetadata,
+                              size: e.target.value,
+                            })
+                          }
+                          className="w-full p-3 border-2 border-slate-200 rounded-xl bg-white"
+                        >
+                          {Array.from({ length: 18 }, (_, i) => i + 33).map(
+                            (num) => (
+                              <option key={num} value={num.toString()}>
+                                {num}
+                              </option>
+                            )
+                          )}
+                        </select>
+                      ) : uploadCategory === "head" ? (
+                        <div className="w-full p-3 border-2 border-slate-100 bg-slate-50 rounded-xl text-slate-400 text-sm">
+                          Único
+                        </div>
+                      ) : uploadCategory === "bottom" ? (
+                        <select
+                          value={newItemMetadata.size}
+                          onChange={(e) =>
+                            setNewItemMetadata({
+                              ...newItemMetadata,
+                              size: e.target.value,
+                            })
+                          }
+                          className="w-full p-3 border-2 border-slate-200 rounded-xl bg-white"
+                        >
+                          {[36, 38, 40, 42, 44, 46, 48, 50, 52, 54].map((s) => (
+                            <option key={s} value={s}>
+                              {s}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <select
+                          value={newItemMetadata.size}
+                          onChange={(e) =>
+                            setNewItemMetadata({
+                              ...newItemMetadata,
+                              size: e.target.value,
+                            })
+                          }
+                          className="w-full p-3 border-2 border-slate-200 rounded-xl bg-white"
+                        >
+                          <option value="PP">PP</option>
+                          <option value="P">P</option>
+                          <option value="M">M</option>
+                          <option value="G">G</option>
+                          <option value="GG">GG</option>
+                          <option value="XG">XG</option>
+                        </select>
+                      )}
                     </div>
+
                     <div className="flex-1">
                       <label className="text-xs font-bold text-slate-400 uppercase">
                         Cor
@@ -893,7 +942,7 @@ const Closet = () => {
         </div>
       </div>
 
-      {/* --- HISTÓRICO (Visualização apenas, dados ainda no LocalStorage) --- */}
+      {/* --- HISTÓRICO --- */}
       {savedOutfits.length > 0 && (
         <div className="mt-8 pt-8 border-t border-slate-200">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
