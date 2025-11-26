@@ -149,7 +149,7 @@ const Dashboard = () => {
         {/* 🔹 Cards de looks */}
         <div className="col-span-8 grid grid-cols-2 gap-6 h-[450px]">
 
-          {/* CARD 1 — CASUAL CHIC */}
+          {/* CARD 1 — Street Wear */}
           <div
             onClick={() => navigate("/matches")} // ✅ NAVEGA PARA A ABA
             className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col"
@@ -157,13 +157,13 @@ const Dashboard = () => {
             <div className="flex-1 rounded-2xl mb-4 overflow-hidden relative">
               <img
                 src="https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?q=80&w=800&auto=format&fit=crop"
-                alt="Look Casual Chic"
+                alt="Look Street Wear"
                 className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-60"></div>
               <div className="absolute bottom-4 left-4 text-white">
                 <span className="bg-white/20 backdrop-blur-md px-2 py-1 rounded text-xs font-bold">
-                  100% Linho
+                  Street Wear
                 </span>
               </div>
             </div>
@@ -171,10 +171,10 @@ const Dashboard = () => {
             <div className="flex justify-between items-center px-2">
               <div>
                 <span className="font-bold text-slate-800 block text-lg">
-                  Casual Chic
+                  Já testou usar o estilo Street Wear?
                 </span>
                 <span className="text-xs text-slate-500">
-                  Tons Terrosos & Frescor
+                  Veja se combina com você!
                 </span>
               </div>
               <button className="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center group-hover:bg-slate-900 group-hover:text-white transition-all">
@@ -183,7 +183,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* CARD 2 — TRABALHO LEVE */}
+          {/* CARD 2 — Casual */}
           <div
             onClick={() => navigate("/matches")} // ✅ MESMO DESTINO
             className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col"
@@ -191,13 +191,13 @@ const Dashboard = () => {
             <div className="flex-1 rounded-2xl mb-4 overflow-hidden relative">
               <img
                 src="https://images.unsplash.com/photo-1548142813-c348350df52b?q=80&w=800&auto=format&fit=crop"
-                alt="Look Trabalho Leve"
+                alt="Look Casual"
                 className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-60"></div>
               <div className="absolute bottom-4 left-4 text-white">
                 <span className="bg-white/20 backdrop-blur-md px-2 py-1 rounded text-xs font-bold">
-                  Alfaiataria
+                  Casual
                 </span>
               </div>
             </div>
@@ -205,10 +205,10 @@ const Dashboard = () => {
             <div className="flex justify-between items-center px-2">
               <div>
                 <span className="font-bold text-slate-800 block text-lg">
-                  Trabalho Leve
+                  Já testou usar o estilo Casual?
                 </span>
                 <span className="text-xs text-slate-500">
-                  Blazer & Conforto
+                  Veja se combina com você!
                 </span>
               </div>
               <button className="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center group-hover:bg-slate-900 group-hover:text-white transition-all">
