@@ -1,5 +1,5 @@
 // src/components/Sidebar.tsx
-import { Navigate, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import {
   Sun,
   Package,
