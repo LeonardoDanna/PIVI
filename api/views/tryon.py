@@ -9,28 +9,60 @@ from rest_framework.response import Response
 from rest_framework import status
 from api.utils.images import resize_image, enhance_output, gen_mask_from_clothing
 
+import requests, logging
+from django.conf import settings
+# ... (outros imports) ...
+
 logger = logging.getLogger(__name__)
 
+# =========================================================================
+# 1. PROMPTS ANCORADOS POR CATEGORIA E ESTILO DE ESTÚDIO
+# =========================================================================
+
+# Prompt base para o estilo de foto profissional (foco no fundo e iluminação)
+BASE_STYLE_PROMPT = ", photorealistic image, high-quality, studio white background, seamless, no shadows, no distracting elements, realistic fabric texture, perfectly fitted, high fashion editorial style"
+
+# Dicionário agora inclui a CATEGORIA específica para ancorar a IA
 PROMPTS_BY_TYPE = {
-    "pants": "...",
-    "shorts": "...",
-    "skirt": "...",
-    "shirt": "...",
-    "jacket": "...",
-    "dress": "...",
-    "generic": "...",
+    # Roupas de Cima
+    "t-shirt": "A high-quality photo of the uploaded **T-SHIRT** transferred to the model" + BASE_STYLE_PROMPT,
+    "shirt": "A high-quality photo of the uploaded **COLLARED SHIRT** transferred to the model" + BASE_STYLE_PROMPT,
+    "blouse": "A high-quality photo of the uploaded **BLOUSE** transferred to the model" + BASE_STYLE_PROMPT,
+    "sweatshirt": "A high-quality photo of the uploaded **SWEATSHIRT/SWEATER** transferred to the model" + BASE_STYLE_PROMPT,
+    "jacket": "A high-quality photo of the uploaded **JACKET/COAT** transferred to the model" + BASE_STYLE_PROMPT,
+    
+    # Roupas de Baixo
+    "pants": "A high-quality photo of the uploaded **PANTS/TROUSERS** transferred to the model" + BASE_STYLE_PROMPT,
+    "shorts": "A high-quality photo of the uploaded **SHORTS** transferred to the model" + BASE_STYLE_PROMPT,
+    "skirt": "A high-quality photo of the uploaded **SKIRT** transferred to the model" + BASE_STYLE_PROMPT,
+    
+    # Peça Única
+    "dress": "A high-quality photo of the uploaded **DRESS** transferred to the model" + BASE_STYLE_PROMPT,
+
+    # Padrão de segurança (caso o tipo seja desconhecido)
+    "generic": "A high-quality photo of the uploaded **CLOTHING ITEM** transferred to the model" + BASE_STYLE_PROMPT 
 }
-NEGATIVE_PROMPT = "change of shirt, altered torso, ..."
+
+# Negative prompt para evitar erros de renderização e ruídos de fundo
+NEGATIVE_PROMPT = "change of clothing, altered torso, item not transferred, distorted body, extra arms, missing limbs, artifacts, blur, low quality, duplicate, bad fit, wrinkled clothing, dark shadows, colored background, distracting background, text, watermark"
 
 def _params(quality, clothing_type, seed):
+    # A variável clothing_type agora virá do front-end (t-shirt, pants, etc.)
     base = {
-        "clothing_prompt": PROMPTS_BY_TYPE.get(clothing_type, PROMPTS_BY_TYPE["generic"]),
+        # Usa o prompt ancornado pela categoria:
+        "clothing_prompt": PROMPTS_BY_TYPE.get(clothing_type, PROMPTS_BY_TYPE["generic"]), 
         "negative_prompt": NEGATIVE_PROMPT,
-        "avatar_prompt": "full body studio photo, ...",
-        "background_prompt": "neutral white or gray seamless background, ...",
+        
+        # O prompt do avatar continua focado no modelo limpo:
+        "avatar_prompt": "full body studio photo, professional model pose, clear sharp face, realistic skin texture",
+        
+        # O prompt do background reforça o fundo branco e sem costuras:
+        "background_prompt": "neutral white or gray seamless background, professional studio setup",
+        
         "preserve_face": True, "preserve_body": True, "preserve_background": True,
         "apply_mask": True, "mask_mode": "clothing_only", "seed": seed,
     }
+    # ... (o resto da função _params permanece igual) ...
     if quality == "high":
         base.update({"steps": 60, "guidance_scale": 7.5})
     elif quality == "ultra":
