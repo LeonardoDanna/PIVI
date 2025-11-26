@@ -1,4 +1,3 @@
-// src/pages/TryOn.tsx
 import React, { useState, useRef } from "react";
 import {
   Sparkles,
@@ -9,10 +8,30 @@ import {
   Layers,
   Share2,
   Download,
+  // Ícones específicos para as novas categorias
+  Scissors, // Para peças de baixo/vestidos
+  Sun, // Para shorts
+  Heart, // Para blusa feminina
+  Package, // Para jaqueta/casaco
+  Archive, // Para moletom
 } from "lucide-react";
 
-const API_URL = "http://localhost:8000/api/generate-tryon/";
+// --- URL CORRIGIDA ---
+const API_URL = "/api/try-on-diffusion/";
 
+const CLOTHING_TYPES = [
+  { id: "t-shirt", label: "Camiseta", icon: Shirt },
+  { id: "shirt", label: "Camisa Social", icon: Shirt },
+  { id: "blouse", label: "Blusa Feminina", icon: Heart },
+  { id: "sweatshirt", label: "Moletom/Suéter", icon: Archive },
+  { id: "jacket", label: "Jaqueta/Casaco", icon: Package },
+  { id: "pants", label: "Calça", icon: Layers },
+  { id: "shorts", label: "Shorts", icon: Sun },
+  { id: "skirt", label: "Saia", icon: Scissors },
+  { id: "dress", label: "Vestido", icon: Scissors },
+];
+
+// --- INTERFACES E ESTADO ---
 interface TryOnState {
   userImage: string | null;
   userFile: File | null;
@@ -33,12 +52,13 @@ const TryOn = () => {
     userFile: null,
     clothImage: null,
     clothFile: null,
-    category: "upper_body",
+    category: "t-shirt", // Novo padrão inicial
     isGenerating: false,
     resultImage: null,
     error: null,
   });
 
+  // --- FUNÇÕES DE UPLOAD (Inalteradas) ---
   const handleFileUpload = (
     event: React.ChangeEvent<HTMLInputElement>,
     type: "user" | "cloth"
@@ -46,28 +66,31 @@ const TryOn = () => {
     const file = event.target.files?.[0];
     if (file) {
       const previewUrl = URL.createObjectURL(file);
-      if (type === "user")
-        setTryOnState((prev) => ({
-          ...prev,
-          userImage: previewUrl,
-          userFile: file,
-          error: null,
-        }));
-      else
-        setTryOnState((prev) => ({
-          ...prev,
-          clothImage: previewUrl,
-          clothFile: file,
-          error: null,
-        }));
+      const newState = {
+        ...tryOnState,
+        error: null,
+      };
+
+      if (type === "user") {
+        newState.userImage = previewUrl;
+        newState.userFile = file;
+      } else {
+        newState.clothImage = previewUrl;
+        newState.clothFile = file;
+      }
+
+      setTryOnState(newState);
+      event.target.value = "";
     }
   };
 
   const triggerUserUpload = () => userFileInputRef.current?.click();
   const triggerClothUpload = () => clothFileInputRef.current?.click();
 
+  // --- FUNÇÃO PRINCIPAL DE GERAÇÃO (Usa a URL Corrigida) ---
   const handleGenerate = async () => {
     if (!tryOnState.userFile || !tryOnState.clothFile) return;
+
     setTryOnState((prev) => ({
       ...prev,
       isGenerating: true,
@@ -81,34 +104,60 @@ const TryOn = () => {
     formData.append("category", tryOnState.category);
 
     try {
-      const response = await fetch(API_URL, { method: "POST", body: formData });
+      const response = await fetch(API_URL, {
+        method: "POST",
+        body: formData,
+      });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Erro no servidor");
-      }
+      if (response.ok) {
+        const contentType = response.headers.get("Content-Type") || "";
 
-      const data = await response.json();
+        if (contentType.includes("application/json")) {
+          const data = await response.json();
+          const finalUrl =
+            data.url ||
+            (data.image ? `data:image/png;base64,${data.image}` : null);
 
-      // Verifica se veio URL ou Base64
-      const finalUrl =
-        data.url || (data.image ? `data:image/png;base64,${data.image}` : null);
-
-      if (finalUrl) {
-        setTryOnState((prev) => ({
-          ...prev,
-          isGenerating: false,
-          resultImage: finalUrl,
-        }));
+          if (finalUrl) {
+            setTryOnState((prev) => ({
+              ...prev,
+              isGenerating: false,
+              resultImage: finalUrl,
+            }));
+          } else {
+            throw new Error(data.error || "Imagem inválida retornada pela IA");
+          }
+        } else if (
+          contentType.includes("image") ||
+          contentType.includes("octet-stream")
+        ) {
+          const blob = await response.blob();
+          const imageUrl = URL.createObjectURL(blob);
+          setTryOnState((prev) => ({
+            ...prev,
+            isGenerating: false,
+            resultImage: imageUrl,
+          }));
+        } else {
+          const text = await response.text();
+          throw new Error(`Resposta inesperada: ${text.substring(0, 50)}...`);
+        }
       } else {
-        throw new Error("Imagem inválida retornada pela IA");
+        let errorMessage = "Erro no servidor Django. Tente novamente.";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.details || errorMessage;
+        } catch (e) {
+          // Ignora se não for JSON e usa a mensagem padrão
+        }
+        throw new Error(errorMessage);
       }
     } catch (error: any) {
-      console.error(error);
+      console.error("Erro no Try-On:", error);
       setTryOnState((prev) => ({
         ...prev,
         isGenerating: false,
-        error: error.message || "Falha ao conectar com o servidor.",
+        error: error.message || "Falha na comunicação com o servidor.",
       }));
     }
   };
@@ -119,12 +168,17 @@ const TryOn = () => {
       userFile: null,
       clothImage: null,
       clothFile: null,
-      category: "upper_body",
+      category: "t-shirt",
       isGenerating: false,
       resultImage: null,
       error: null,
     });
 
+  const selectedCategory = CLOTHING_TYPES.find(
+    (c) => c.id === tryOnState.category
+  );
+
+  // --- RENDERIZAÇÃO JSX ---
   return (
     <div className="animate-fade-in h-[calc(100vh-140px)]">
       <div className="flex justify-between items-center mb-6">
@@ -176,6 +230,9 @@ const TryOn = () => {
                 <div className="absolute top-3 right-3 bg-white p-1 rounded-full shadow-sm">
                   <Check className="text-green-600" size={16} />
                 </div>
+                <div className="absolute bottom-3 bg-white/80 px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm shadow-sm">
+                  Trocar Foto
+                </div>
               </>
             ) : (
               <div className="text-center p-6">
@@ -183,6 +240,9 @@ const TryOn = () => {
                   <Upload className="text-slate-400" />
                 </div>
                 <p className="font-bold text-slate-700">1. Sua Foto</p>
+                <p className="text-xs text-slate-400 mt-1">
+                  Clique para enviar arquivo
+                </p>
               </div>
             )}
           </div>
@@ -206,6 +266,9 @@ const TryOn = () => {
                 <div className="absolute top-3 right-3 bg-white p-1 rounded-full shadow-sm">
                   <Check className="text-green-600" size={16} />
                 </div>
+                <div className="absolute bottom-3 bg-white/80 px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm shadow-sm">
+                  Trocar Roupa
+                </div>
               </>
             ) : (
               <div className="text-center p-6">
@@ -213,43 +276,48 @@ const TryOn = () => {
                   <Shirt className="text-slate-400" />
                 </div>
                 <p className="font-bold text-slate-700">2. A Peça</p>
+                <p className="text-xs text-slate-400 mt-1">
+                  Clique para enviar arquivo
+                </p>
               </div>
             )}
           </div>
 
-          {/* Categoria */}
+          {/* NOVO SELETOR DE CATEGORIA DETALHADA */}
           <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
             <div className="flex items-center gap-2 mb-3 text-slate-700 font-bold text-sm">
-              <Layers size={16} className="text-purple-600" /> O que é a peça?
+              <Layers size={16} className="text-purple-600" /> 3. Tipo de Peça:{" "}
+              {selectedCategory?.label}
             </div>
-            <div className="flex gap-2">
-              {["upper_body", "lower_body", "dresses"].map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() =>
-                    setTryOnState((prev) => ({ ...prev, category: cat }))
-                  }
-                  className={`flex-1 py-2 rounded-lg text-xs font-bold transition border ${
-                    tryOnState.category === cat
-                      ? "bg-slate-900 text-white border-slate-900"
-                      : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
-                  }`}
-                >
-                  {cat === "upper_body"
-                    ? "Parte de Cima"
-                    : cat === "lower_body"
-                    ? "Parte de Baixo"
-                    : "Vestido"}
-                </button>
-              ))}
+
+            <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+              {CLOTHING_TYPES.map((type) => {
+                const IconComponent = type.icon;
+                return (
+                  <button
+                    key={type.id}
+                    onClick={() =>
+                      setTryOnState((prev) => ({ ...prev, category: type.id }))
+                    }
+                    className={`py-2 px-3 rounded-lg text-xs font-bold transition border ${
+                      tryOnState.category === type.id
+                        ? "bg-slate-900 text-white border-slate-900"
+                        : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                    } flex items-center gap-1`}
+                  >
+                    <IconComponent size={14} /> {type.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
+          {/* Botão Gerar */}
           <button
             onClick={handleGenerate}
             disabled={
-              !tryOnState.userImage ||
-              !tryOnState.clothImage ||
+              !tryOnState.userFile ||
+              !tryOnState.clothFile ||
               tryOnState.isGenerating
             }
             className={`w-full py-4 rounded-xl font-bold text-white flex items-center justify-center gap-2 transition-all ${
@@ -262,7 +330,8 @@ const TryOn = () => {
           >
             {tryOnState.isGenerating ? (
               <>
-                <RefreshCw className="animate-spin" size={20} /> Processando...
+                <RefreshCw className="animate-spin" size={20} /> Processando
+                IA...
               </>
             ) : (
               <>
@@ -278,6 +347,7 @@ const TryOn = () => {
           )}
         </div>
 
+        {/* Resultado */}
         <div className="col-span-7 bg-slate-100 rounded-3xl relative overflow-hidden border border-slate-200 flex items-center justify-center">
           {tryOnState.resultImage ? (
             <div className="relative w-full h-full group">
@@ -305,8 +375,11 @@ const TryOn = () => {
                 <Sparkles className="text-purple-300" size={32} />
               </div>
               <h4 className="font-bold text-slate-400 text-lg">
-                Aguardando Uploads
+                4. Gerar o Resultado
               </h4>
+              <p className="text-sm text-slate-400 mt-2">
+                Selecione as imagens e o tipo de peça para começar.
+              </p>
             </div>
           )}
         </div>

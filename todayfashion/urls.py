@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from api.views import FrontendAppView
@@ -23,7 +23,7 @@ from api.views import FrontendAppView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
-    path('', FrontendAppView.as_view(), name="frontend"),
+    re_path(r'.*', FrontendAppView.as_view(), name="frontend"),
 ]
 
 # Adiciona os arquivos estáticos do Vite (JS, CSS, imagens)
