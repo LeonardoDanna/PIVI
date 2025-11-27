@@ -8,30 +8,50 @@ import {
   Layers,
   Share2,
   Download,
-  // Ícones específicos para as novas categorias
-  Scissors, // Para peças de baixo/vestidos
-  Sun, // Para shorts
-  Heart, // Para blusa feminina
-  Package, // Para jaqueta/casaco
-  Archive, // Para moletom
+  Scissors,
+  Sun,
+  Heart,
+  Package,
+  Archive,
+  X,
+  LayoutGrid,
 } from "lucide-react";
+import { getCookie } from "../utils/cookie";
 
-// --- URL CORRIGIDA ---
+// --- URL DA API ---
 const API_URL = "/api/try-on-diffusion/";
+const CLOSET_API_URL = "/api/closet/";
 
-const CLOTHING_TYPES = [
-  { id: "t-shirt", label: "Camiseta", icon: Shirt },
-  { id: "shirt", label: "Camisa Social", icon: Shirt },
-  { id: "blouse", label: "Blusa Feminina", icon: Heart },
-  { id: "sweatshirt", label: "Moletom/Suéter", icon: Archive },
-  { id: "jacket", label: "Jaqueta/Casaco", icon: Package },
-  { id: "pants", label: "Calça", icon: Layers },
-  { id: "shorts", label: "Shorts", icon: Sun },
-  { id: "skirt", label: "Saia", icon: Scissors },
-  { id: "dress", label: "Vestido", icon: Scissors },
+// --- Tipos ---
+interface ClothingType {
+  id: string;
+  label: string;
+  icon: React.ElementType;
+  closetCategory: "head" | "top" | "bottom" | "feet";
+}
+
+const CLOTHING_TYPES: ClothingType[] = [
+  { id: "t-shirt", label: "Camiseta", icon: Shirt, closetCategory: "top" },
+  { id: "shirt", label: "Camisa Social", icon: Shirt, closetCategory: "top" },
+  { id: "blouse", label: "Blusa Feminina", icon: Heart, closetCategory: "top" },
+  {
+    id: "sweatshirt",
+    label: "Moletom/Suéter",
+    icon: Archive,
+    closetCategory: "top",
+  },
+  {
+    id: "jacket",
+    label: "Jaqueta/Casaco",
+    icon: Package,
+    closetCategory: "top",
+  },
+  { id: "pants", label: "Calça", icon: Layers, closetCategory: "bottom" },
+  { id: "shorts", label: "Shorts", icon: Sun, closetCategory: "bottom" },
+  { id: "skirt", label: "Saia", icon: Scissors, closetCategory: "bottom" },
+  { id: "dress", label: "Vestido", icon: Scissors, closetCategory: "top" },
 ];
 
-// --- INTERFACES E ESTADO ---
 interface TryOnState {
   userImage: string | null;
   userFile: File | null;
@@ -43,6 +63,13 @@ interface TryOnState {
   error: string | null;
 }
 
+interface ClosetItem {
+  id: number;
+  name: string;
+  image: string;
+  category: "head" | "top" | "bottom" | "feet";
+}
+
 const TryOn = () => {
   const userFileInputRef = useRef<HTMLInputElement>(null);
   const clothFileInputRef = useRef<HTMLInputElement>(null);
@@ -52,13 +79,62 @@ const TryOn = () => {
     userFile: null,
     clothImage: null,
     clothFile: null,
-    category: "t-shirt", // Novo padrão inicial
+    category: "t-shirt",
     isGenerating: false,
     resultImage: null,
     error: null,
   });
 
-  // --- FUNÇÕES DE UPLOAD (Inalteradas) ---
+  // Estados para o Seletor de Closet
+  const [showClosetModal, setShowClosetModal] = useState(false);
+  const [closetItems, setClosetItems] = useState<ClosetItem[]>([]);
+  const [isLoadingCloset, setIsLoadingCloset] = useState(false);
+
+  // --- CARREGAR CLOSET ---
+  const fetchCloset = async () => {
+    setIsLoadingCloset(true);
+    try {
+      const res = await fetch(CLOSET_API_URL);
+      if (res.ok) {
+        const data = await res.json();
+        setClosetItems(data);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar closet", error);
+    } finally {
+      setIsLoadingCloset(false);
+    }
+  };
+
+  // Ao abrir o modal, carrega as roupas se ainda não tiver
+  const handleOpenClosetSelector = () => {
+    if (closetItems.length === 0) fetchCloset();
+    setShowClosetModal(true);
+  };
+
+  // Selecionar item do Closet
+  const handleSelectClosetItem = async (item: ClosetItem) => {
+    try {
+      // Converte a URL da imagem em um objeto File para a API de TryOn aceitar
+      const response = await fetch(item.image);
+      const blob = await response.blob();
+      const file = new File([blob], item.name + ".jpg", { type: blob.type });
+
+      // Atualiza o estado como se fosse um upload manual
+      setTryOnState((prev) => ({
+        ...prev,
+        clothImage: item.image,
+        clothFile: file,
+        error: null,
+      }));
+      setShowClosetModal(false);
+    } catch (error) {
+      console.error("Erro ao processar imagem do closet", error);
+      alert("Erro ao carregar a imagem deste item.");
+    }
+  };
+
+  // --- UPLOAD MANUAL ---
   const handleFileUpload = (
     event: React.ChangeEvent<HTMLInputElement>,
     type: "user" | "cloth"
@@ -66,10 +142,7 @@ const TryOn = () => {
     const file = event.target.files?.[0];
     if (file) {
       const previewUrl = URL.createObjectURL(file);
-      const newState = {
-        ...tryOnState,
-        error: null,
-      };
+      const newState = { ...tryOnState, error: null };
 
       if (type === "user") {
         newState.userImage = previewUrl;
@@ -84,10 +157,6 @@ const TryOn = () => {
     }
   };
 
-  const triggerUserUpload = () => userFileInputRef.current?.click();
-  const triggerClothUpload = () => clothFileInputRef.current?.click();
-
-  // --- FUNÇÃO PRINCIPAL DE GERAÇÃO (Usa a URL Corrigida) ---
   const handleGenerate = async () => {
     if (!tryOnState.userFile || !tryOnState.clothFile) return;
 
@@ -104,8 +173,16 @@ const TryOn = () => {
     formData.append("category", tryOnState.category);
 
     try {
+      // 1. Busca o CSRF
+      await fetch("/api/csrf/");
+      const csrftoken = getCookie("csrftoken");
+
       const response = await fetch(API_URL, {
         method: "POST",
+        // 2. Adiciona o Header de Segurança (CORREÇÃO DO 403)
+        headers: {
+          "X-CSRFToken": csrftoken || "",
+        },
         body: formData,
       });
 
@@ -117,7 +194,6 @@ const TryOn = () => {
           const finalUrl =
             data.url ||
             (data.image ? `data:image/png;base64,${data.image}` : null);
-
           if (finalUrl) {
             setTryOnState((prev) => ({
               ...prev,
@@ -140,16 +216,16 @@ const TryOn = () => {
           }));
         } else {
           const text = await response.text();
-          throw new Error(`Resposta inesperada: ${text.substring(0, 50)}...`);
+          throw new Error(
+            `Resposta inesperada do servidor: ${text.slice(0, 50)}`
+          );
         }
       } else {
-        let errorMessage = "Erro no servidor Django. Tente novamente.";
+        let errorMessage = "Erro no servidor Django.";
         try {
           const errorData = await response.json();
           errorMessage = errorData.error || errorData.details || errorMessage;
-        } catch (e) {
-          // Ignora se não for JSON e usa a mensagem padrão
-        }
+        } catch {}
         throw new Error(errorMessage);
       }
     } catch (error: any) {
@@ -157,7 +233,7 @@ const TryOn = () => {
       setTryOnState((prev) => ({
         ...prev,
         isGenerating: false,
-        error: error.message || "Falha na comunicação com o servidor.",
+        error: error.message || "Falha na comunicação.",
       }));
     }
   };
@@ -174,13 +250,74 @@ const TryOn = () => {
       error: null,
     });
 
-  const selectedCategory = CLOTHING_TYPES.find(
+  // Filtra itens do closet baseado na categoria selecionada atualmente
+  const currentCategoryInfo = CLOTHING_TYPES.find(
     (c) => c.id === tryOnState.category
   );
+  const filteredClosetItems = closetItems.filter(
+    (item) => item.category === currentCategoryInfo?.closetCategory
+  );
 
-  // --- RENDERIZAÇÃO JSX ---
   return (
-    <div className="animate-fade-in h-[calc(100vh-140px)]">
+    <div className="animate-fade-in h-[calc(100vh-140px)] relative">
+      {/* MODAL DE SELEÇÃO DO CLOSET */}
+      {showClosetModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in bg-black/30">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl h-[80vh] flex flex-col border border-slate-200">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+              <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                <LayoutGrid className="text-purple-600" /> Selecionar do Armário
+              </h3>
+              <button
+                onClick={() => setShowClosetModal(false)}
+                className="p-2 hover:bg-slate-100 rounded-full"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar bg-slate-50">
+              {isLoadingCloset ? (
+                <div className="flex justify-center py-20 text-slate-400">
+                  <RefreshCw className="animate-spin" />
+                </div>
+              ) : filteredClosetItems.length === 0 ? (
+                <div className="text-center py-20 text-slate-400">
+                  <p>
+                    Nenhuma peça encontrada para a categoria{" "}
+                    <strong>{currentCategoryInfo?.closetCategory}</strong>.
+                  </p>
+                  <p className="text-xs mt-2">
+                    Adicione roupas no seu Armário Virtual primeiro.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
+                  {filteredClosetItems.map((item) => (
+                    <div
+                      key={item.id}
+                      onClick={() => handleSelectClosetItem(item)}
+                      className="cursor-pointer group bg-white rounded-xl p-2 border border-slate-200 hover:border-purple-500 hover:shadow-md transition-all"
+                    >
+                      <div className="aspect-square rounded-lg overflow-hidden mb-2 bg-slate-100">
+                        <img
+                          src={item.image}
+                          className="w-full h-full object-cover"
+                          alt={item.name}
+                        />
+                      </div>
+                      <p className="text-xs font-bold text-slate-700 truncate">
+                        {item.name}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
           <Sparkles className="text-purple-600" size={24} /> Provador IA
@@ -213,7 +350,7 @@ const TryOn = () => {
         <div className="col-span-5 flex flex-col gap-6">
           {/* Upload User */}
           <div
-            onClick={triggerUserUpload}
+            onClick={() => userFileInputRef.current?.click()}
             className={`flex-1 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center cursor-pointer transition-all relative overflow-hidden group ${
               tryOnState.userImage
                 ? "border-purple-500 bg-purple-50"
@@ -230,9 +367,6 @@ const TryOn = () => {
                 <div className="absolute top-3 right-3 bg-white p-1 rounded-full shadow-sm">
                   <Check className="text-green-600" size={16} />
                 </div>
-                <div className="absolute bottom-3 bg-white/80 px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm shadow-sm">
-                  Trocar Foto
-                </div>
               </>
             ) : (
               <div className="text-center p-6">
@@ -240,56 +374,75 @@ const TryOn = () => {
                   <Upload className="text-slate-400" />
                 </div>
                 <p className="font-bold text-slate-700">1. Sua Foto</p>
-                <p className="text-xs text-slate-400 mt-1">
-                  Clique para enviar arquivo
-                </p>
               </div>
             )}
           </div>
 
-          {/* Upload Cloth */}
+          {/* --- SELEÇÃO DA PEÇA --- */}
           <div
-            onClick={triggerClothUpload}
-            className={`flex-1 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center cursor-pointer transition-all relative overflow-hidden group ${
+            className={`flex-1 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center transition-all relative overflow-hidden group ${
               tryOnState.clothImage
                 ? "border-purple-500 bg-purple-50"
-                : "border-slate-300 hover:border-slate-400 hover:bg-slate-50"
+                : "border-slate-300"
             }`}
           >
             {tryOnState.clothImage ? (
-              <>
+              <div
+                onClick={() =>
+                  setTryOnState((p) => ({
+                    ...p,
+                    clothImage: null,
+                    clothFile: null,
+                  }))
+                }
+                className="cursor-pointer w-full h-full relative"
+              >
                 <img
                   src={tryOnState.clothImage}
-                  className="absolute inset-0 w-full h-full object-contain p-2 opacity-90 group-hover:opacity-100 transition bg-slate-50"
+                  className="absolute inset-0 w-full h-full object-contain p-2 opacity-90 hover:opacity-100 transition bg-slate-50"
                   alt="Cloth Preview"
                 />
                 <div className="absolute top-3 right-3 bg-white p-1 rounded-full shadow-sm">
                   <Check className="text-green-600" size={16} />
                 </div>
-                <div className="absolute bottom-3 bg-white/80 px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm shadow-sm">
-                  Trocar Roupa
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 bg-black/20 transition text-white font-bold">
+                  Trocar
                 </div>
-              </>
+              </div>
             ) : (
-              <div className="text-center p-6">
-                <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto mb-3">
+              <div className="text-center p-6 w-full flex flex-col gap-3">
+                <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto">
                   <Shirt className="text-slate-400" />
                 </div>
                 <p className="font-bold text-slate-700">2. A Peça</p>
-                <p className="text-xs text-slate-400 mt-1">
-                  Clique para enviar arquivo
-                </p>
+
+                <div className="flex gap-2 justify-center w-full px-4">
+                  {/* Opção 1: Upload do Computador */}
+                  <button
+                    onClick={() => clothFileInputRef.current?.click()}
+                    className="flex-1 py-2 px-3 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 flex items-center justify-center gap-2"
+                  >
+                    <Upload size={14} /> Upload
+                  </button>
+
+                  {/* Opção 2: Selecionar do Armário */}
+                  <button
+                    onClick={handleOpenClosetSelector}
+                    className="flex-1 py-2 px-3 bg-purple-50 border border-purple-200 rounded-lg text-xs font-bold text-purple-700 hover:bg-purple-100 flex items-center justify-center gap-2"
+                  >
+                    <LayoutGrid size={14} /> Armário
+                  </button>
+                </div>
               </div>
             )}
           </div>
 
-          {/* NOVO SELETOR DE CATEGORIA DETALHADA */}
+          {/* Seletor de Categoria */}
           <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
             <div className="flex items-center gap-2 mb-3 text-slate-700 font-bold text-sm">
               <Layers size={16} className="text-purple-600" /> 3. Tipo de Peça:{" "}
-              {selectedCategory?.label}
+              {currentCategoryInfo?.label}
             </div>
-
             <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
               {CLOTHING_TYPES.map((type) => {
                 const IconComponent = type.icon;
@@ -312,7 +465,6 @@ const TryOn = () => {
             </div>
           </div>
 
-          {/* Botão Gerar */}
           <button
             onClick={handleGenerate}
             disabled={
@@ -347,7 +499,6 @@ const TryOn = () => {
           )}
         </div>
 
-        {/* Resultado */}
         <div className="col-span-7 bg-slate-100 rounded-3xl relative overflow-hidden border border-slate-200 flex items-center justify-center">
           {tryOnState.resultImage ? (
             <div className="relative w-full h-full group">

@@ -1,14 +1,6 @@
 // src/components/Sidebar.tsx
 import { NavLink } from "react-router-dom";
-import {
-  Sun,
-  Package,
-  User,
-  Ruler,
-  TrendingUp,
-  Sparkles,
-  LogOut,
-} from "lucide-react";
+import { Sun, Package, User, Ruler, Sparkles, LogOut } from "lucide-react";
 
 const Sidebar = () => {
   const menuItems = [
@@ -16,7 +8,6 @@ const Sidebar = () => {
     { path: "/closet", label: "Armário Virtual", icon: <Package size={20} /> },
     { path: "/matches", label: "Combinações", icon: <User size={20} /> },
     { path: "/fit", label: "Guia de Caimento", icon: <Ruler size={20} /> },
-    { path: "/stylist", label: "Stylist AI", icon: <TrendingUp size={20} /> },
     { path: "/tryon", label: "Provador Virtual", icon: <Sparkles size={20} /> },
   ];
 
@@ -61,11 +52,13 @@ const Sidebar = () => {
       </nav>
 
       <div className="p-4 border-t border-slate-100">
-        <button onClick={() =>{ 
-          localStorage.removeItem("loggedUser")
-          window.location.href = "/login";
-          }} 
-          className="w-full flex items-center gap-3 p-3 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-600 transition text-sm font-medium">
+        <button
+          onClick={() => {
+            localStorage.removeItem("loggedUser");
+            window.location.href = "/login";
+          }}
+          className="w-full flex items-center gap-3 p-3 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-600 transition text-sm font-medium"
+        >
           <LogOut size={18} /> Sair
         </button>
       </div>
