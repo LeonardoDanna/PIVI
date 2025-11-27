@@ -25,5 +25,6 @@ class RegisterSerializer(serializers.ModelSerializer):
 class ClothingItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClothingItem
-        fields = ['id', 'name', 'category', 'size', 'color', 'image']
+        # Adicione 'subcategory' na lista
+        fields = ['id', 'name', 'category', 'subcategory', 'size', 'color', 'image']
         read_only_fields = ['id']

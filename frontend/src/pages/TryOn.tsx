@@ -15,6 +15,9 @@ import {
   Archive,
   X,
   LayoutGrid,
+  Footprints,
+  HardHat,
+  Glasses,
 } from "lucide-react";
 import { getCookie } from "../utils/cookie";
 
@@ -30,26 +33,36 @@ interface ClothingType {
   closetCategory: "head" | "top" | "bottom" | "feet";
 }
 
+// Lista expandida e completa de tipos de roupa
 const CLOTHING_TYPES: ClothingType[] = [
+  // --- Tronco (Top) ---
   { id: "t-shirt", label: "Camiseta", icon: Shirt, closetCategory: "top" },
   { id: "shirt", label: "Camisa Social", icon: Shirt, closetCategory: "top" },
-  { id: "blouse", label: "Blusa Feminina", icon: Heart, closetCategory: "top" },
-  {
-    id: "sweatshirt",
-    label: "Moletom/Suéter",
-    icon: Archive,
-    closetCategory: "top",
-  },
-  {
-    id: "jacket",
-    label: "Jaqueta/Casaco",
-    icon: Package,
-    closetCategory: "top",
-  },
+  { id: "blouse", label: "Blusa", icon: Heart, closetCategory: "top" },
+  { id: "sweatshirt", label: "Moletom", icon: Archive, closetCategory: "top" },
+  { id: "jacket", label: "Jaqueta", icon: Package, closetCategory: "top" },
+  { id: "dress", label: "Vestido", icon: Scissors, closetCategory: "top" }, // Vestido é tratado como corpo inteiro/top pela IA
+
+  // --- Pernas (Bottom) ---
   { id: "pants", label: "Calça", icon: Layers, closetCategory: "bottom" },
   { id: "shorts", label: "Shorts", icon: Sun, closetCategory: "bottom" },
   { id: "skirt", label: "Saia", icon: Scissors, closetCategory: "bottom" },
-  { id: "dress", label: "Vestido", icon: Scissors, closetCategory: "top" },
+
+  // --- Pés (Feet) ---
+  { id: "sneakers", label: "Tênis", icon: Footprints, closetCategory: "feet" },
+  { id: "boots", label: "Bota", icon: Footprints, closetCategory: "feet" },
+  { id: "shoes", label: "Sapato", icon: Footprints, closetCategory: "feet" },
+  {
+    id: "sandals",
+    label: "Sandália",
+    icon: Footprints,
+    closetCategory: "feet",
+  },
+
+  // --- Cabeça (Head) ---
+  { id: "cap", label: "Boné", icon: HardHat, closetCategory: "head" },
+  { id: "hat", label: "Chapéu", icon: HardHat, closetCategory: "head" },
+  { id: "glasses", label: "Óculos", icon: Glasses, closetCategory: "head" },
 ];
 
 interface TryOnState {
@@ -68,6 +81,7 @@ interface ClosetItem {
   name: string;
   image: string;
   category: "head" | "top" | "bottom" | "feet";
+  subcategory?: string;
 }
 
 const TryOn = () => {
@@ -106,31 +120,45 @@ const TryOn = () => {
     }
   };
 
-  // Ao abrir o modal, carrega as roupas se ainda não tiver
   const handleOpenClosetSelector = () => {
     if (closetItems.length === 0) fetchCloset();
     setShowClosetModal(true);
   };
 
-  // Selecionar item do Closet
+  // --- SELECIONAR ITEM DO CLOSET ---
   const handleSelectClosetItem = async (item: ClosetItem) => {
     try {
-      // Converte a URL da imagem em um objeto File para a API de TryOn aceitar
+      // 1. Converte URL para File
       const response = await fetch(item.image);
       const blob = await response.blob();
       const file = new File([blob], item.name + ".jpg", { type: blob.type });
 
-      // Atualiza o estado como se fosse um upload manual
+      // 2. Ajusta a categoria do TryOn automaticamente
+      let aiCategory = "t-shirt";
+
+      // Se o item do closet tem subcategoria (ex: 'jacket'), usa ela.
+      if (item.subcategory) {
+        // Verifica se essa subcategoria existe na lista de tipos do TryOn
+        const match = CLOTHING_TYPES.find((t) => t.id === item.subcategory);
+        if (match) aiCategory = match.id;
+      } else {
+        // Fallback genérico se for item antigo sem subcategoria
+        if (item.category === "bottom") aiCategory = "pants";
+        if (item.category === "feet") aiCategory = "sneakers";
+        if (item.category === "head") aiCategory = "cap";
+      }
+
       setTryOnState((prev) => ({
         ...prev,
         clothImage: item.image,
         clothFile: file,
+        category: aiCategory, // Categoria ajustada automaticamente
         error: null,
       }));
       setShowClosetModal(false);
     } catch (error) {
-      console.error("Erro ao processar imagem do closet", error);
-      alert("Erro ao carregar a imagem deste item.");
+      console.error("Erro ao processar imagem", error);
+      alert("Erro ao carregar item.");
     }
   };
 
@@ -157,6 +185,7 @@ const TryOn = () => {
     }
   };
 
+  // --- GERAR PROVADOR ---
   const handleGenerate = async () => {
     if (!tryOnState.userFile || !tryOnState.clothFile) return;
 
@@ -173,13 +202,11 @@ const TryOn = () => {
     formData.append("category", tryOnState.category);
 
     try {
-      // 1. Busca o CSRF
       await fetch("/api/csrf/");
       const csrftoken = getCookie("csrftoken");
 
       const response = await fetch(API_URL, {
         method: "POST",
-        // 2. Adiciona o Header de Segurança (CORREÇÃO DO 403)
         headers: {
           "X-CSRFToken": csrftoken || "",
         },
@@ -250,13 +277,29 @@ const TryOn = () => {
       error: null,
     });
 
-  // Filtra itens do closet baseado na categoria selecionada atualmente
+  // --- FILTRAGEM ESTRITA DO MODAL ---
   const currentCategoryInfo = CLOTHING_TYPES.find(
     (c) => c.id === tryOnState.category
   );
-  const filteredClosetItems = closetItems.filter(
-    (item) => item.category === currentCategoryInfo?.closetCategory
-  );
+
+  const filteredClosetItems = closetItems.filter((item) => {
+    // 1. Primeiro verifica a macrotendência (top, bottom, feet, head)
+    if (item.category !== currentCategoryInfo?.closetCategory) return false;
+
+    // 2. Se o item tem subcategoria definida, ela DEVE bater com a selecionada no TryOn
+    // Ex: Se usuário escolheu 'jacket', só mostra itens com subcategory='jacket'
+    if (item.subcategory && item.subcategory !== "other") {
+      return item.subcategory === tryOnState.category;
+    }
+
+    // Itens sem subcategoria (legado) ou 'other' aparecem em todos da macro-categoria?
+    // Para limpar a visualização como você pediu, vamos esconder itens que não batem.
+    // Se o item não tem subcategoria definida (antigo), vamos permitir APENAS se for uma categoria padrão (ex: t-shirt)
+    // ou podemos optar por esconder para forçar organização.
+
+    // Vamos assumir Filtragem Rígida: Se não tem subcategoria ou não bate, não mostra.
+    return false;
+  });
 
   return (
     <div className="animate-fade-in h-[calc(100vh-140px)] relative">
@@ -283,12 +326,15 @@ const TryOn = () => {
                 </div>
               ) : filteredClosetItems.length === 0 ? (
                 <div className="text-center py-20 text-slate-400">
-                  <p>
-                    Nenhuma peça encontrada para a categoria{" "}
-                    <strong>{currentCategoryInfo?.closetCategory}</strong>.
+                  <p className="mb-2 text-4xl">📭</p>
+                  <p className="font-medium text-slate-600">
+                    Nenhuma peça do tipo{" "}
+                    <strong>{currentCategoryInfo?.label}</strong> encontrada.
                   </p>
-                  <p className="text-xs mt-2">
-                    Adicione roupas no seu Armário Virtual primeiro.
+                  <p className="text-xs mt-2 text-slate-400 max-w-xs mx-auto">
+                    Cadastre roupas no Armário com a categoria{" "}
+                    <strong>{currentCategoryInfo?.label}</strong> para vê-las
+                    aqui.
                   </p>
                 </div>
               ) : (
@@ -299,15 +345,24 @@ const TryOn = () => {
                       onClick={() => handleSelectClosetItem(item)}
                       className="cursor-pointer group bg-white rounded-xl p-2 border border-slate-200 hover:border-purple-500 hover:shadow-md transition-all"
                     >
-                      <div className="aspect-square rounded-lg overflow-hidden mb-2 bg-slate-100">
+                      <div className="aspect-square rounded-lg overflow-hidden mb-2 bg-slate-100 relative">
                         <img
                           src={item.image}
                           className="w-full h-full object-cover"
                           alt={item.name}
                         />
+                        {/* Hover Overlay */}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                       </div>
                       <p className="text-xs font-bold text-slate-700 truncate">
                         {item.name}
+                      </p>
+                      <p className="text-[10px] text-slate-400 truncate capitalize">
+                        {item.subcategory
+                          ? CLOTHING_TYPES.find(
+                              (t) => t.id === item.subcategory
+                            )?.label || item.subcategory
+                          : item.category}
                       </p>
                     </div>
                   ))}
@@ -318,6 +373,7 @@ const TryOn = () => {
         </div>
       )}
 
+      {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
           <Sparkles className="text-purple-600" size={24} /> Provador IA
@@ -348,7 +404,7 @@ const TryOn = () => {
 
       <div className="grid grid-cols-12 gap-8 h-[90%]">
         <div className="col-span-5 flex flex-col gap-6">
-          {/* Upload User */}
+          {/* 1. UPLOAD FOTO USUÁRIO */}
           <div
             onClick={() => userFileInputRef.current?.click()}
             className={`flex-1 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center cursor-pointer transition-all relative overflow-hidden group ${
@@ -378,7 +434,7 @@ const TryOn = () => {
             )}
           </div>
 
-          {/* --- SELEÇÃO DA PEÇA --- */}
+          {/* 2. SELEÇÃO DA PEÇA */}
           <div
             className={`flex-1 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center transition-all relative overflow-hidden group ${
               tryOnState.clothImage
@@ -417,7 +473,6 @@ const TryOn = () => {
                 <p className="font-bold text-slate-700">2. A Peça</p>
 
                 <div className="flex gap-2 justify-center w-full px-4">
-                  {/* Opção 1: Upload do Computador */}
                   <button
                     onClick={() => clothFileInputRef.current?.click()}
                     className="flex-1 py-2 px-3 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 flex items-center justify-center gap-2"
@@ -425,7 +480,6 @@ const TryOn = () => {
                     <Upload size={14} /> Upload
                   </button>
 
-                  {/* Opção 2: Selecionar do Armário */}
                   <button
                     onClick={handleOpenClosetSelector}
                     className="flex-1 py-2 px-3 bg-purple-50 border border-purple-200 rounded-lg text-xs font-bold text-purple-700 hover:bg-purple-100 flex items-center justify-center gap-2"
@@ -437,7 +491,7 @@ const TryOn = () => {
             )}
           </div>
 
-          {/* Seletor de Categoria */}
+          {/* 3. TIPO DE PEÇA (Botões de Categoria) */}
           <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
             <div className="flex items-center gap-2 mb-3 text-slate-700 font-bold text-sm">
               <Layers size={16} className="text-purple-600" /> 3. Tipo de Peça:{" "}
@@ -499,6 +553,7 @@ const TryOn = () => {
           )}
         </div>
 
+        {/* 4. RESULTADO (Coluna Direita) */}
         <div className="col-span-7 bg-slate-100 rounded-3xl relative overflow-hidden border border-slate-200 flex items-center justify-center">
           {tryOnState.resultImage ? (
             <div className="relative w-full h-full group">

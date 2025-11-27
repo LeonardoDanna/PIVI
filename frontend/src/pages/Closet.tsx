@@ -22,6 +22,39 @@ import { getCookie } from "../utils/cookie";
 // --- Interfaces TypeScript ---
 type CategoryKey = "head" | "top" | "bottom" | "feet";
 
+// --- 1. DEFINIÇÃO DAS SUBCATEGORIAS (O que faltava) ---
+const SUBCATEGORIES: Record<CategoryKey, { value: string; label: string }[]> = {
+  head: [
+    { value: "cap", label: "Boné" },
+    { value: "hat", label: "Chapéu" },
+    { value: "beanie", label: "Gorro" },
+    { value: "glasses", label: "Óculos" },
+    { value: "other", label: "Outro" },
+  ],
+  top: [
+    { value: "t-shirt", label: "Camiseta" },
+    { value: "shirt", label: "Camisa Social" },
+    { value: "sweatshirt", label: "Moletom/Suéter" },
+    { value: "jacket", label: "Jaqueta/Casaco" },
+    { value: "blouse", label: "Blusa" },
+    { value: "dress", label: "Vestido" },
+    { value: "other", label: "Outro" },
+  ],
+  bottom: [
+    { value: "pants", label: "Calça" },
+    { value: "shorts", label: "Shorts/Bermuda" },
+    { value: "skirt", label: "Saia" },
+    { value: "other", label: "Outro" },
+  ],
+  feet: [
+    { value: "sneakers", label: "Tênis" },
+    { value: "boots", label: "Bota" },
+    { value: "shoes", label: "Sapato Social" },
+    { value: "sandals", label: "Sandália" },
+    { value: "other", label: "Outro" },
+  ],
+};
+
 interface ClosetItem {
   id: string | number;
   name: string;
@@ -29,6 +62,7 @@ interface ClosetItem {
   color?: string;
   image: string;
   category?: CategoryKey;
+  subcategory?: string; // Novo campo vindo do back
 }
 
 interface ClosetData {
@@ -133,10 +167,12 @@ const Closet = () => {
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
+  // --- 2. ESTADO ATUALIZADO COM SUBCATEGORIA ---
   const [newItemMetadata, setNewItemMetadata] = useState({
     name: "",
     size: "",
     color: "#000000",
+    subcategory: "",
   });
 
   const categories: CategoryKey[] = ["head", "top", "bottom", "feet"];
@@ -195,9 +231,10 @@ const Closet = () => {
     const isHot = weather.temp >= 25;
 
     const suitableBottoms = closetItems.bottom.filter((item) => {
-      const name = item.name.toLowerCase();
-      if (isHot) return name.includes("shorts") || name.includes("bermuda");
-      return !name.includes("shorts") && !name.includes("bermuda");
+      // Usando subcategoria para filtrar se disponível
+      const type = item.subcategory || "";
+      if (isHot) return type === "shorts" || type === "skirt";
+      return type === "pants";
     });
     const poolBottom =
       suitableBottoms.length > 0 ? suitableBottoms : closetItems.bottom;
@@ -298,16 +335,20 @@ const Closet = () => {
         if (e.target?.result) {
           setPendingImagePreview(e.target.result as string);
 
-          // Define tamanho padrão baseado na categoria
+          // Defaults
           let defaultSize = "M";
           if (uploadCategory === "feet") defaultSize = "38";
           if (uploadCategory === "bottom") defaultSize = "40";
           if (uploadCategory === "head") defaultSize = "U";
 
+          // 3. PEGAR O PRIMEIRO SUBTIPO DISPONÍVEL COMO PADRÃO
+          const defaultSub = SUBCATEGORIES[uploadCategory][0].value;
+
           setNewItemMetadata({
             name: file.name.split(".")[0].substring(0, 20),
             size: defaultSize,
             color: "#000000",
+            subcategory: defaultSub, // Define padrão
           });
           setShowUploadModal(true);
         }
@@ -328,6 +369,8 @@ const Closet = () => {
       const formData = new FormData();
       formData.append("name", newItemMetadata.name || "Item Sem Nome");
       formData.append("category", uploadCategory);
+      // 4. ENVIAR SUBCATEGORY
+      formData.append("subcategory", newItemMetadata.subcategory);
       formData.append("size", newItemMetadata.size);
       formData.append("color", newItemMetadata.color);
       formData.append("image", pendingFile);
@@ -484,14 +527,40 @@ const Closet = () => {
                   Cadastrar Peça
                 </h2>
                 <div className="flex-1 space-y-5 overflow-y-auto custom-scrollbar pr-2">
-                  <div>
-                    <label className="text-xs font-bold text-slate-400 uppercase">
-                      Categoria
-                    </label>
-                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 font-medium">
-                      {uploadCategory ? categoryLabels[uploadCategory] : ""}
+                  {/* 5. LINHA NOVA: CATEGORIA E TIPO (SUBCATEGORIA) */}
+                  <div className="flex gap-4">
+                    <div className="flex-1">
+                      <label className="text-xs font-bold text-slate-400 uppercase">
+                        Categoria
+                      </label>
+                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 font-medium text-sm text-slate-600">
+                        {uploadCategory ? categoryLabels[uploadCategory] : ""}
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <label className="text-xs font-bold text-slate-400 uppercase">
+                        Tipo
+                      </label>
+                      <select
+                        value={newItemMetadata.subcategory}
+                        onChange={(e) =>
+                          setNewItemMetadata({
+                            ...newItemMetadata,
+                            subcategory: e.target.value,
+                          })
+                        }
+                        className="w-full p-3 border-2 border-slate-200 rounded-xl bg-white"
+                      >
+                        {uploadCategory &&
+                          SUBCATEGORIES[uploadCategory].map((sub) => (
+                            <option key={sub.value} value={sub.value}>
+                              {sub.label}
+                            </option>
+                          ))}
+                      </select>
                     </div>
                   </div>
+
                   <div>
                     <label className="text-xs font-bold text-slate-400 uppercase">
                       Nome
@@ -509,6 +578,7 @@ const Closet = () => {
                       placeholder="Ex: Camiseta"
                     />
                   </div>
+
                   <div className="flex gap-4">
                     {/* SELEÇÃO DE TAMANHO DINÂMICA */}
                     <div className="w-28">
@@ -627,9 +697,8 @@ const Closet = () => {
             </div>
           </div>
         )}
-
+        {/* Resto do componente (listagem e preview) mantido igual */}
         <style>{`.custom-scrollbar::-webkit-scrollbar { height: 8px; width: 6px; } .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; } @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } } .animate-fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }`}</style>
-
         {/* --- COLUNA ESQUERDA (CLOSET) --- */}
         <div className="flex-1 space-y-6 min-w-0">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-2">
@@ -673,7 +742,6 @@ const Closet = () => {
             </div>
           </div>
 
-          {/* LOADING STATE */}
           {isLoadingItems ? (
             <div className="p-12 text-center text-slate-400 flex flex-col items-center">
               <Loader2 size={32} className="animate-spin mb-2" />
@@ -814,7 +882,6 @@ const Closet = () => {
             ))
           )}
         </div>
-
         {/* --- COLUNA DIREITA (PREVIEW) --- */}
         <div className="w-full lg:w-96 flex flex-col gap-4">
           <div className="bg-slate-900 text-white rounded-[2rem] p-6 flex flex-col min-h-[600px] sticky top-8 shadow-2xl ring-1 ring-white/10">
@@ -942,7 +1009,7 @@ const Closet = () => {
         </div>
       </div>
 
-      {/* --- HISTÓRICO --- */}
+      {/* --- HISTÓRICO (Visualização apenas, dados ainda no LocalStorage) --- */}
       {savedOutfits.length > 0 && (
         <div className="mt-8 pt-8 border-t border-slate-200">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">

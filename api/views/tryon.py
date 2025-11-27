@@ -7,69 +7,60 @@ from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.response import Response
 from rest_framework import status
-from api.utils.images import resize_image, enhance_output, gen_mask_from_clothing
 
-import requests, logging
-from django.conf import settings
-# ... (outros imports) ...
+# Importa as funções (mantemos a importação, mas vamos usar resize por enquanto)
+from api.utils.images import prepare_avatar_for_studio, resize_image
 
 logger = logging.getLogger(__name__)
 
-# =========================================================================
-# 1. PROMPTS ANCORADOS POR CATEGORIA E ESTILO DE ESTÚDIO
-# =========================================================================
+# ... (MANTENHA AS CONSTANTES STUDIO_BASE E PROMPTS_BY_TYPE IGUAIS) ...
+# Vou resumir aqui para não ficar gigante, mas você DEVE manter o dicionário PROMPTS_BY_TYPE
+# que te passei na resposta anterior.
 
-# Prompt base para o estilo de foto profissional (foco no fundo e iluminação)
-BASE_STYLE_PROMPT = ", photorealistic image, high-quality, studio white background, seamless, no shadows, no distracting elements, realistic fabric texture, perfectly fitted, high fashion editorial style"
+STUDIO_BASE = ", wearing the item, photorealistic, 8k, studio lighting, pure white background, seamless, no shadows, no distracting elements, realistic fabric texture, perfectly fitted, high fashion editorial style, sharp focus"
 
-# Dicionário agora inclui a CATEGORIA específica para ancorar a IA
 PROMPTS_BY_TYPE = {
-    # Roupas de Cima
-    "t-shirt": "A high-quality photo of the uploaded **T-SHIRT** transferred to the model" + BASE_STYLE_PROMPT,
-    "shirt": "A high-quality photo of the uploaded **COLLARED SHIRT** transferred to the model" + BASE_STYLE_PROMPT,
-    "blouse": "A high-quality photo of the uploaded **BLOUSE** transferred to the model" + BASE_STYLE_PROMPT,
-    "sweatshirt": "A high-quality photo of the uploaded **SWEATSHIRT/SWEATER** transferred to the model" + BASE_STYLE_PROMPT,
-    "jacket": "A high-quality photo of the uploaded **JACKET/COAT** transferred to the model" + BASE_STYLE_PROMPT,
-    
-    # Roupas de Baixo
-    "pants": "A high-quality photo of the uploaded **PANTS/TROUSERS** transferred to the model" + BASE_STYLE_PROMPT,
-    "shorts": "A high-quality photo of the uploaded **SHORTS** transferred to the model" + BASE_STYLE_PROMPT,
-    "skirt": "A high-quality photo of the uploaded **SKIRT** transferred to the model" + BASE_STYLE_PROMPT,
-    
-    # Peça Única
-    "dress": "A high-quality photo of the uploaded **DRESS** transferred to the model" + BASE_STYLE_PROMPT,
-
-    # Padrão de segurança (caso o tipo seja desconhecido)
-    "generic": "A high-quality photo of the uploaded **CLOTHING ITEM** transferred to the model" + BASE_STYLE_PROMPT 
+    "t-shirt": "upper body, a high quality cotton t-shirt, casual style, short sleeves" + STUDIO_BASE,
+    "shirt": "upper body, a crisp button-down collared shirt, formal style" + STUDIO_BASE,
+    "blouse": "upper body, an elegant feminine blouse, flowing fabric" + STUDIO_BASE,
+    "sweatshirt": "upper body, a thick comfortable sweatshirt, hoodie or crewneck" + STUDIO_BASE,
+    "jacket": "upper body, a stylish jacket or coat, structured fabric" + STUDIO_BASE,
+    "dress": "full body, a beautiful dress, one-piece garment, elegant flow" + STUDIO_BASE,
+    "pants": "lower body, stylish trousers or jeans, perfectly fitted legs" + STUDIO_BASE,
+    "shorts": "lower body, casual shorts, summer style, above knees" + STUDIO_BASE,
+    "skirt": "lower body, a fashion skirt, feminine style" + STUDIO_BASE,
+    "sneakers": "feet, stylish sneakers, athletic shoes, detailed laces and sole" + STUDIO_BASE,
+    "boots": "feet, leather or suede boots, sturdy footwear" + STUDIO_BASE,
+    "shoes": "feet, formal leather shoes or loafers, shiny texture" + STUDIO_BASE,
+    "sandals": "feet, open footwear, sandals, strappy details" + STUDIO_BASE,
+    "cap": "head, a baseball cap with visor, streetwear accessory" + STUDIO_BASE,
+    "hat": "head, a stylish hat, fashion accessory" + STUDIO_BASE,
+    "glasses": "face, stylish sunglasses or eyewear, reflective lenses" + STUDIO_BASE,
+    "generic": "clothing item, high quality fashion item" + STUDIO_BASE
 }
 
-# Negative prompt para evitar erros de renderização e ruídos de fundo
-NEGATIVE_PROMPT = "change of clothing, altered torso, item not transferred, distorted body, extra arms, missing limbs, artifacts, blur, low quality, duplicate, bad fit, wrinkled clothing, dark shadows, colored background, distracting background, text, watermark"
+NEGATIVE_PROMPT = "change of clothing, altered torso, item not transferred, distorted body, extra arms, missing limbs, artifacts, blur, low quality, duplicate, bad fit, wrinkled clothing, dark shadows, colored background, distracting background, text, watermark, painting, cartoon"
 
 def _params(quality, clothing_type, seed):
-    # A variável clothing_type agora virá do front-end (t-shirt, pants, etc.)
-    base = {
-        # Usa o prompt ancornado pela categoria:
-        "clothing_prompt": PROMPTS_BY_TYPE.get(clothing_type, PROMPTS_BY_TYPE["generic"]), 
+    ctype = str(clothing_type).lower().strip()
+    
+    # Mapeamento
+    category_map = "upper_body"
+    if ctype in ['pants', 'shorts', 'skirt', 'sneakers', 'boots', 'shoes', 'sandals']:
+        category_map = "lower_body"
+    elif ctype == 'dress':
+        category_map = "dresses"
+    
+    selected_prompt = PROMPTS_BY_TYPE.get(ctype, PROMPTS_BY_TYPE["generic"])
+
+    return {
+        "clothing_prompt": selected_prompt,
         "negative_prompt": NEGATIVE_PROMPT,
-        
-        # O prompt do avatar continua focado no modelo limpo:
-        "avatar_prompt": "full body studio photo, professional model pose, clear sharp face, realistic skin texture",
-        
-        # O prompt do background reforça o fundo branco e sem costuras:
-        "background_prompt": "neutral white or gray seamless background, professional studio setup",
-        
-        "preserve_face": True, "preserve_body": True, "preserve_background": True,
-        "apply_mask": True, "mask_mode": "clothing_only", "seed": seed,
+        "category": category_map, 
+        "seed": seed,
+        "guidance_scale": 2.5,
+        "num_inference_steps": 30,
     }
-    # ... (o resto da função _params permanece igual) ...
-    if quality == "high":
-        base.update({"steps": 60, "guidance_scale": 7.5})
-    elif quality == "ultra":
-        base.update({"steps": 75, "guidance_scale": 7.2, "enhance": True})
-    else:
-        base.update({"steps": 45, "guidance_scale": 7.8})
-    return base
 
 @method_decorator(csrf_exempt, name="dispatch")
 class TryOnDiffusionView(APIView):
@@ -78,67 +69,53 @@ class TryOnDiffusionView(APIView):
     def post(self, request):
         avatar_file = request.FILES.get("avatar_image")
         clothing_file = request.FILES.get("clothing_image")
-        background_file = request.FILES.get("background_image")
-
-        avatar_url = request.data.get("avatar_image_url")
-        clothing_url = request.data.get("clothing_image_url")
-        background_url = request.data.get("background_image_url")
-
-        clothing_type = (request.data.get("clothing_type") or "").lower()
+        
+        clothing_type = (request.data.get("category") or "generic").lower() 
         quality = request.data.get("quality", "standard")
-        seed = request.data.get("seed")
+        seed = request.data.get("seed", -1)
 
-        use_file = any([avatar_file, clothing_file, background_file])
-        url = f"{settings.TRY_ON_BASE_URL}/try-on-file" if use_file else f"{settings.TRY_ON_BASE_URL}/try-on"
+        # URL e Headers
+        url = f"{settings.TRY_ON_BASE_URL}/try-on-file"
         headers = {"X-RapidAPI-Key": settings.TRY_ON_API_KEY, "X-RapidAPI-Host": settings.TRY_ON_API_HOST}
+        
         params = _params(quality, clothing_type, seed)
 
-        logger.info(f"TRY-ON {clothing_type or 'generic'} | q={quality} | endpoint={url}")
+        logger.info(f"TRY-ON REQUEST | Tipo: {clothing_type} | Map: {params['category']}")
 
         try:
-            if use_file:
-                files = {}
-                if avatar_file: files["avatar_image"] = resize_image(avatar_file)
+            files = {}
+            
+            if avatar_file:
+                # --- ALTERAÇÃO DE DEBUG ---
+                # Vamos enviar apenas redimensionado por enquanto para testar se o erro é o rembg
+                # print("Processando avatar para estúdio...")
+                # files["avatar_image"] = prepare_avatar_for_studio(avatar_file)
+                
+                # Usa resize simples (mais seguro para teste)
+                files["avatar_image"] = resize_image(avatar_file)
+            
+            if clothing_file:
+                files["clothing_image"] = resize_image(clothing_file)
 
-                mask_tuple = None
-                if clothing_file:
-                    name, bytes_, ctype = resize_image(clothing_file)
-                    if clothing_type in ["pants", "shorts", "skirt"]:
-                        mask_tuple = gen_mask_from_clothing(bytes_)
-                        if mask_tuple:
-                            files["mask_image"] = mask_tuple
-                            params["apply_mask"] = True; params["mask_mode"] = "clothing_only"
-                    files["clothing_image"] = (name, bytes_, ctype)
+            if not files:
+                return Response({"error": "Nenhuma imagem recebida"}, status=400)
 
-                if background_file: files["background_image"] = resize_image(background_file)
+            # Envia
+            print("Enviando para API externa...") # Debug no terminal
+            resp = requests.post(url, headers=headers, files=files, data=params, timeout=120)
 
-                resp = requests.post(url, headers=headers, files=files, data=params, timeout=150)
-            else:
-                if not (avatar_url and clothing_url):
-                    return Response({"error": "Envie avatar_image_url e clothing_image_url ou arquivos válidos."}, status=400)
-                payload = {**params, "avatar_image_url": avatar_url, "clothing_image_url": clothing_url}
-                if background_url: payload["background_image_url"] = background_url
-                headers["Content-Type"] = "application/json"
-                resp = requests.post(url, headers=headers, json=payload, timeout=150)
-
-            ctype = resp.headers.get("Content-Type", "").lower()
             if resp.status_code == 200:
-                if "image" in ctype or "octet-stream" in ctype:
-                    enhanced = enhance_output(resp.content)
-                    return HttpResponse(enhanced, content_type="image/jpeg")
-                if "application/json" in ctype:
+                try:
                     return Response(resp.json(), status=200)
-                return Response({"warning": "Tipo de resposta inesperado", "content_type": ctype}, status=200)
+                except:
+                    return HttpResponse(resp.content, content_type="image/png")
+            
+            # --- DEBUG DO ERRO ---
+            # Isso vai aparecer no seu terminal do VS Code
+            print(f"❌ ERRO API EXTERNA ({resp.status_code}): {resp.text}")
+            
+            return Response({"error": "Falha na API externa", "details": resp.json() if resp.status_code == 400 else resp.text}, status=resp.status_code)
 
-            # erro
-            try:
-                err = resp.json()
-            except Exception:
-                err = {"raw": resp.text}
-            return Response({"error": "Falha na API externa", "details": err}, status=resp.status_code)
-
-        except requests.exceptions.Timeout:
-            return Response({"error": "Tempo limite excedido na comunicação com a API externa."}, status=status.HTTP_504_GATEWAY_TIMEOUT)
         except Exception as e:
             logger.exception(f"Erro interno: {e}")
-            return Response({"error": "Erro interno no servidor Django", "details": str(e)}, status=500)
+            return Response({"error": "Erro interno no servidor", "details": str(e)}, status=500)
