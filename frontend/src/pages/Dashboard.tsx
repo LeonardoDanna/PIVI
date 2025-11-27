@@ -119,7 +119,7 @@ const Dashboard = () => {
       <div className="flex justify-between items-end border-b border-slate-200 pb-6">
         <div>
           <h2 className="text-3xl font-bold text-slate-900">
-            Boa noite, Felipe!
+            Bom dia, Felipe!
           </h2>
           <p className="text-slate-500 mt-1">
             Aqui estão as recomendações para sua {today}.
