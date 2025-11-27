@@ -2,7 +2,8 @@ from django.urls import path
 from .views import TryOnDiffusionView, RemoveBackgroundView, RemoveBackgroundLocalView, hello
 from .views.closet import ClosetItemListCreateView, ClosetItemDeleteView
 from .auth_views import register, login
-from .token import get_csrf_token
+from .token import get_csrf_token   
+from .views.stylist import chat_with_stylist
 
 urlpatterns = [
     path("try-on-diffusion/", TryOnDiffusionView.as_view(), name="try_on_diffusion"),
@@ -14,4 +15,5 @@ urlpatterns = [
     path("csrf/", get_csrf_token, name="csrf"),
     path('closet/', ClosetItemListCreateView.as_view(), name='closet-list-create'),
     path('closet/<int:pk>/', ClosetItemDeleteView.as_view(), name='closet-delete'),
+    path('stylist/chat/', chat_with_stylist, name='stylist-chat'),
 ]

@@ -8,6 +8,7 @@ import {
   Sparkles,
   LogOut,
   Bell,
+  TrendingUp,
 } from "lucide-react";
 
 const MainLayout = () => {
@@ -56,6 +57,7 @@ const MainLayout = () => {
     { id: "closet", label: "Armário Virtual", icon: <Package size={20} /> },
     { id: "matches", label: "Combinações", icon: <User size={20} /> },
     { id: "fit", label: "Guia de Caimento", icon: <Ruler size={20} /> },
+    { id: "stylist", label: "Stylist AI", icon: <TrendingUp size={20} /> },
     { id: "tryon", label: "Provador Virtual", icon: <Sparkles size={20} /> },
   ];
 

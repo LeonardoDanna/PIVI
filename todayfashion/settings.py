@@ -23,6 +23,9 @@ TRY_ON_BASE_URL = "https://try-on-diffusion.p.rapidapi.com"
 TRY_ON_API_KEY = "fcca3320dfmsh03d10c1b184eb0fp19e3d8jsn2411cc31418c"
 TRY_ON_API_HOST = "try-on-diffusion.p.rapidapi.com"
 
+# settings.py
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
 # ==============================
 # CONFIGURAÇÃO DA API REMOVE.BG
 # ==============================

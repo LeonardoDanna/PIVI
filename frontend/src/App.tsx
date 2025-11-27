@@ -6,6 +6,7 @@ import Closet from "./pages/Closet";
 import Matches from "./pages/Matches";
 import FitGuide from "./pages/FitGuide";
 import TryOn from "./pages/TryOn";
+import StylistAI from "./pages/StylistAi";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -41,6 +42,7 @@ function App() {
           <Route path="matches" element={<Matches />} />
           <Route path="fit" element={<FitGuide />} />
           <Route path="tryon" element={<TryOn />} />
+          <Route path="stylist" element={<StylistAI />} />
 
           {/* Rota Coringa */}
           <Route path="*" element={<Navigate to="/" replace />} />
