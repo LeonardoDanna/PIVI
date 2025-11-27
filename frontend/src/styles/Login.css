@@ -1,0 +1,103 @@
+/* Layout geral dividido */
+.auth-wrapper {
+  display: flex;
+  height: 100vh;
+  font-family: "Inter", sans-serif;
+}
+
+/* Lado da imagem */
+.auth-image-side {
+  width: 50%;
+  background-image: url("../assets/images/image.png"); /* <-- COLOQUE A URL/ARQUIVO AQUI */
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(100%);
+  position: relative;
+}
+
+.auth-image-overlay {
+  position: absolute;
+  bottom: 50px;
+  left: 50px;
+  color: white;
+  font-size: 42px;
+  font-weight: 700;
+}
+
+/* Lado do formulário */
+.auth-form-side {
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: white;
+}
+
+/* Card */
+.auth-card {
+  width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.auth-title {
+  font-size: 32px;
+  margin-bottom: 10px;
+  color: #111;
+  font-weight: 700;
+}
+
+/* Inputs maiores */
+input {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+}
+
+input:focus {
+  border-color: #000;
+}
+
+/* Botão */
+.auth-btn {
+  margin-top: 10px;
+  background: black;
+  color: white;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.auth-btn:hover {
+  opacity: 0.85;
+}
+
+/* Links */
+.auth-link {
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.auth-link a {
+  color: black;
+  font-weight: 600;
+}
+
+.auth-error {
+  color: red;
+  font-size: 14px;
+}
+
+.auth-logo {
+  width: 130px;           /* um pouco maior */
+  display: block;
+  margin: -15px auto 30px; /* puxa pra cima (-10px) e aumenta espaço pra baixo */
+  filter: contrast(1.4) brightness(1.1); /* mais contraste e mais brilho */
+  opacity: 1;             /* mais forte */
+}
