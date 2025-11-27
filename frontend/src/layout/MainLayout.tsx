@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   Sun,
@@ -9,6 +9,12 @@ import {
   LogOut,
   Bell,
   TrendingUp,
+  // --- NOVOS IMPORTS ADICIONADOS ---
+  CloudRain,
+  Shirt,
+  Tag,
+  CheckCheck,
+  X,
 } from "lucide-react";
 
 // --- DADOS MOCKADOS DAS NOTIFICAÇÕES ---
@@ -43,7 +49,7 @@ const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [userName, setUserName] = useState("Visitante");
-  
+
   // --- ESTADOS PARA NOTIFICAÇÕES ---
   const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -72,7 +78,10 @@ const MainLayout = () => {
   // --- FECHAR NOTIFICAÇÕES AO CLICAR FORA ---
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+      if (
+        notifRef.current &&
+        !notifRef.current.contains(event.target as Node)
+      ) {
         setIsNotifOpen(false);
       }
     };
@@ -109,10 +118,14 @@ const MainLayout = () => {
   // Helper para ícones da notificação
   const getNotifIcon = (type: string) => {
     switch (type) {
-      case "weather": return <CloudRain size={16} className="text-blue-500" />;
-      case "match": return <Shirt size={16} className="text-purple-500" />;
-      case "promo": return <Tag size={16} className="text-green-500" />;
-      default: return <Sparkles size={16} className="text-yellow-500" />;
+      case "weather":
+        return <CloudRain size={16} className="text-blue-500" />;
+      case "match":
+        return <Shirt size={16} className="text-purple-500" />;
+      case "promo":
+        return <Tag size={16} className="text-green-500" />;
+      default:
+        return <Sparkles size={16} className="text-yellow-500" />;
     }
   };
 
@@ -188,14 +201,15 @@ const MainLayout = () => {
             <h2 className="text-2xl font-bold text-slate-800">Painel</h2>
             <p className="text-slate-500 text-sm">Bem-vindo ao seu estilo</p>
           </div>
-          
+
           <div className="flex items-center gap-4">
-            
             {/* --- ÁREA DE NOTIFICAÇÕES (DROPDOWN) --- */}
             <div className="relative" ref={notifRef}>
-              <button 
+              <button
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
-                className={`p-2 transition relative rounded-full hover:bg-slate-100 ${isNotifOpen ? 'bg-slate-100 text-slate-800' : 'text-slate-400'}`}
+                className={`p-2 transition relative rounded-full hover:bg-slate-100 ${
+                  isNotifOpen ? "bg-slate-100 text-slate-800" : "text-slate-400"
+                }`}
               >
                 <Bell size={20} />
                 {unreadCount > 0 && (
@@ -207,9 +221,11 @@ const MainLayout = () => {
               {isNotifOpen && (
                 <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden animation-fade-in-down origin-top-right">
                   <div className="p-4 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
-                    <h3 className="font-bold text-sm text-slate-700">Notificações</h3>
+                    <h3 className="font-bold text-sm text-slate-700">
+                      Notificações
+                    </h3>
                     {unreadCount > 0 && (
-                      <button 
+                      <button
                         onClick={handleMarkAsRead}
                         className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
                       >
@@ -217,7 +233,7 @@ const MainLayout = () => {
                       </button>
                     )}
                   </div>
-                  
+
                   <div className="max-h-80 overflow-y-auto">
                     {notifications.length === 0 ? (
                       <div className="p-8 text-center text-slate-400 text-sm">
@@ -225,28 +241,38 @@ const MainLayout = () => {
                       </div>
                     ) : (
                       notifications.map((notif) => (
-                        <div 
-                          key={notif.id} 
-                          className={`p-4 border-b border-slate-50 hover:bg-slate-50 transition flex gap-3 relative group ${notif.read ? 'opacity-60' : 'bg-blue-50/30'}`}
+                        <div
+                          key={notif.id}
+                          className={`p-4 border-b border-slate-50 hover:bg-slate-50 transition flex gap-3 relative group ${
+                            notif.read ? "opacity-60" : "bg-blue-50/30"
+                          }`}
                         >
                           <div className="mt-1 bg-white p-2 rounded-full shadow-sm border border-slate-100 h-fit">
                             {getNotifIcon(notif.type)}
                           </div>
                           <div className="flex-1 pr-6">
-                            <h4 className="text-sm font-bold text-slate-800 mb-0.5">{notif.title}</h4>
-                            <p className="text-xs text-slate-500 leading-relaxed">{notif.message}</p>
-                            <span className="text-[10px] font-bold text-slate-400 mt-2 block uppercase tracking-wide">{notif.time}</span>
+                            <h4 className="text-sm font-bold text-slate-800 mb-0.5">
+                              {notif.title}
+                            </h4>
+                            <p className="text-xs text-slate-500 leading-relaxed">
+                              {notif.message}
+                            </p>
+                            <span className="text-[10px] font-bold text-slate-400 mt-2 block uppercase tracking-wide">
+                              {notif.time}
+                            </span>
                           </div>
-                          
+
                           {/* Botão de Excluir (aparece no hover) */}
-                          <button 
-                            onClick={(e) => handleDeleteNotification(notif.id, e)}
+                          <button
+                            onClick={(e) =>
+                              handleDeleteNotification(notif.id, e)
+                            }
                             className="absolute top-2 right-2 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition p-1"
                             title="Remover"
                           >
                             <X size={14} />
                           </button>
-                          
+
                           {/* Bolinha azul se não lido */}
                           {!notif.read && (
                             <span className="absolute top-4 right-4 w-2 h-2 bg-blue-500 rounded-full"></span>
@@ -256,7 +282,9 @@ const MainLayout = () => {
                     )}
                   </div>
                   <div className="p-2 bg-slate-50 text-center border-t border-slate-100">
-                    <button className="text-xs font-bold text-slate-500 hover:text-slate-800 transition">Ver histórico completo</button>
+                    <button className="text-xs font-bold text-slate-500 hover:text-slate-800 transition">
+                      Ver histórico completo
+                    </button>
                   </div>
                 </div>
               )}
