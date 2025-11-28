@@ -6,6 +6,10 @@ import { useNavigate } from "react-router-dom";
 const Dashboard = () => {
   const navigate = useNavigate();
 
+  // 1. Estados para Nome e Saudação
+  const [userName, setUserName] = useState("Visitante");
+  const [greeting, setGreeting] = useState("Olá");
+
   const [weather, setWeather] = useState<{
     temp: number;
     condition: string;
@@ -27,6 +31,36 @@ const Dashboard = () => {
   ];
   const today = weekdays[new Date().getDay()];
 
+  // 2. useEffect para carregar Usuário e definir Saudação
+  useEffect(() => {
+    // --- Lógica do Nome ---
+    const storedUser = localStorage.getItem("loggedUser");
+    if (storedUser) {
+      try {
+        const parsed = JSON.parse(storedUser);
+        // Tenta pegar username, name ou usa a string direta
+        const name =
+          typeof parsed === "object"
+            ? parsed.username || parsed.name || "Usuário"
+            : parsed;
+        setUserName(name);
+      } catch (e) {
+        setUserName(storedUser);
+      }
+    }
+
+    // --- Lógica do Horário ---
+    const currentHour = new Date().getHours();
+    if (currentHour >= 5 && currentHour < 12) {
+      setGreeting("Bom dia");
+    } else if (currentHour >= 12 && currentHour < 18) {
+      setGreeting("Boa tarde");
+    } else {
+      setGreeting("Boa noite");
+    }
+  }, []);
+
+  // Busca do clima (mantida igual)
   useEffect(() => {
     const fetchWeather = async () => {
       try {
@@ -115,11 +149,12 @@ const Dashboard = () => {
 
   return (
     <div className="animate-fade-in space-y-8">
-      {/* 🔹 Cabeçalho */}
+      {/* 🔹 Cabeçalho Editado */}
       <div className="flex justify-between items-end border-b border-slate-200 pb-6">
         <div>
           <h2 className="text-3xl font-bold text-slate-900">
-            Bom dia, Felipe!
+            {/* Aqui usamos as variáveis de estado */}
+            {greeting}, {userName}!
           </h2>
           <p className="text-slate-500 mt-1">
             Aqui estão as recomendações para sua {today}.

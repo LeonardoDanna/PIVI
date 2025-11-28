@@ -145,7 +145,7 @@ const MainLayout = () => {
         <div className="p-8">
           <h1 className="text-xl font-black tracking-tighter flex items-center gap-2">
             <div className="w-8 h-8 bg-slate-900 rounded-lg"></div>
-            TodayFashion
+            Today's Fashion
           </h1>
         </div>
 
