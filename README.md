@@ -78,3 +78,6 @@ npm run dev
 cd frontend
 npm run build
 ```
+
+<img width="800" height="397" alt="image" src="https://github.com/user-attachments/assets/bce98a19-18b4-4529-91b5-17dc1f457d43" />
+
